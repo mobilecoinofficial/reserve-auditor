@@ -1,0 +1,300 @@
+// Copyright (c) 2018-2022 The MobileCoin Foundation
+
+// MUST BE KEPT IN SYNC WITH RUST CODE!
+
+// Reserve auditor client data types and service descriptors.
+
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "external.proto";
+
+package reserve_auditor;
+
+
+option java_package = "com.mobilecoin.reserve_auditor";
+option java_outer_classname = "ReserveAuditor";
+
+service ReserveAuditorApi {
+    rpc GetBlockAuditData(GetBlockAuditDataRequest) returns (GetBlockAuditDataResponse) {}
+    rpc GetLastBlockAuditData(google.protobuf.Empty) returns (GetLastBlockAuditDataResponse) {}
+    rpc GetCounters(google.protobuf.Empty) returns (Counters) {}
+}
+
+/// Diesel model for the `audited_burns` table.
+/// This stores audit data linking BurnTxOuts with matching
+/// GnosisSafeWithdrawals.
+message AuditedBurn {
+    /// Id (required to keep Diesel happy).
+    uint32 id = 1;
+
+    /// Id pointing to the BurnTxOut table.
+    uint32 burn_tx_out_id = 2;
+
+    /// Id pointing to the GnosisSafeWithdrawal table.
+    uint32 gnosis_safe_withdrawal_id = 3;
+}
+
+/// Diesel model for the `audited_mints` table.
+/// This stores audit data linking MintTxs with matching GnosisSafeDeposits.
+message AuditedMint {
+    /// Id (required to keep Diesel happy).
+    uint32 id = 1;
+
+    /// Id pointing to the MintTx table.
+    uint32 mint_tx_id = 2;
+
+    /// Id pointing to the GnosisSafeDeposit table.
+    uint32 gnosis_safe_deposit_id = 3;
+}
+
+/// Audit data for a single block.
+message BlockAuditData {
+    // The block index this audit data is for.
+    uint64 block_index = 1;
+}
+
+/// Balance data for a single block.
+message BlockBalance {
+    /// Block index.
+    uint64 block_index = 1;
+
+    /// Token id.
+    uint64 token_id = 2;
+
+    /// Balanace.
+    int64 balance = 3;
+}
+
+/// Data for a single burn tx out.
+message BurnTxOut {
+    /// Auto incrementing primary key.
+    uint32 id = 1;
+
+    /// The block index at which this burn tx appreared.
+    uint64 block_index = 2;
+
+    /// The token id this burn tx is for.
+    uint64 token_id = 3;
+
+    /// The amount being burned.
+    int64 amount = 4;
+
+    /// The TxOut public key, as hex-encoded bytes.
+    string public_key_hex = 5;
+
+    /// The protobuf-serialized BurnTxOut.
+    repeated uint32 protobuf = 6;
+}
+
+/// Statistics to keep track of
+message Counters {
+    /// Id (required to keep Diesel happy).
+    uint32 id = 1;
+
+    /// Number of blocks synced so far.
+    uint64 num_blocks_synced = 2;
+
+    /// Number of burn transactions that exceeded the minted amount.
+    uint64 num_burns_exceeding_balance = 3;
+
+    /// Number of mint transactions that did not match an active mint
+    /// configuration.
+    uint64 num_mint_txs_without_matching_mint_config = 4;
+
+    /// Number of mismatching MintTxs and Gnosis deposits.
+    uint64 num_mismatching_mints_and_deposits = 5;
+
+    /// Number of mismatching BurnTxOuts and Gnosis withdrawals.
+    uint64 num_mismatching_burns_and_withdrawals = 6;
+
+    /// Number of times we encountered deposits to an unknown Ethereum token
+    /// contract address.
+    uint64 num_unknown_ethereum_token_deposits = 7;
+
+    /// Number of times we encountered withdrawals from an unknown Ethereum
+    /// token contract address.
+    uint64 num_unknown_ethereum_token_withdrawals = 8;
+
+    /// Number of times we encountered a mint that is associated with an
+    /// unaudited safe.
+    uint64 num_mints_to_unknown_safe = 9;
+
+    /// Number of times we encountered a burn that is associated with an
+    /// unaudited safe.
+    uint64 num_burns_from_unknown_safe = 10;
+
+    /// Number of times we encountered an Ethereum transfer that did not have a valid structure.
+    uint64 num_invalid_ethereum_transactions = 11;
+
+    /// Number of times we encountered an Ethereum MultiSig transaction that did not have a valid structure.
+    uint64 num_invalid_multi_sig_transactions = 12;
+
+    /// Number of unexpected errors attempting to match deposits to mints.
+    uint64 num_unexpected_errors_matching_deposits_to_mints = 13;
+
+    // Number of unexpected errors attempting to match mints to deposits.
+    uint64 num_unexpected_errors_matching_mints_to_deposits = 14;
+
+    // Number of unexpected errors attempting to match withdrawals to burns.
+    uint64 num_unexpected_errors_matching_withdrawals_to_burns = 15;
+
+    // Number of unexpected errors attempting to match burns to withdrawals.
+    uint64 num_unexpected_errors_matching_burns_to_withdrawals = 16;
+}
+
+/// A Gnosis Safe deposit (transfer into the safe).
+message GnosisSafeDeposit {
+    /// Auto incrementing primary key.
+    int32 id = 1;
+
+    /// Ethereum transaction hash.
+    string eth_tx_hash = 2;
+
+    /// Ethereum transaction value
+    string eth_tx_value = 3;
+
+    /// Ethereum block number.
+    uint64 eth_block_number = 4;
+
+    /// Gnosis safe address receiving the deposit.
+    string safe_addr = 5;
+
+    /// Token contract address that is being deposited.
+    string token_addr = 6;
+
+    /// The Ethereum address that sent the transaction to the gnosis safe.
+    string from_addr = 7;
+
+    /// Amount deposited, truncated to associated mob-chain token's precision
+    uint64 amount = 8;
+
+    /// The hex-encoded MintTx nonce we expect to see on the MobileCoin
+    /// blockchain
+    string expected_mc_mint_tx_nonce_hex = 9;
+}
+
+/// A Gnosis Safe transaction.
+message GnosisSafeTx {
+    /// The Ethererum transaction hash.
+    string eth_tx_hash = 1;
+
+    /// The raw JSON transaction, as received from the Gnosis API service.
+    string raw_tx_json = 2;
+}
+
+/// A Gnosis Safe withdrawal (transfer out of the safe).
+message GnosisSafeWithdrawal {
+    /// Id (required to keep Diesel happy).
+    int32 id = 1;
+
+    /// Ethereum transaction hash.
+    string eth_tx_hash = 2;
+
+    /// Ethereum transaction value.
+    string eth_tx_value = 3;
+
+    /// Ethereum block number.
+    uint64 eth_block_number = 4;
+
+    /// Gnosis safe address being withdrawn from.
+    string safe_addr = 5;
+
+    /// Token contract address that is being withdrawn.
+    string token_addr = 6;
+
+    /// The ethereum address of the transaction recipient.
+    string to_addr = 7;
+
+    /// Amount withdrawn, truncated to associated mob-chain token's precision
+    uint64 amount = 8;
+
+    /// Associated mobilecoin transaction public key (hex-encoded).
+    external.CompressedRistretto mc_tx_out_pub_key = 9;
+}
+
+/// Mint Configuration transaction details
+message MintConfigTx {
+    /// Auto incrementing primary key.
+    uint32 id = 1;
+
+    /// The block index at which this mint config tx appreared.
+    uint64 block_index = 2;
+
+    /// The token id this mint config tx is for.
+    uint64 token_id = 3;
+
+    /// The nonce, as hex-encoded bytes.
+    string nonce_hex = 4;
+
+    /// The maximal amount that can be minted by configurations specified in
+    /// this tx. This amount is shared amongst all configs.
+    uint64 total_mint_limit = 5;
+
+    /// Tombstone block.
+    uint64 tombstone_block = 6;
+
+    /// The protobuf-serialized MintConfigTx.
+    repeated uint32 protobuf = 7;
+}
+
+/// Mint configuration details
+message MintConfig {
+    /// Auto incrementing primary key.
+    uint32 id = 1;
+
+    /// id linking to the mint_config_txs table.
+    uint32 mint_config_tx_id = 2;
+
+    /// The maximal amount this configuration can mint from the moment it has
+    /// been applied.
+    uint64 mint_limit = 3;
+
+    /// The protobuf-serialized MintConfig.
+    repeated uint32 protobuf = 4;
+}
+
+/// MintTx details
+message MintTx {
+    /// Auto incrementing primary key.
+    uint32 id = 1;
+
+    /// The block index at which this mint tx appreared.
+    uint64 block_index = 2;
+
+    /// The token id this mint tx is for.
+    uint64 token_id = 3;
+
+    /// The amount being minted.
+    uint64 amount = 4;
+
+    /// The nonce, as hex-encoded bytes.
+    string nonce_hex = 5;
+
+    /// The recipient of the mint.
+    string recipient_b58_addr = 6;
+
+    /// Tombstone block.
+    uint64 tombstone_block = 7;
+
+    /// The protobuf-serialized MintTx.
+    repeated uint32 protobuf = 8;
+
+    /// The mint config id, when we are able to match it with one.
+    uint32 mint_config_id = 9;
+}
+
+message GetBlockAuditDataRequest {
+    // The block index we are getting data for.
+    uint64 block_index = 1;
+}
+
+message GetBlockAuditDataResponse {
+    // Audit data for the requested block
+    BlockAuditData block_audit_data = 1;
+}
+
+
+message GetLastBlockAuditDataResponse {
+    // Audit data for the last block
+    BlockAuditData block_audit_data = 1;
+}

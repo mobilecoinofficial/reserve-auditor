@@ -1,0 +1,71 @@
+name: Reserve Auditor CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+      - develop
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  build:
+    runs-on: [self-hosted, Linux, large]
+    container: mobilecoin/builder-install:v0.0.18
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+      - name: Cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --locked
+      - name: Check dirty git
+        uses: ./.github/actions/check-dirty-git
+  lint-rust:
+    runs-on: [self-hosted, Linux, large]
+    container: mobilecoin/builder-install:v0.0.18
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+        with:
+          components: rustfmt, clippy
+      - name: Run lint script
+        uses: ./.github/actions/lint
+      - name: Check dirty git
+        uses: ./.github/actions/check-dirty-git
+  test:
+    runs-on: [self-hosted, Linux, large]
+    container: mobilecoin/builder-install:v0.0.18
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
+      - name: Cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --locked
+      - name: Check dirty git
+        uses: ./.github/actions/check-dirty-git

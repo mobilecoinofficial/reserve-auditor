@@ -1,0 +1,20 @@
+{
+    "safes": [{
+        "safe_addr": "0x36c4A3e3838974bb94Da7fC836987A68C7c0D34D",
+        "api_url": "https://safe-transaction.goerli.gnosis.io/",
+        "tokens": [
+            {
+                "token_id": 1,
+                "token_type": "ERC20_TRANSFER",
+                "eth_token_contract_addr": "0xeC76FbFD75481839e456C4cb2cd23cda813f19B1",
+                "name": "gRSV",
+                "symbol": "Token",
+                "decimals": 18,
+                "logo_uri": "",
+                "aux_burn_contract_addr": "0x89d2c2C7853AD6015d50f39A615196e17f13Cf59",
+                "aux_burn_function_sig": [199, 111, 6, 53]
+            }
+        ],
+        "token_decimals_max": 6
+    }]
+}

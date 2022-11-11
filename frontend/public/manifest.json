@@ -1,0 +1,25 @@
+{
+  "short_name": "Reserve Auditor",
+  "name": "MobileCoin Reserve Auditor",
+  "icons": [
+    {
+      "src": "eusd.ico",
+      "sizes": "64x64 48x48 32x32 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "mobilecoin256.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "mobilecoin512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

@@ -84,9 +84,11 @@ pub fn get_audited_mints(
 /// Get a paginated list of gnosis safe deposits that don't have a corresponding mint tx
 #[get("/unaudited_gnosis_deposits")]
 pub fn get_unaudited_gnosis_deposits(
+    offset: Option<u64>,
+    limit: Option<u64>,
     service: &State<ReserveAuditorHttpService>,
 ) -> Result<Json<Vec<UnauditedGnosisDepositResponse>>, String> {
-    match service.get_unaudited_gnosis_deposits() {
+    match service.get_unaudited_gnosis_deposits(offset, limit) {
         Ok(unaudited_gnosis_deposits) => Ok(Json(unaudited_gnosis_deposits)),
         Err(e) => Err(e.to_string()),
     }
@@ -109,9 +111,11 @@ pub fn get_audited_burns(
 /// Get a paginated list of burn transactions that don't have a corresponding gnosis withdrawals
 #[get("/unaudited_burn_tx_outs")]
 pub fn get_unaudited_burn_tx_outs(
+    offset: Option<u64>,
+    limit: Option<u64>,
     service: &State<ReserveAuditorHttpService>,
 ) -> Result<Json<Vec<UnauditedBurnTxOutResponse>>, String> {
-    match service.get_unaudited_burn_tx_outs() {
+    match service.get_unaudited_burn_tx_outs(offset, limit) {
         Ok(unpaired_burn_txs) => Ok(Json(unpaired_burn_txs)),
         Err(e) => Err(e.to_string()),
     }

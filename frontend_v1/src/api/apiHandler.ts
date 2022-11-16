@@ -62,28 +62,12 @@ export const getAuditedMints = async (page: number): Promise<TAuditedMint> => {
   return camelCaseKeys(response) as TAuditedMint
 }
 
-export const getUnauditedGnosisSafeDeposits = async (page: number): Promise<TGnosisSafeDeposit> => {
-  const { offset, limit } = paginate(page)
-  const response = await get<TUnauditedGnosisSafeDepositResponse>(
-    `/unaudited_gnosis_deposits?offset=${offset}&limit=${limit}`
-  )
-  return camelCaseKeys(response) as TGnosisSafeDeposit
-}
-
 export const getAuditedBurns = async (page: number): Promise<TAuditedBurn> => {
   const { offset, limit } = paginate(page)
   const response = await get<TAuditedBurnResponse>(
     `/audited_burns?offset=${offset}&limit=${limit}`
   )
   return camelCaseKeys(response) as TAuditedBurn
-}
-
-export const getUnauditedBurnTxOuts = async (page: number): Promise<TBurnTxOut> => {
-  const { offset, limit } = paginate(page)
-  const response = await get<TUnauditedBurnTxOutResponse>(
-    `/unaudited_burn_tx_outs?offset=${offset}&limit=${limit}`
-  )
-  return camelCaseKeys(response) as TBurnTxOut
 }
 
 export const getGnosisSafeBalance = async (

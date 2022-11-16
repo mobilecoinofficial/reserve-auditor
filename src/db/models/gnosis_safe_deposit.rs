@@ -146,18 +146,30 @@ impl GnosisSafeDeposit {
 
     /// Attempt to find all [GnosisSafeDeposit]s that do not have a matching
     /// entry in the `audited_mints` table.
-    pub fn find_unaudited_deposits(conn: &Conn) -> Result<Vec<Self>, Error> {
-        Ok(gnosis_safe_deposits::table
-            .filter(not(exists(
-                audited_mints::table
-                    .select(audited_mints::gnosis_safe_deposit_id)
-                    .filter(
-                        audited_mints::gnosis_safe_deposit_id
-                            .nullable()
-                            .eq(gnosis_safe_deposits::id),
-                    ),
-            )))
-            .load(conn)?)
+    pub fn find_unaudited_deposits(
+        offset: Option<u64>,
+        limit: Option<u64>,
+        conn: &Conn,
+    ) -> Result<Vec<Self>, Error> {
+        let mut query = gnosis_safe_deposits::table.filter(not(exists(
+            audited_mints::table
+                .select(audited_mints::gnosis_safe_deposit_id)
+                .filter(
+                    audited_mints::gnosis_safe_deposit_id
+                        .nullable()
+                        .eq(gnosis_safe_deposits::id),
+                ),
+        )));
+
+        if let Some(o) = offset {
+            query = query.offset(o as i64);
+        }
+
+        if let Some(l) = limit {
+            query = query.limit(l as i64);
+        }
+
+        Ok(query.load(conn)?)
     }
 
     /// Attempt to find a [GnosisSafeDeposit] that has a given nonce and no

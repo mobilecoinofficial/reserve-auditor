@@ -5,7 +5,6 @@ import { Header } from './layout/Header'
 import { AuditList } from './layout/AuditList'
 import { Balances } from './layout/Balances'
 import { GnosisSafeProvider } from './contexts'
-import TransactionListContainer from './components/transaction_lists/TransactionListContainer'
 
 export const App = () => {
   const theme = createTheme({
@@ -39,7 +38,6 @@ export const App = () => {
             backgroundColor: '#004e80',
           }}
         >
-          <TransactionListContainer></TransactionListContainer>
           <Header />
           <Balances />
           <AuditList />

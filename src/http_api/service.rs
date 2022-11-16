@@ -114,10 +114,12 @@ impl ReserveAuditorHttpService {
     /// Get a list of gnosis safe deposists that do not have a corresponding mint tx
     pub fn get_unaudited_gnosis_deposits(
         &self,
+        offset: Option<u64>,
+        limit: Option<u64>,
     ) -> Result<Vec<UnauditedGnosisDepositResponse>, Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
 
-        let query_result = GnosisSafeDeposit::find_unaudited_deposits(&conn)?;
+        let query_result = GnosisSafeDeposit::find_unaudited_deposits(offset, limit, &conn)?;
 
         let response = query_result
             .into_iter()
@@ -151,10 +153,14 @@ impl ReserveAuditorHttpService {
     }
 
     /// Get a list of burn txs that do not have a corresponding gnosis safe withdrawal
-    pub fn get_unaudited_burn_tx_outs(&self) -> Result<Vec<UnauditedBurnTxOutResponse>, Error> {
+    pub fn get_unaudited_burn_tx_outs(
+        &self,
+        offset: Option<u64>,
+        limit: Option<u64>,
+    ) -> Result<Vec<UnauditedBurnTxOutResponse>, Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
 
-        let query_result = BurnTxOut::find_unaudited_burn_tx_outs(&conn)?;
+        let query_result = BurnTxOut::find_unaudited_burn_tx_outs(offset, limit, &conn)?;
 
         let response = query_result
             .into_iter()
@@ -460,7 +466,7 @@ mod tests {
             insert_gnosis_deposit(&mut deposit, &conn);
         }
 
-        let all_unaudited_gnosis_deposits = service.get_unaudited_gnosis_deposits().unwrap();
+        let all_unaudited_gnosis_deposits = service.get_unaudited_gnosis_deposits(None, None).unwrap();
         assert_eq!(all_unaudited_gnosis_deposits.len(), 5);
     }
 
@@ -533,7 +539,7 @@ mod tests {
             burns.push(burn.clone());
         }
 
-        let all_audited_burns = service.get_unaudited_burn_tx_outs().unwrap();
+        let all_audited_burns = service.get_unaudited_burn_tx_outs(None, None).unwrap();
         assert_eq!(all_audited_burns.len(), 5);
     }
 }

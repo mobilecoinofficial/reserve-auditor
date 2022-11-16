@@ -140,18 +140,30 @@ impl BurnTxOut {
 
     /// Attempt to find all [BurnTxOut]s that do not have a matching entry in
     /// the `audited_burn` table.
-    pub fn find_unaudited_burn_tx_outs(conn: &Conn) -> Result<Vec<Self>, Error> {
-        Ok(burn_tx_outs::table
-            .filter(not(exists(
-                audited_burns::table
-                    .select(audited_burns::burn_tx_out_id)
-                    .filter(
-                        audited_burns::burn_tx_out_id
-                            .nullable()
-                            .eq(burn_tx_outs::id),
-                    ),
-            )))
-            .load(conn)?)
+    pub fn find_unaudited_burn_tx_outs(
+        offset: Option<u64>,
+        limit: Option<u64>,
+        conn: &Conn,
+    ) -> Result<Vec<Self>, Error> {
+        let mut query = burn_tx_outs::table.filter(not(exists(
+            audited_burns::table
+                .select(audited_burns::burn_tx_out_id)
+                .filter(
+                    audited_burns::burn_tx_out_id
+                        .nullable()
+                        .eq(burn_tx_outs::id),
+                ),
+        )));
+
+        if let Some(o) = offset {
+            query = query.offset(o as i64);
+        }
+
+        if let Some(l) = limit {
+            query = query.limit(l as i64);
+        }
+
+        Ok(query.load(conn)?)
     }
 
     /// Attempt to find a [BurnTxOut] that has a given public key and no

@@ -1,3 +1,4 @@
+---
 name: shared-cd
 
 env:
@@ -53,3 +54,20 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  setup-environment:
+    runs-on: [self-hosted, Linux, small]
+    needs:
+    - reset-releases
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Create namespace
+      uses: mobilecoinofficial/gha-k8s-toolbox@v1
+      with:
+        action: namespace-create
+        namespace: mainnet-reserve-auditor
+        rancher_cluster: utility-r1-b-k8s
+        rancher_url: ${{ secrets.RANCHER_URL }}
+        rancher_token: ${{ secrets.RANCHER_TOKEN }}

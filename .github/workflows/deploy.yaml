@@ -15,6 +15,7 @@ jobs:
   docker:
     name: Docker
     runs-on: ubuntu-latest
+    if: "! contains(github.event.head_commit.message, '[skip docker]')"
     outputs:
       tags: ${{ steps.docker_meta.outputs.tags }}
 
@@ -63,6 +64,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: Package and publish chart
+      if: "! contains(github.event.head_commit.message, '[skip charts]')"
+      uses: mobilecoinofficial/gha-k8s-toolbox@a89efdf4305f3b926b1bb61a59f267532406e653
+      with:
+        action: helm-publish
+        chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
+        chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
+        chart_repo: ${{ env.CHART_REPO }}
+        chart_app_version: ${{ needs.generate-metadata.outputs.tag }}
+        chart_version: ${{ needs.generate-metadata.outputs.tag }}
+        chart_path: ./deploy
+
     - name: Create namespace
       uses: mobilecoinofficial/gha-k8s-toolbox@v1
       with:
@@ -71,3 +84,4 @@ jobs:
         rancher_cluster: utility-r1-b-k8s
         rancher_url: ${{ secrets.RANCHER_URL }}
         rancher_token: ${{ secrets.RANCHER_TOKEN }}
+

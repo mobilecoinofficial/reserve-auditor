@@ -4,6 +4,8 @@ name: shared-cd
 env:
   DOCKERHUB_ORG: mobilecoin
   DOCKER_IMAGE: reserve-auditor
+  CHART_REPO: https://harbor.mobilecoin.com/chartrepo/mobilecoinfoundation-public
+
 
 on:
   push:
@@ -25,7 +27,6 @@ jobs:
 
       - name: Generate Docker Tags
         id: docker_meta
-        if: "! contains(github.event.head_commit.message, '[skip docker]')"
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.DOCKERHUB_ORG }}/${{ env.DOCKER_IMAGE }}
@@ -74,8 +75,8 @@ jobs:
         chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
         chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
         chart_repo: ${{ env.CHART_REPO }}
-        chart_app_version: ${{ needs.generate-metadata.outputs.tag }}
-        chart_version: ${{ needs.generate-metadata.outputs.tag }}
+        chart_app_version: v0.0.0
+        chart_version: v0.0.0
         chart_path: ./deploy
 
     - name: Create namespace

@@ -1,0 +1,51 @@
+mobilecoind:
+  image:
+    repository: mobilecoin/mobilecoind
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: v3.0.0-test
+  resources:
+    requests:
+      cpu: 100m
+      memory: 65Mi
+  chainID: test
+  threshold: 7
+  listenURI: insecure-mobilecoind://0.0.0.0:3229/
+  pollInterval: 1
+  peers:
+  - url: 'mc://node1.test.mobilecoin.com:443/'
+    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node1.test.mobilecoin.com/'
+  - url: 'mc://node2.test.mobilecoin.com:443/'
+    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node2.test.mobilecoin.com/'
+  - url: 'mc://node3.test.mobilecoin.com:443/'
+    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node3.test.mobilecoin.com/'
+  - url: 'mc://node4.test.mobilecoin.com:443/'
+    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node4.test.mobilecoin.com/'
+  - url: 'mc://node5.test.mobilecoin.com:443/'
+    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node5.test.mobilecoin.com/'
+  - url: 'mc://node6.test.mobilecoin.com:443/'
+    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node6.test.mobilecoin.com/'
+  - url: 'mc://node7.test.mobilecoin.com:443/'
+    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node7.test.mobilecoin.com/'
+  - url: 'mc://node8.test.mobilecoin.com:443/'
+    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node8.test.mobilecoin.com/'
+  - url: 'mc://node1.consensus.mob.staging.namda.net:443/'
+    txSource: 'https://s3-eu-central-1.amazonaws.com/staging-namda-payments-ledger/node1.consensus.mob.staging.namda.net/'
+  - url: 'mc://node2.consensus.mob.staging.namda.net:443/'
+    txSource: 'https://s3-eu-central-1.amazonaws.com/staging-namda-payments-ledger/node2.consensus.mob.staging.namda.net/'
+
+gnosisConfig:
+  safes:
+  - safe_addr: "0x36c4A3e3838974bb94Da7fC836987A68C7c0D34D"
+    api_url: https://safe-transaction.goerli.gnosis.io/
+    token_decimals_max: 6
+    tokens:
+      - token_id: 1
+        token_type: ERC20_TRANSFER
+        eth_token_contract_addr: "0xeC76FbFD75481839e456C4cb2cd23cda813f19B1"
+        name: gRSV
+        symbol: Token
+        decimals: 18
+        logo_uri: ""
+        aux_burn_contract_addr: "0x89d2c2C7853AD6015d50f39A615196e17f13Cf59"
+        aux_burn_function_sig: [199, 111, 6, 53]

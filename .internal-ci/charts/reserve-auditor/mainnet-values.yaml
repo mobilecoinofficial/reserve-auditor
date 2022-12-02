@@ -1,0 +1,63 @@
+# Default values for reserve-auditor.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+mobilecoind:
+  image:
+    repository: mobilecoin/mobilecoind
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: v3.0.0-test
+  resources:
+    requests:
+      cpu: 100m
+      memory: 65Mi
+  chainID: test
+  threshold: 7
+  listenURI: insecure-mobilecoind://0.0.0.0:3229/
+  pollInterval: 1
+  peers:
+  - url: 'mc://node1.prod.mobilecoinww.com:443/'
+    txSource: 'https://ledger.mobilecoinww.com/node1.prod.mobilecoinww.com/'
+  - url: 'mc://node2.prod.mobilecoinww.com:443/'
+    txSource: 'https://ledger.mobilecoinww.com/node2.prod.mobilecoinww.com/'
+  - url: 'mc://node3.prod.mobilecoinww.com:443/'
+    txSource: 'https://ledger.mobilecoinww.com/node3.prod.mobilecoinww.com/'
+
+  - url: 'mc://node1.consensus.mob.production.namda.net:443/'
+    txSource: 'https://s3-eu-central-1.amazonaws.com/production-namda-payments-ledger/node1.consensus.mob.production.namda.net/'
+  - url: 'mc://node2.consensus.mob.production.namda.net:443/'
+    txSource: 'https://s3-eu-central-1.amazonaws.com/production-namda-payments-ledger/node2.consensus.mob.production.namda.net/'
+
+  - url: 'mc://blockdaemon.mobilecoin.bdnodes.net:443/'
+    txSource: 'https://bd-mobilecoin-ledger.s3.amazonaws.com/blockdaemon.mobilecoin.bdnodes.net/'
+
+  - url: 'mc://binance.mobilecoin.bdnodes.net:443/'
+    txSource: 'https://bd-mobilecoin-ledger.s3.amazonaws.com/binance.mobilecoin.bdnodes.net/'
+
+  - url: 'mc://ideasbeyondborders.mobilecoin.bdnodes.net:443/'
+    txSource: 'https://bd-mobilecoin-ledger.s3.amazonaws.com/ideasbeyondborders.mobilecoin.bdnodes.net/'
+
+  - url: 'mc://thelongnowfoundation.mobilecoin.bdnodes.net:443/'
+    txSource: 'https://bd-mobilecoin-ledger.s3.amazonaws.com/ideasbeyondborders.mobilecoin.bdnodes.net/'
+
+  - url: 'mc://ams1-mc-node1.dreamhost.com:3223/'
+    txSource: 'https://s3-eu-west-1.amazonaws.com/dh-mobilecoin-eu/ams1-mc-node1.dreamhost.com/'
+
+gnosisConfig:
+  safes:
+  - safe_addr: "0x30DA4EB397215cF407C46854CA7188f4e60F3402"
+    api_url: "https://safe-transaction-mainnet.safe.global/"
+    tokens:
+    - token_id: 1
+      token_type: "ERC20_TRANSFER"
+      eth_token_contract_addr: "0x196f4727526ea7fb1e17b2071b3d8eaa38486988"
+      name: "RSV"
+      symbol: "Token"
+      decimals: 18
+      logo_uri: ""
+      aux_burn_contract_addr: "0x76BD419fBa96583d968b422D4f3CB2A70bf4CF40"
+      aux_burn_function_sig: [199, 111, 6, 53]
+    token_decimals_max: 6

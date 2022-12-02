@@ -58,8 +58,8 @@ jobs:
 
   setup-environment:
     runs-on: [self-hosted, Linux, small]
-    needs:
-    - docker
+    needs: []
+      # - docker
     steps:
     - name: Checkout
       uses: actions/checkout@v3

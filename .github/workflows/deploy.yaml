@@ -83,8 +83,20 @@ jobs:
       uses: mobilecoinofficial/gha-k8s-toolbox@v1
       with:
         action: namespace-create
-        namespace: mainnet-reserve-auditor
+        namespace: testnet-reserve-auditor
         rancher_cluster: utility-r1-b-k8s
         rancher_url: ${{ secrets.RANCHER_URL }}
         rancher_token: ${{ secrets.RANCHER_TOKEN }}
 
+    - name: Deploy environment setup
+      uses: mobilecoinofficial/gha-k8s-toolbox@v1
+      with:
+        action: helm-deploy
+        chart_repo: ${{ inputs.chart_repo }}
+        chart_name: reserve-auditor
+        chart_version: ${{ inputs.version }}
+        release_name: testnet-reserve-auditor
+        namespace: ${{ inputs.namespace }}
+        rancher_cluster: ${{ secrets.RANCHER_CLUSTER }}
+        rancher_url: ${{ secrets.RANCHER_URL }}
+        rancher_token: ${{ secrets.RANCHER_TOKEN }}

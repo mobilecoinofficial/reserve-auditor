@@ -96,7 +96,7 @@ jobs:
         namespace: testnet-reserve-auditor
         chart_repo: ${{ inputs.chart_repo }}
         chart_name: reserve-auditor
-        chart_version: ${{ inputs.version }}
+        chart_version: v0.0.0
         release_name: testnet-reserve-auditor
         rancher_url: ${{ secrets.RANCHER_URL }}
         rancher_token: ${{ secrets.RANCHER_TOKEN }}

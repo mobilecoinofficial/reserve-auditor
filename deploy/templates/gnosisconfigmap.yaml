@@ -1,0 +1,10 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "reserve-auditor.gnosisConfigName" . }}
+  labels:
+    {{- include "reserve-auditor.labels" . | nindent 4 }}
+data:
+  config.json: |
+    {{- mustToPrettyJson .Values.gnosisConfig | nindent 4 }}

@@ -25,7 +25,7 @@ jobs:
 
       - name: Extract release branch
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
+        run: echo "RELEASE_NAME=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
         id: release_output
 
       - name: Generate Docker Tags
@@ -57,7 +57,7 @@ jobs:
           context: .
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ steps.release_output.outputs.branch }}
+          tags: ${{env.DOCKERHUB_ORG}}/${{env.DOCKER_IMAGE}}:${{ env.RELEASE_NAME }}
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -70,8 +70,8 @@ jobs:
           chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
           chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
           chart_repo: ${{ env.CHART_REPO }}
-          chart_app_version: ${{ steps.release_output.outputs.branch }}
-          chart_version: ${{ steps.release_output.outputs.branch }}
+          chart_app_version: ${{ env.RELEASE_NAME }}
+          chart_version: ${{ env.RELEASE_NAME }}
           chart_path: ./deploy/charts/reserve-auditor
 
       - name: Create namespace
@@ -91,7 +91,7 @@ jobs:
           namespace: testnet-reserve-auditor
           chart_repo: ${{ env.CHART_REPO }}
           chart_name: reserve-auditor
-          chart_version: ${{ steps.release_output.outputs.branch }}
+          chart_version: ${{ env.RELEASE_NAME }}
           release_name: testnet-reserve-auditor
           rancher_url: ${{ secrets.RANCHER_URL }}
           rancher_token: ${{ secrets.RANCHER_TOKEN }}

@@ -17,13 +17,16 @@ jobs:
   docker:
     name: Docker
     runs-on: ubuntu-latest
-    outputs:
-      tags: ${{ steps.docker_meta.outputs.tags }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
+
+      - name: Extract release branch
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
+        id: release_output
 
       - name: Generate Docker Tags
         id: docker_meta
@@ -54,49 +57,41 @@ jobs:
           context: .
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ steps.docker_meta.outputs.tags }}
+          tags: ${{ steps.release_output.outputs.branch }}
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  setup-environment:
-    runs-on: [self-hosted, Linux, small]
-    needs: []
-      # - docker
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Package and publish chart
+        if: "! contains(github.event.head_commit.message, '[skip charts]')"
+        uses: mobilecoinofficial/gha-k8s-toolbox@a89efdf4305f3b926b1bb61a59f267532406e653
+        with:
+          action: helm-publish
+          chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
+          chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
+          chart_repo: ${{ env.CHART_REPO }}
+          chart_app_version: ${{ steps.release_output.outputs.branch }}
+          chart_version: ${{ steps.release_output.outputs.branch }}
+          chart_path: ./deploy/charts/reserve-auditor
 
-    - name: Package and publish chart
-      if: "! contains(github.event.head_commit.message, '[skip charts]')"
-      uses: mobilecoinofficial/gha-k8s-toolbox@a89efdf4305f3b926b1bb61a59f267532406e653
-      with:
-        action: helm-publish
-        chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
-        chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
-        chart_repo: ${{ env.CHART_REPO }}
-        chart_app_version: v0.0.0
-        chart_version: v0.0.0
-        chart_path: ./deploy/charts/reserve-auditor
+      - name: Create namespace
+        uses: mobilecoinofficial/gha-k8s-toolbox@v1
+        with:
+          action: namespace-create
+          namespace: testnet-reserve-auditor
+          rancher_cluster: utility-r1-b-k8s
+          rancher_url: ${{ secrets.RANCHER_URL }}
+          rancher_token: ${{ secrets.RANCHER_TOKEN }}
 
-    - name: Create namespace
-      uses: mobilecoinofficial/gha-k8s-toolbox@v1
-      with:
-        action: namespace-create
-        namespace: testnet-reserve-auditor
-        rancher_cluster: utility-r1-b-k8s
-        rancher_url: ${{ secrets.RANCHER_URL }}
-        rancher_token: ${{ secrets.RANCHER_TOKEN }}
-
-    - name: Deploy environment setup
-      uses: mobilecoinofficial/gha-k8s-toolbox@v1
-      with:
-        action: helm-deploy
-        rancher_cluster: utility-r1-b-k8s
-        namespace: testnet-reserve-auditor
-        chart_repo: ${{ env.CHART_REPO }}
-        chart_name: reserve-auditor
-        chart_version: v0.0.0
-        release_name: testnet-reserve-auditor
-        rancher_url: ${{ secrets.RANCHER_URL }}
-        rancher_token: ${{ secrets.RANCHER_TOKEN }}
+      - name: Deploy environment setup
+        uses: mobilecoinofficial/gha-k8s-toolbox@v1
+        with:
+          action: helm-deploy
+          rancher_cluster: utility-r1-b-k8s
+          namespace: testnet-reserve-auditor
+          chart_repo: ${{ env.CHART_REPO }}
+          chart_name: reserve-auditor
+          chart_version: ${{ steps.release_output.outputs.branch }}
+          release_name: testnet-reserve-auditor
+          rancher_url: ${{ secrets.RANCHER_URL }}
+          rancher_token: ${{ secrets.RANCHER_TOKEN }}

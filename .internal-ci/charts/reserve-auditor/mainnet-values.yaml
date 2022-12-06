@@ -1,19 +1,8 @@
-# Default values for reserve-auditor.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# Override values for mainnet
 
 replicaCount: 1
 
 mobilecoind:
-  image:
-    repository: mobilecoin/mobilecoind
-    pullPolicy: Always
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: v3.0.0-test
-  resources:
-    requests:
-      cpu: 100m
-      memory: 65Mi
   chainID: main
   threshold: 7
   listenURI: insecure-mobilecoind://0.0.0.0:3229/

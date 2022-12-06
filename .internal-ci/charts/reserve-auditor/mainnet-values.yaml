@@ -14,7 +14,7 @@ mobilecoind:
     requests:
       cpu: 100m
       memory: 65Mi
-  chainID: test
+  chainID: main
   threshold: 7
   listenURI: insecure-mobilecoind://0.0.0.0:3229/
   pollInterval: 1

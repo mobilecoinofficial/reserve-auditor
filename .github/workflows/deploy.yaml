@@ -60,7 +60,7 @@ jobs:
           cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
 
       - name: Package and publish chart
-        uses: mobilecoinofficial/gha-k8s-toolbox@a89efdf4305f3b926b1bb61a59f267532406e653
+        uses: mobilecoinofficial/gha-k8s-toolbox@v1
         with:
           action: helm-publish
           chart_repo_username: ${{ secrets.HARBOR_USERNAME }}

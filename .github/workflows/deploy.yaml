@@ -11,7 +11,6 @@ env:
 on:
   push:
     branches:
-      - test-release/*
       - release/*
 
 jobs:

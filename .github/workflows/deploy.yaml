@@ -1,0 +1,105 @@
+---
+name: shared-cd
+
+env:
+  DOCKERHUB_ORG: mobilecoin
+  REPO_NAME: reserve-auditor
+  TARGET_CLUSTER: utility-r1-b-k8s 
+  CHART_REPO: https://harbor.mobilecoin.com/chartrepo/mobilecoinfoundation-public
+  CHART_PATH: ./.internal-ci/charts/reserve-auditor
+
+on:
+  push:
+    branches:
+      - test-release/*
+      - release/*
+
+jobs:
+  build:
+    name: Build
+    runs-on: [self-hosted, Linux, large]
+    outputs:
+      version: ${{ steps.version_output.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Extract version
+        uses: mobilecoinofficial/gha-k8s-toolbox@v1
+        id: version_output
+        with:
+          action: generate-metadata
+
+      - name: Setup Docker Buildx
+        id: buildx
+        if: "! contains(github.event.head_commit.message, '[skip docker]')"
+        uses: docker/setup-buildx-action@v2
+        with:
+          install: true
+
+      - name: Login to DockerHub
+        if: "! contains(github.event.head_commit.message, '[skip docker]')"
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Publish to DockerHub
+        uses: docker/build-push-action@v3
+        if: "! contains(github.event.head_commit.message, '[skip docker]')"
+        id: docker-push
+        with:
+          context: .
+          file: Dockerfile
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}:${{ steps.version_output.outputs.version }}
+          push: true
+          cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
+          cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
+
+      - name: Package and publish chart
+        uses: mobilecoinofficial/gha-k8s-toolbox@v1
+        with:
+          action: helm-publish
+          chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
+          chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
+          chart_repo: ${{ env.CHART_REPO }}
+          chart_app_version: ${{ steps.version_output.outputs.version }}
+          chart_version: ${{ steps.version_output.outputs.version }}
+          chart_path: ${{ env.CHART_PATH }}
+
+  deploy:
+    name: Deploy
+    runs-on: [self-hosted, Linux]
+    needs: build
+    strategy:
+      matrix:
+        target: [mainnet, testnet]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create ${{ matrix.target }} namespace
+        uses: mobilecoinofficial/gha-k8s-toolbox@v1
+        with:
+          action: namespace-create
+          namespace: ${{ matrix.target }}-reserve-auditor
+          rancher_cluster: ${{ env.TARGET_CLUSTER }}
+          rancher_url: ${{ secrets.RANCHER_URL }}
+          rancher_token: ${{ secrets.RANCHER_TOKEN }}
+
+      - name: Deploys ${{ matrix.target }} release
+        uses: mobilecoinofficial/gha-k8s-toolbox@v1
+        with:
+          action: helm-deploy
+          rancher_cluster: ${{ env.TARGET_CLUSTER }}
+          namespace: ${{ matrix.target }}-reserve-auditor
+          release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
+          rancher_url: ${{ secrets.RANCHER_URL }}
+          rancher_token: ${{ secrets.RANCHER_TOKEN }}
+          chart_repo: ${{ env.CHART_REPO }}
+          chart_name: ${{ env.REPO_NAME}}
+          chart_version: ${{ needs.build.outputs.version }}
+          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml

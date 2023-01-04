@@ -45,7 +45,7 @@ ledgerScanner:
   image:
     repository: mobilecoin/reserve-auditor
     pullPolicy: Always
-    tag: v0.0.0-test
+    tag: ""
   resources:
     requests:
       cpu: 100m
@@ -55,7 +55,7 @@ httpServer:
   image:
     repository: mobilecoin/reserve-auditor
     pullPolicy: Always
-    tag: v0.0.0-test
+    tag: ""
   resources:
     requests:
       cpu: 100m

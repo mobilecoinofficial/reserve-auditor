@@ -50,3 +50,14 @@ gnosisConfig:
       aux_burn_contract_addr: "0x76BD419fBa96583d968b422D4f3CB2A70bf4CF40"
       aux_burn_function_sig: [199, 111, 6, 53]
     token_decimals_max: 6
+
+ingress:
+  hosts:
+    - host: reserve-auditor.prod.mobilecoin.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: reserve-auditor.prod.mobilecoin.com-tls
+      hosts:
+        - reserve-auditor.prod.mobilecoin.com

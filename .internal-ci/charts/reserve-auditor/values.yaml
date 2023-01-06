@@ -62,38 +62,15 @@ httpServer:
       memory: 65Mi
 
 persistence:
-  mobilecoind:
-    enabled: true
-    pvcSpec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 128Gi
-      storageClassName: fast
-      volumeMode: Filesystem
-
-  ledger:
-    enabled: true
-    pvcSpec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 128Gi
-      storageClassName: fast
-      volumeMode: Filesystem
-
-  auditor:
-    enabled: true
-    pvcSpec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 128Gi
-      storageClassName: fast
-      volumeMode: Filesystem
+  enabled: true
+  pvcSpec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 128Gi
+    storageClassName: fast
+    volumeMode: Filesystem
 
 gnosisConfig:
   safes:

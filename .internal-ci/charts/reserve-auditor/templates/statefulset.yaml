@@ -34,16 +34,8 @@ spec:
           configMap:
             name: {{ include "reserve-auditor.gnosisConfigName" . }}
       {{- with .Values.persistence }}
-        {{- if not .ledger.enabled }}     
-        - name: {{ .Chart.Name }}-ledger
-          emptyDir: {}
-        {{- end}}
-        {{- if not .auditor.enabled }}     
-        - name: {{ .Chart.Name }}-auditor
-          emptyDir: {}
-        {{- end}}
-        {{- if not .mobilecoind.enabled }}     
-        - name: {{ .Chart.Name }}-mobilecoind
+        {{- if not .enabled }}     
+        - name: {{ .Chart.Name }}
           emptyDir: {}
         {{- end}}
       {{- end}}
@@ -72,9 +64,9 @@ spec:
             failureThreshold: 4
             periodSeconds: 30
           volumeMounts:
-            - name: {{ $.Chart.Name }}-ledger
+            - name: {{ $.Chart.Name }}
               mountPath: /ledger/
-            - name: {{ $.Chart.Name }}-mobilecoind
+            - name: {{ $.Chart.Name }}
               mountPath: /mobilecoind/
           env:
             - name: "RUST_BACKTRACE"
@@ -128,9 +120,9 @@ spec:
           volumeMounts:
             - name: gnosis-config
               mountPath: /config/gnosis
-            - name: {{ $.Chart.Name }}-ledger
+            - name: {{ $.Chart.Name }}
               mountPath: /ledger/
-            - name: {{ $.Chart.Name }}-auditor
+            - name: {{ $.Chart.Name }}
               mountPath: /auditor/
           resources:
             {{- toYaml .resources | nindent 12 }}
@@ -153,7 +145,7 @@ spec:
           volumeMounts:
             - name: gnosis-config
               mountPath: /config/gnosis
-            - name: {{ $.Chart.Name }}-auditor
+            - name: {{ $.Chart.Name }}
               mountPath: /auditor/
           securityContext:
             {{- toYaml .securityContext | nindent 12 }}
@@ -194,28 +186,12 @@ spec:
       {{- end }}
   volumeClaimTemplates:
   {{- with .Values.persistence }}
-    {{- if .ledger.enabled }}
+    {{- if .enabled }}
     - apiVersion: v1
       kind: PersistentVolumeClaim
       metadata:
-        name: {{ $.Chart.Name }}-ledger
+        name: {{ $.Chart.Name }}
       spec:
-        {{- toYaml .ledger.pvcSpec | nindent 8 }}
-    {{- end }}
-    {{- if .mobilecoind.enabled }}
-    - apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: {{ $.Chart.Name }}-mobilecoind
-      spec:
-        {{- toYaml .mobilecoind.pvcSpec | nindent 8 }}
-    {{- end }}
-    {{- if .auditor.enabled }}
-    - apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: {{ $.Chart.Name }}-auditor
-      spec:
-        {{- toYaml .auditor.pvcSpec | nindent 8 }}
+        {{- toYaml .pvcSpec | nindent 8 }}
     {{- end }}
   {{- end }}

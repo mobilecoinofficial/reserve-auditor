@@ -1,6 +1,6 @@
 # Override values for mainnet
 
-replicaCount: 3
+replicaCount: 1
 
 mobilecoind:
   chainID: main

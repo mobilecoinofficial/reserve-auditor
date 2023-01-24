@@ -552,4 +552,26 @@ mod tests {
         let all_audited_burns = service.get_unaudited_burn_tx_outs().unwrap();
         assert_eq!(all_audited_burns.len(), 5);
     }
+
+    #[test_with_logger]
+    fn test_get_mints_by_block_service(logger: Logger) {
+        let config = test_gnosis_config();
+        let mut rng = mc_util_test_helper::get_seeded_rng();
+        let (reserve_auditor_db, _test_db_context) = get_test_db(&logger);
+        let service = ReserveAuditorHttpService::new(reserve_auditor_db.clone(), config);
+        let token_id1 = TokenId::from(1);
+
+        let conn = reserve_auditor_db.get_conn().unwrap();
+
+        let (_mint_config_tx1, signers1) = create_mint_config_tx_and_signers(token_id1, &mut rng);
+        let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
+        let mint_tx2 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
+        let should_be_found = MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(2, None, &mint_tx2, &conn).unwrap();
+
+        let found = service.get_mints_by_block(5).unwrap();
+
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].id(), should_be_found.id());
+    }
 }

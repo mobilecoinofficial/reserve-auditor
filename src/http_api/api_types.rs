@@ -106,3 +106,10 @@ pub struct LedgerBalanceResponse {
 pub struct GnosisSafeConfigResponse {
     pub config: GnosisSafeConfig,
 }
+
+/// Mint Txs
+#[derive(Serialize, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
+pub struct MintTxResponse {
+    pub mints: Vec<MintTx>,
+}

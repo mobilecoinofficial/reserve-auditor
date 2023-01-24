@@ -208,8 +208,24 @@ impl ReserveAuditorHttpService {
             config: self.gnosis_safe_config.clone(),
         })
     }
-}
 
+    pub fn get_mints_by_block(&self, block_index: u64) -> Result<Vec<MintTx> ,Error> {
+        let conn = self.reserve_auditor_db.get_conn()?;
+
+        let mints = MintTx::get_mint_txs_by_block_index(block_index, &conn)?;
+
+        Ok(mints)
+    }
+}
+// pub fn get_block_audit_data(&self, block_index: u64) -> Result<BlockAuditDataResponse, Error> {
+//     let conn = self.reserve_auditor_db.get_conn()?;
+
+//     let block_audit_data = BlockAuditData::get(&conn, block_index)?;
+
+//     let balances = BlockBalance::get_balances_for_block(&conn, block_audit_data.block_index())?;
+
+//     Ok(BlockAuditDataResponse::new(block_audit_data, balances))
+// }
 #[cfg(test)]
 mod tests {
     use super::*;

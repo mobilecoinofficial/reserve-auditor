@@ -212,27 +212,16 @@ impl ReserveAuditorHttpService {
     pub fn get_mint_info_by_block(&self, block_index: u64) -> Result<MintInfoResponse ,Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
 
-        let mint_txs = MintTx::get_by_block_index(block_index, &conn)?;
-
+        let mint_txs = MintTx::get_mint_txs_by_block_index(block_index, &conn)?;
         let mint_config_txs = MintConfigTx::get_by_block_index(block_index, &conn)?;
 
-        let mint_configs = mint_config_txs
-            .clone()
-            .iter()
-            .map(| tx | MintConfig::get_by_mint_config_tx_id(tx.id().expect(
-                "No ID found for Mint Config Tx",
-            ), &conn)?)
-            .collect();
-
-            // .map(| tx | MintConfig::get_by_mint_config_tx_id(tx.id().unwrap(), &conn).unwrap())
-
-
-
-        // const configs = [];
-        //  for (config_tx of mint_config_txs) {
-        //     const config = await MintConfig::get_by_mint_config_tx_id(config_tx.id, &conn);
-        //     configs.push(config);
-        //  }
+        let mut mint_configs = vec![];
+        for mint_config_tx in mint_config_txs.iter() {
+            // In reality we should always have an id since this was returned from the database.
+            if let Some(id) = mint_config_tx.id() {
+                mint_configs.extend(MintConfig::get_by_mint_config_tx_id(id, &conn)?);
+            }
+        }
 
         Ok( MintInfoResponse {
             mint_txs,
@@ -241,15 +230,7 @@ impl ReserveAuditorHttpService {
         })
     }
 }
-// pub fn get_block_audit_data(&self, block_index: u64) -> Result<BlockAuditDataResponse, Error> {
-//     let conn = self.reserve_auditor_db.get_conn()?;
 
-//     let block_audit_data = BlockAuditData::get(&conn, block_index)?;
-
-//     let balances = BlockBalance::get_balances_for_block(&conn, block_audit_data.block_index())?;
-
-//     Ok(BlockAuditDataResponse::new(block_audit_data, balances))
-// }
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -579,6 +560,28 @@ mod tests {
 
     #[test_with_logger]
     fn test_get_mint_info_by_block(logger: Logger) {
+        let config = &test_gnosis_config();
+        let mut rng = mc_util_test_helper::get_seeded_rng();
+        let test_db_context = TestDbContext::default();
+        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let conn = reserve_auditor_db.get_conn().unwrap();
+        let service = ReserveAuditorHttpService::new(reserve_auditor_db, config.clone());
 
+        // seed mint txs, mint config txs, mint configs, 
+        let token_id1 = TokenId::from(1);
+        let (mint_config_tx1, signers1) = create_mint_config_tx_and_signers(token_id1, &mut rng);
+        let config_tx_entity = MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
+        let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
+        let mint_tx1_entity = MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
+        
+        let mint_info = service.get_mint_info_by_block(5).unwrap();
+
+        let mints = mint_info.mint_txs;
+        assert_eq!(mints[0].id().unwrap(), mint_tx1_entity.id().unwrap());
+        let mint_config_txs = mint_info.mint_config_txs;
+        assert_eq!(mint_config_txs[0].id().unwrap(), config_tx_entity.id().unwrap());
+        let mint_configs = mint_info.mint_configs;
+        assert_eq!(mint_configs[0].id().unwrap(), 1);
+        assert_eq!(mint_configs[0].mint_config_tx_id(), mint_config_txs[0].id().unwrap());
     }
 }

@@ -167,13 +167,13 @@ impl MintConfigTx {
         Ok(mint_amounts.into_iter().map(|val| val as u64).sum())
     }
 
-    /// Get by block index
+    /// Get mint config txs by block index
     pub fn get_by_block_index(
         block_index: BlockIndex,
         conn: &Conn,
     ) -> Result<Vec<MintConfigTx>, Error> {
         Ok(mint_config_txs::table
-            .filter(mint_config_txs::block_index.lt(block_index as i64))
+            .filter(mint_config_txs::block_index.eq(block_index as i64))
             .order_by(mint_config_txs::block_index.desc())
             .load(conn)?)
     }
@@ -589,5 +589,27 @@ mod tests {
                 .unwrap(),
             5000,
         );
+    }
+
+    #[test_with_logger]
+    fn test_get_config_txs_by_block(logger: Logger) {
+        let mut rng = mc_util_test_helper::get_seeded_rng();
+        let test_db_context = TestDbContext::default();
+        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let token_id1 = TokenId::from(1);
+        let token_id2 = TokenId::from(2);
+
+        let conn = reserve_auditor_db.get_conn().unwrap();
+
+        // Store a mint config fopr each token at block index 5.
+        let (mint_config_tx1, _signers) = create_mint_config_tx_and_signers(token_id1, &mut rng);
+        let (mint_config_tx2, _signers) = create_mint_config_tx_and_signers(token_id2, &mut rng);
+        MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
+        MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx2, &conn).unwrap();
+
+        // expect to find config txs for both tokens at index 5
+        let found_config_txs = MintConfigTx::get_by_block_index(5, &conn).unwrap();
+
+        assert_eq!(found_config_txs.len(), 2);
     }
 }

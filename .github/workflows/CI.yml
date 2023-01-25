@@ -20,7 +20,7 @@ permissions:
 jobs:
   build:
     runs-on: [self-hosted, Linux, large]
-    container: mobilecoin/builder-install:v0.0.18
+    container: mobilecoin/builder-install:v0.0.21
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -37,7 +37,7 @@ jobs:
         uses: ./.github/actions/check-dirty-git
   lint-rust:
     runs-on: [self-hosted, Linux, large]
-    container: mobilecoin/builder-install:v0.0.18
+    container: mobilecoin/builder-install:v0.0.21
 
     steps:
       - name: Check out code
@@ -54,7 +54,7 @@ jobs:
         uses: ./.github/actions/check-dirty-git
   test:
     runs-on: [self-hosted, Linux, large]
-    container: mobilecoin/builder-install:v0.0.18
+    container: mobilecoin/builder-install:v0.0.21
     steps:
       - name: Check out code
         uses: actions/checkout@v3

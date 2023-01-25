@@ -201,13 +201,13 @@ impl MintTx {
     }
 
     /// Get [MintTx]s for a given block index.
-    pub fn get_mint_txs_by_block_index(
+    pub fn get_by_block_index(
         block_index: BlockIndex,
         conn: &Conn,
     ) -> Result<Vec<Self>, Error> {
         Ok(mint_txs::table
             .filter(mint_txs::block_index.eq(block_index as i64))
-            .order_by(mint_txs::id)
+            .order_by(mint_txs::block_index.desc())
             .load(conn)?)
     }
 }
@@ -393,7 +393,7 @@ mod tests {
         let should_be_found = MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
         MintTx::insert_from_core_mint_tx(2, None, &mint_tx2, &conn).unwrap();
 
-        let found = MintTx::get_mint_txs_by_block_index(5, &conn).unwrap();
+        let found = MintTx::get_by_block_index(5, &conn).unwrap();
 
         assert_eq!(found.len(), 1);
         assert_eq!(found[0].id, should_be_found.id);

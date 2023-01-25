@@ -166,6 +166,17 @@ impl MintConfigTx {
             .load::<i64>(conn)?;
         Ok(mint_amounts.into_iter().map(|val| val as u64).sum())
     }
+
+    /// Get by block index
+    pub fn get_by_block_index(
+        block_index: BlockIndex,
+        conn: &Conn,
+    ) -> Result<Vec<MintConfigTx>, Error> {
+        Ok(mint_config_txs::table
+            .filter(mint_config_txs::block_index.lt(block_index as i64))
+            .order_by(mint_config_txs::block_index.desc())
+            .load(conn)?)
+    }
 }
 
 #[cfg(test)]

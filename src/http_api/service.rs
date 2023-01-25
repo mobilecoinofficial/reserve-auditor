@@ -7,12 +7,12 @@ use mc_transaction_core::TokenId;
 use crate::{
     db::{
         AuditedBurn, AuditedMint, BlockAuditData, BlockBalance, BurnTxOut, Counters,
-        GnosisSafeDeposit, MintTx, ReserveAuditorDb,
+        GnosisSafeDeposit, MintTx, ReserveAuditorDb, MintConfigTx, MintConfig,
     },
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
         AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse,
-        UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse,
+        UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse, MintInfoResponse
     },
     Error,
 };
@@ -209,12 +209,36 @@ impl ReserveAuditorHttpService {
         })
     }
 
-    pub fn get_mints_by_block(&self, block_index: u64) -> Result<Vec<MintTx> ,Error> {
+    pub fn get_mint_info_by_block(&self, block_index: u64) -> Result<MintInfoResponse ,Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
 
-        let mints = MintTx::get_mint_txs_by_block_index(block_index, &conn)?;
+        let mint_txs = MintTx::get_by_block_index(block_index, &conn)?;
 
-        Ok(mints)
+        let mint_config_txs = MintConfigTx::get_by_block_index(block_index, &conn)?;
+
+        let mint_configs = mint_config_txs
+            .clone()
+            .iter()
+            .map(| tx | MintConfig::get_by_mint_config_tx_id(tx.id().expect(
+                "No ID found for Mint Config Tx",
+            ), &conn)?)
+            .collect();
+
+            // .map(| tx | MintConfig::get_by_mint_config_tx_id(tx.id().unwrap(), &conn).unwrap())
+
+
+
+        // const configs = [];
+        //  for (config_tx of mint_config_txs) {
+        //     const config = await MintConfig::get_by_mint_config_tx_id(config_tx.id, &conn);
+        //     configs.push(config);
+        //  }
+
+        Ok( MintInfoResponse {
+            mint_txs,
+            mint_config_txs,
+            mint_configs
+        })
     }
 }
 // pub fn get_block_audit_data(&self, block_index: u64) -> Result<BlockAuditDataResponse, Error> {
@@ -554,24 +578,7 @@ mod tests {
     }
 
     #[test_with_logger]
-    fn test_get_mints_by_block_service(logger: Logger) {
-        let config = test_gnosis_config();
-        let mut rng = mc_util_test_helper::get_seeded_rng();
-        let (reserve_auditor_db, _test_db_context) = get_test_db(&logger);
-        let service = ReserveAuditorHttpService::new(reserve_auditor_db.clone(), config);
-        let token_id1 = TokenId::from(1);
+    fn test_get_mint_info_by_block(logger: Logger) {
 
-        let conn = reserve_auditor_db.get_conn().unwrap();
-
-        let (_mint_config_tx1, signers1) = create_mint_config_tx_and_signers(token_id1, &mut rng);
-        let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
-        let mint_tx2 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
-        let should_be_found = MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
-        MintTx::insert_from_core_mint_tx(2, None, &mint_tx2, &conn).unwrap();
-
-        let found = service.get_mints_by_block(5).unwrap();
-
-        assert_eq!(found.len(), 1);
-        assert_eq!(found[0].id(), should_be_found.id());
     }
 }

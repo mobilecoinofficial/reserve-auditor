@@ -9,7 +9,8 @@ runs:
       run: |
         cargo clippy --all --all-features --all-targets
 
-        cargo install cargo-sort
+        rustup toolchain install stable
+        cargo +stable install cargo-sort
 
         for toml in $(grep --exclude-dir cargo --exclude-dir mobilecoin --exclude-dir rust-mbedtls --include=Cargo.toml -r . -e '\[workspace\]' | cut -d: -f1); do
           pushd $(dirname $toml) >/dev/null

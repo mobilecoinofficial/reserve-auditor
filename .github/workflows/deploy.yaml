@@ -48,7 +48,7 @@ jobs:
       - name: Publish backend DockerHub
         uses: docker/build-push-action@v3
         if: "! contains(github.event.head_commit.message, '[skip docker]')"
-        id: docker-push
+        id: docker-push-backend
         with:
           context: .
           file: Dockerfile
@@ -61,7 +61,7 @@ jobs:
       - name: Publish frontend DockerHub
         uses: docker/build-push-action@v3
         if: "! contains(github.event.head_commit.message, '[skip docker]')"
-        id: docker-push
+        id: docker-push-frontend
         with:
           context: .
           file: Dockerfile.frontend

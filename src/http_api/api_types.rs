@@ -5,7 +5,7 @@
 use crate::{
     db::{
         AuditedBurn, AuditedMint, BlockAuditData, BurnTxOut, GnosisSafeDeposit,
-        GnosisSafeWithdrawal, MintTx, MintConfigTx, MintConfig
+        GnosisSafeWithdrawal, MintConfig, MintConfigTx, MintTx,
     },
     gnosis::{EthAddr, GnosisSafeConfig},
 };
@@ -110,8 +110,15 @@ pub struct GnosisSafeConfigResponse {
 /// Mint Txs
 #[derive(Serialize, Debug, Eq, PartialEq)]
 #[allow(missing_docs)]
+pub struct MintConfigTxWithConfigs {
+    pub mint_config_tx: MintConfigTx,
+    pub mint_configs: Vec<MintConfig>,
+}
+
+/// Mint Txs
+#[derive(Serialize, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
 pub struct MintInfoResponse {
     pub mint_txs: Vec<MintTx>,
-    pub mint_config_txs: Vec<MintConfigTx>,
-    pub mint_configs: Vec<MintConfig>
+    pub mint_config_txs: Vec<MintConfigTxWithConfigs>,
 }

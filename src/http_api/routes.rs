@@ -7,8 +7,8 @@ use crate::{
     http_api::{
         api_types::{
             AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse,
-            LedgerBalanceResponse, TokenType, UnauditedBurnTxOutResponse,
-            UnauditedGnosisDepositResponse, MintInfoResponse
+            LedgerBalanceResponse, MintInfoResponse, TokenType, UnauditedBurnTxOutResponse,
+            UnauditedGnosisDepositResponse,
         },
         service::ReserveAuditorHttpService,
     },

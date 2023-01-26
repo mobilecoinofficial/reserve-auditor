@@ -7,12 +7,12 @@ use mc_transaction_core::TokenId;
 use crate::{
     db::{
         AuditedBurn, AuditedMint, BlockAuditData, BlockBalance, BurnTxOut, Counters,
-        GnosisSafeDeposit, MintTx, ReserveAuditorDb, MintConfigTx, MintConfig,
+        GnosisSafeDeposit, MintConfig, MintConfigTx, MintTx, ReserveAuditorDb,
     },
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
-        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse,
-        UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse, MintInfoResponse
+        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintConfigTxWithConfigs,
+        MintInfoResponse, UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse,
     },
     Error,
 };
@@ -209,22 +209,31 @@ impl ReserveAuditorHttpService {
         })
     }
 
-    pub fn get_mint_info_by_block(&self, block_index: u64) -> Result<MintInfoResponse ,Error> {
+    pub fn get_mint_info_by_block(&self, block_index: u64) -> Result<MintInfoResponse, Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
         let mint_txs = MintTx::get_mint_txs_by_block_index(block_index, &conn)?;
         let mint_config_txs = MintConfigTx::get_by_block_index(block_index, &conn)?;
-        let mut mint_configs = vec![];
+
+        // create a list of cmint onfig txs with related mint configs
+        let mut mint_configs_txs_with_configs = vec![];
         for mint_config_tx in mint_config_txs.iter() {
+            let mut configs = vec![];
             // In reality we should always have an id since this was returned from the database.
             if let Some(id) = mint_config_tx.id() {
-                mint_configs.extend(MintConfig::get_by_mint_config_tx_id(id, &conn)?);
+                configs.extend(MintConfig::get_by_mint_config_tx_id(id, &conn)?);
             }
+
+            let config_tx_with_configs = MintConfigTxWithConfigs {
+                mint_config_tx: mint_config_tx.clone(),
+                mint_configs: configs,
+            };
+
+            mint_configs_txs_with_configs.push(config_tx_with_configs);
         }
 
-        Ok( MintInfoResponse {
+        Ok(MintInfoResponse {
             mint_txs,
-            mint_config_txs,
-            mint_configs
+            mint_config_txs: mint_configs_txs_with_configs,
         })
     }
 }
@@ -565,21 +574,35 @@ mod tests {
         let conn = reserve_auditor_db.get_conn().unwrap();
         let service = ReserveAuditorHttpService::new(reserve_auditor_db, config.clone());
 
-        // seed mint txs, mint config txs, mint configs, 
+        // seed mint txs, mint config txs, mint configs,
         let token_id1 = TokenId::from(1);
         let (mint_config_tx1, signers1) = create_mint_config_tx_and_signers(token_id1, &mut rng);
-        let config_tx_entity = MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
+        let config_tx_entity =
+            MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
         let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
         let mint_tx1_entity = MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
-        
+
         let mint_info = service.get_mint_info_by_block(5).unwrap();
 
+        // check that mint tx has been found
         let mints = mint_info.mint_txs;
         assert_eq!(mints[0].id().unwrap(), mint_tx1_entity.id().unwrap());
-        let mint_config_txs = mint_info.mint_config_txs;
-        assert_eq!(mint_config_txs[0].id().unwrap(), config_tx_entity.id().unwrap());
-        let mint_configs = mint_info.mint_configs;
+        // check that mint config tx has been found
+        let mint_config_txs = &mint_info.mint_config_txs;
+        assert_eq!(
+            mint_config_txs[0].mint_config_tx.id().unwrap(),
+            config_tx_entity.id().unwrap()
+        );
+        // check that mint config has been found
+        let mint_configs = &mint_info.mint_config_txs[0].mint_configs;
         assert_eq!(mint_configs[0].id().unwrap(), 1);
-        assert_eq!(mint_configs[0].mint_config_tx_id(), mint_config_txs[0].id().unwrap());
+        assert_eq!(
+            mint_configs[0].mint_config_tx_id(),
+            mint_config_txs[0].mint_config_tx.id().unwrap()
+        );
+        // check that nothing found for other block
+        let not_found = service.get_mint_info_by_block(4).unwrap();
+        assert_eq!(not_found.mint_txs.len(), 0);
+        assert_eq!(not_found.mint_config_txs.len(), 0);
     }
 }

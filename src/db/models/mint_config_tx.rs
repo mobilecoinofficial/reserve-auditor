@@ -174,7 +174,7 @@ impl MintConfigTx {
     ) -> Result<Vec<MintConfigTx>, Error> {
         Ok(mint_config_txs::table
             .filter(mint_config_txs::block_index.eq(block_index as i64))
-            .order_by(mint_config_txs::block_index.desc())
+            .order_by(mint_config_txs::id.asc())
             .load(conn)?)
     }
 }
@@ -611,5 +611,9 @@ mod tests {
         let found_config_txs = MintConfigTx::get_by_block_index(5, &conn).unwrap();
 
         assert_eq!(found_config_txs.len(), 2);
+
+        // make sure nothing found at different block
+        let no_config_txs = MintConfigTx::get_by_block_index(3, &conn).unwrap();
+        assert_eq!(no_config_txs.len(), 0);
     }
 }

@@ -397,5 +397,9 @@ mod tests {
 
         assert_eq!(found.len(), 1);
         assert_eq!(found[0].id, should_be_found.id);
+
+        // make sure nothing found in different block
+        let none_found = MintTx::get_mint_txs_by_block_index(4, &conn).unwrap();
+        assert_eq!(none_found.len(), 0);
     }
 }

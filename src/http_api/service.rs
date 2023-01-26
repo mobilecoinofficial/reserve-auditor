@@ -211,10 +211,8 @@ impl ReserveAuditorHttpService {
 
     pub fn get_mint_info_by_block(&self, block_index: u64) -> Result<MintInfoResponse ,Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
-
         let mint_txs = MintTx::get_mint_txs_by_block_index(block_index, &conn)?;
         let mint_config_txs = MintConfigTx::get_by_block_index(block_index, &conn)?;
-
         let mut mint_configs = vec![];
         for mint_config_tx in mint_config_txs.iter() {
             // In reality we should always have an id since this was returned from the database.

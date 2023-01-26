@@ -61,6 +61,21 @@ httpServer:
       cpu: 100m
       memory: 65Mi
 
+frontend:
+  image:
+    repository: mobilecoin/reserve-auditor-frontend
+    pullPolicy: Always
+    tag: ""
+  replicas: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 65Mi
+  nodeSelector: {}
+  affinity: {}
+  tolerations: {}
+  env: {}
+
 persistence:
   enabled: true
   pvcSpec:

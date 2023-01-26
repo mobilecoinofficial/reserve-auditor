@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Publish to DockerHub
+      - name: Publish backend DockerHub
         uses: docker/build-push-action@v3
         if: "! contains(github.event.head_commit.message, '[skip docker]')"
         id: docker-push
@@ -57,6 +57,19 @@ jobs:
           push: true
           cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
           cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
+
+      - name: Publish frontend DockerHub
+        uses: docker/build-push-action@v3
+        if: "! contains(github.event.head_commit.message, '[skip docker]')"
+        id: docker-push
+        with:
+          context: .
+          file: Dockerfile.frontend
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}-frontend:${{ steps.version_output.outputs.version }}
+          push: true
+          cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
+          cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
 
       - name: Package and publish chart
         uses: mobilecoinofficial/gha-k8s-toolbox@v1

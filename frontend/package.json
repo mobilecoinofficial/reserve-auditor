@@ -59,7 +59,9 @@
   "scripts": {
     "start-local": "webpack serve --config webpack/webpack.config.js --env env=local --mode development",
     "start-testnet": "webpack serve --config webpack/webpack.config.js --env env=testnet --mode development",
+    "start-testnet-prod": "webpack serve --config webpack/webpack.config.js --env env=testnet --mode production",
     "start-mainnet": "webpack serve --config webpack/webpack.config.js --env env=mainnet --mode development",
+    "start-mainnet-prod": "webpack serve --config webpack/webpack.config.js --env env=mainnet --mode production",
     "build-local": "webpack --config webpack/webpack.config.js --env env=local --mode production",
     "build-testnet": "webpack --config webpack/webpack.config.js --env env=testnet --mode production",
     "build-mainnet": "webpack --config webpack/webpack.config.js --env env=mainnet --mode production",

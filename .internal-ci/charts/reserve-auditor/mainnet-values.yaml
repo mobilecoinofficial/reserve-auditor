@@ -55,8 +55,20 @@ ingress:
   hosts:
     - host: reserve-auditor.prod.mobilecoin.com
       paths:
+        - path: /api
+          pathType: ImplementationSpecific
+          backend:
+            service:
+              name: mainnet-reserve-auditor-api
+              port:
+                number: 80
         - path: /
           pathType: ImplementationSpecific
+          backend:
+            service:
+              name: mainnet-reserve-auditor-frontend
+              port:
+                number: 3000
   tls:
     - secretName: reserve-auditor.prod.mobilecoin.com-tls
       hosts:

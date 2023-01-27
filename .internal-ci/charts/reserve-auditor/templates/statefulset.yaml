@@ -1,10 +1,10 @@
----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "reserve-auditor.fullname" . }}
   labels:
     {{- include "reserve-auditor.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -21,6 +21,7 @@ spec:
       {{- end }}
       labels:
         {{- include "reserve-auditor.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: server
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

@@ -9,7 +9,7 @@ mobilecoind:
     repository: mobilecoin/mobilecoind
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: v3.0.0-test
+    tag: "v3.0.0-test"
   resources:
     requests:
       cpu: 100m
@@ -45,7 +45,7 @@ ledgerScanner:
   image:
     repository: mobilecoin/reserve-auditor
     pullPolicy: Always
-    tag: ""
+    tag: "v0-deploy-frontend-to-mainnet.53.sha-59b46b37"
   resources:
     requests:
       cpu: 100m
@@ -55,7 +55,7 @@ httpServer:
   image:
     repository: mobilecoin/reserve-auditor
     pullPolicy: Always
-    tag: ""
+    tag: "v0-deploy-frontend-to-mainnet.53.sha-59b46b37"
   resources:
     requests:
       cpu: 100m
@@ -65,7 +65,7 @@ frontend:
   image:
     repository: mobilecoin/reserve-auditor-frontend
     pullPolicy: Always
-    tag: ""
+    tag: "v0-deploy-frontend-to-mainnet.53.sha-59b46b37"
   replicas: 2
   resources:
     requests:
@@ -132,13 +132,18 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
-  port: 3000
+  frontend:
+    type: ClusterIP
+    port: 3000
+  api:
+    type: ClusterIP
+    port: 80
 
 ingress:
   enabled: true
   className: ""
   annotations: 
+  # haproxy.org/path-rewrite: /api/(.*) /\1
   # kubernetes.io/ingress.class: haproxy
     cert-manager.io/cluster-issuer: letsencrypt-production-http
   # hosts:

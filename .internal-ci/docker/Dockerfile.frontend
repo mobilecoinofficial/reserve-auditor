@@ -1,0 +1,28 @@
+FROM node:19.5.0-buster-slim AS deps
+WORKDIR /app
+
+COPY frontend .
+
+RUN yarn install --non-interactive
+
+FROM node:19.5.0-buster-slim AS builder
+WORKDIR /app
+
+ENV NODE_ENV production
+
+COPY frontend .
+COPY --from=deps /app/node_modules ./node_modules
+
+RUN yarn build-mainnet -o mainnet
+RUN yarn build-testnet -o testnet
+
+FROM nginx AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+
+COPY --from=builder /app/mainnet /app/mainnet
+COPY --from=builder /app/testnet /app/testnet
+
+#CMD ["nginx-entrypoint","--root-dir=/app/$RUN_MODE"]
+#CMD ["nginx", "-p", "/app/", "-g","daemon off;"]

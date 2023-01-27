@@ -1,8 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "reserve-auditor.fullname" . }}
+  name: {{ include "reserve-auditor.fullname" . }}-frontend-test
   labels:
+    app.kubernetes.io/component: frontend
     {{- include "reserve-auditor.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
@@ -18,6 +19,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
+        app.kubernetes.io/component: frontend
         {{- include "reserve-auditor.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
@@ -35,7 +37,7 @@ spec:
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 3000
               protocol: TCP
           env:
           {{- toYaml .Values.frontend.env | nindent 12 }}

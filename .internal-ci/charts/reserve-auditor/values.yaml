@@ -9,7 +9,7 @@ mobilecoind:
     repository: mobilecoin/mobilecoind
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "v3.0.0-test"
+    tag: "v3.0.0"
   resources:
     requests:
       cpu: 100m
@@ -45,7 +45,7 @@ ledgerScanner:
   image:
     repository: mobilecoin/reserve-auditor
     pullPolicy: Always
-    tag: "v0-deploy-frontend-to-mainnet.53.sha-59b46b37"
+    tag: ""
   resources:
     requests:
       cpu: 100m
@@ -55,7 +55,7 @@ httpServer:
   image:
     repository: mobilecoin/reserve-auditor
     pullPolicy: Always
-    tag: "v0-deploy-frontend-to-mainnet.53.sha-59b46b37"
+    tag: ""
   resources:
     requests:
       cpu: 100m
@@ -65,8 +65,8 @@ frontend:
   image:
     repository: mobilecoin/reserve-auditor-frontend
     pullPolicy: Always
-    tag: "v0-deploy-frontend-to-mainnet.53.sha-59b46b37"
-  replicas: 2
+    tag: ""
+  replicas: 1
   resources:
     requests:
       cpu: 100m
@@ -137,7 +137,7 @@ service:
     port: 3000
   api:
     type: ClusterIP
-    port: 80
+    port: 8080
 
 ingress:
   enabled: true

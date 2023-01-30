@@ -134,10 +134,10 @@ securityContext: {}
 service:
   frontend:
     type: ClusterIP
-    port: 3000
+    port: 8080
   api:
     type: ClusterIP
-    port: 8080
+    port: 80
 
 ingress:
   enabled: true

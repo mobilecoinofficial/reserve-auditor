@@ -64,7 +64,7 @@ jobs:
         id: docker-push-frontend
         with:
           context: .
-          file: Dockerfile.frontend
+          file: .internal-ci/docker/Dockerfile.frontend
           labels: ${{ steps.docker_meta.outputs.labels }}
           tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}-frontend:${{ steps.version_output.outputs.version }}
           push: true

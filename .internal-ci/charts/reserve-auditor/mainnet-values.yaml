@@ -70,7 +70,7 @@ ingress:
             service:
               name: mainnet-reserve-auditor-frontend
               port:
-                number: 3000
+                number: 8080
   tls:
     - secretName: reserve-auditor.prod.mobilecoin.com-tls
       hosts:

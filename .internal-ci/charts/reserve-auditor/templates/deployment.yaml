@@ -42,15 +42,6 @@ spec:
           env:
             - name: "MC_NETWORK"
               value: {{ quote .Values.mobilecoind.chainID }}
-          {{- toYaml .Values.frontend.env | nindent 12 }}
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
       {{- with .Values.frontend.nodeSelector }}

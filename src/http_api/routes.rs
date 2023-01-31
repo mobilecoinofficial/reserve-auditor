@@ -16,7 +16,7 @@ use crate::{
 use mc_transaction_core::TokenId;
 use rocket::{get, serde::json::Json, State};
 
-use super::api_types::{GnosisSafeConfigResponse, TokenPrecisionResponse};
+use super::api_types::{BurnInfoResponse, GnosisSafeConfigResponse, TokenPrecisionResponse};
 
 /// Index route
 #[get("/")]
@@ -147,6 +147,18 @@ pub fn get_gnosis_safe_config(
 ) -> Result<Json<GnosisSafeConfigResponse>, String> {
     match service.get_gnosis_safe_config() {
         Ok(config) => Ok(Json(config)),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Get burn txs by block.
+#[get("/burns?<block_index>")]
+pub fn get_burns_for_block(
+    block_index: u64,
+    service: &State<ReserveAuditorHttpService>,
+) -> Result<Json<BurnInfoResponse>, String> {
+    match service.get_burns_by_block(block_index) {
+        Ok(burns) => Ok(Json(burns)),
         Err(e) => Err(e.to_string()),
     }
 }

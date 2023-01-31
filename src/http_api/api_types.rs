@@ -106,3 +106,10 @@ pub struct LedgerBalanceResponse {
 pub struct GnosisSafeConfigResponse {
     pub config: GnosisSafeConfig,
 }
+
+/// Response for getting burns by block
+#[derive(Serialize, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
+pub struct BurnInfoResponse {
+    pub burn_txs: Vec<BurnTxOut>,
+}

@@ -40,6 +40,8 @@ spec:
               containerPort: {{ .Values.service.frontend.port }}
               protocol: TCP
           env:
+            - name: "MC_NETWORK"
+              value: {{ quote .Values.mobilecoind.chainID }}
           {{- toYaml .Values.frontend.env | nindent 12 }}
           # livenessProbe:
           #   httpGet:

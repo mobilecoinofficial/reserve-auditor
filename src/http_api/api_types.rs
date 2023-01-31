@@ -115,10 +115,25 @@ pub struct MintConfigTxWithConfigs {
     pub mint_configs: Vec<MintConfig>,
 }
 
+/// Mint with Config
+#[derive(Serialize, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
+pub struct MintWithConfig {
+    pub mint_tx: MintTx,
+    pub mint_config: MintConfig,
+}
+
 /// Mint Txs
 #[derive(Serialize, Debug, Eq, PartialEq)]
 #[allow(missing_docs)]
 pub struct MintInfoResponse {
-    pub mint_txs: Vec<MintTx>,
+    pub mint_txs: Vec<MintWithConfig>,
     pub mint_config_txs: Vec<MintConfigTxWithConfigs>,
+}
+
+/// Mint Config
+#[derive(Serialize, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
+pub struct MintConfigResponse {
+    pub mint_config: MintConfig,
 }

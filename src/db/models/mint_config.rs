@@ -101,6 +101,18 @@ impl MintConfig {
             .load::<Self>(conn)?)
     }
 
+    /// Get mint config by id.
+    pub fn get_by_id(
+        id: i32,
+        conn: &Conn,
+    ) -> Result<Option<Self>, Error> {
+        Ok(mint_configs::table
+            .filter(mint_configs::id.eq(id))
+            .limit(1)
+            .first::<MintConfig>(conn)
+            .optional()?)
+    }
+
     /// Get the total amount minted by this configuration before the given block
     /// index.
     pub fn get_total_minted_before_block(

@@ -12,7 +12,7 @@ use crate::{
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
         AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintConfigTxWithConfigs,
-        MintInfoResponse, UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse,
+        MintInfoResponse, UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse, MintWithConfig
     },
     Error,
 };
@@ -209,10 +209,37 @@ impl ReserveAuditorHttpService {
         })
     }
 
+    // pub fn get_mint_config_by_id(&self, id: u64) -> Result<MintConfigResponse, Error> {
+    //     let conn = self.reserve_auditor_db.get_conn()?;
+    //     let config = MintConfig::get_by_id(id as i32, &conn)?;
+    //     if let Some(mint_config) = config {
+    //         return Ok(MintConfigResponse {
+    //             mint_config
+    //         })
+    //     } else {
+    //         return Err(Error::NotFound);
+    //     }
+    // }
+
     pub fn get_mint_info_by_block(&self, block_index: u64) -> Result<MintInfoResponse, Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
         let mint_txs = MintTx::get_mint_txs_by_block_index(block_index, &conn)?;
         let mint_config_txs = MintConfigTx::get_by_block_index(block_index, &conn)?;
+
+        let mut mints_with_configs = vec![];
+        for mint in mint_txs.iter() {
+            // In reality we should always have an id since this was returned from the database.
+            if let Some(id) = mint.id() {
+                if let Some(mint_config) = MintConfig::get_by_id(id, &conn)? {
+                    mints_with_configs.push(
+                        MintWithConfig {
+                            mint_tx: mint.clone(),
+                            mint_config
+                        }
+                    )
+                }
+            }
+        }
 
         // create a list of cmint onfig txs with related mint configs
         let mut mint_configs_txs_with_configs = vec![];
@@ -232,7 +259,7 @@ impl ReserveAuditorHttpService {
         }
 
         Ok(MintInfoResponse {
-            mint_txs,
+            mint_txs: mints_with_configs,
             mint_config_txs: mint_configs_txs_with_configs,
         })
     }

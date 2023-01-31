@@ -1,7 +1,5 @@
 # Override values for mainnet
 
-replicaCount: 1
-
 mobilecoind:
   image:
     tag: "v3.0.0"
@@ -54,24 +52,4 @@ gnosisConfig:
     token_decimals_max: 6
 
 ingress:
-  hosts:
-    - host: reserve-auditor.prod.mobilecoin.com
-      paths:
-        - path: /api
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: mainnet-reserve-auditor-api
-              port:
-                number: 80
-        - path: /
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: mainnet-reserve-auditor-frontend
-              port:
-                number: 8080
-  tls:
-    - secretName: reserve-auditor.prod.mobilecoin.com-tls
-      hosts:
-        - reserve-auditor.prod.mobilecoin.com
+  host: auditor.mobilecoin.foundation

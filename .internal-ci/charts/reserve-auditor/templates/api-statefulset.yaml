@@ -1,0 +1,173 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "reserve-auditor.fullname" . }}-api
+  labels:
+    {{- include "reserve-auditor.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      {{- include "reserve-auditor.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  serviceName: {{ include "reserve-auditor.fullname" . }}-api
+  template:
+    metadata:
+      annotations:
+        {{- toYaml .Values.api.podAnnotations | nindent 8 }}
+      labels:
+        {{- include "reserve-auditor.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.ImagePullSecrets | nindent 8 }}
+      securityContext: {}
+      volumes:
+      - name: gnosis-config
+        configMap:
+          name: {{ include "reserve-auditor.fullname" . }}-gnosis
+      {{- if not .Values.persistence.enabled }}     
+      - name: data
+        emptyDir: {}
+      {{- end }}
+      containers:
+      {{- with .Values.mobilecoind }}
+      - name: mobilecoind
+        securityContext: {}
+        image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
+        imagePullPolicy: Always
+        ports:
+        - name: mobilecoind-rpc
+          containerPort: 3229
+        livenessProbe:
+          exec:
+            command:
+            - "/usr/local/bin/grpc_health_probe"
+            - "-addr=:3229"
+          failureThreshold: 3
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - "/usr/local/bin/grpc_health_probe"
+            - "-addr=:3229"
+          failureThreshold: 4
+          periodSeconds: 30
+        volumeMounts:
+        - name: data
+          mountPath: /ledger/
+        - name: data
+          mountPath: /mobilecoind/
+        env:
+        - name: "RUST_BACKTRACE"
+          value: "full"
+        - name: "RUST_LOG"
+          value: "info,rustls=warn,hyper=warn,tokio_reactor=warn,mio=warn,want=warn,reqwest=warn,rusoto_core=error,rusoto_signature=error,h2=error"
+        command:
+        - /bin/bash
+        - -ec
+        - |
+           /usr/bin/mobilecoind \
+             --chain-id {{ .chainID }} \
+             {{- range .peers }}
+             --peer {{ .url }} \
+             --tx-source-url {{ .txSource }} \
+             {{- end }}
+             --poll-interval {{ .pollInterval }} \
+             --quorum-set '{"threshold": {{ .threshold }}, "members": [
+               {{- range (initial .peers) -}}
+                 {{ include "reserve-auditor.quorumItem" . }},
+               {{- end -}}
+               {{- include "reserve-auditor.quorumItem" (last .peers) }}]}' \
+             --ledger-db /ledger/ledger.db \
+             --mobilecoind-db /mobilecoind/mobilecoind.db \
+             --listen-uri {{ .listenURI }}
+        resources:
+          {{- toYaml .resources | nindent 12 }}
+      {{- end }}
+      - name: ledger-scanner
+        securityContext: {}
+        image: "{{ .Values.ledgerScanner.image.repository }}:{{ .Values.ledgerScanner.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Always
+        command:
+        - /bin/bash
+        - -ec
+        - |-
+          until test -f /ledger/ledger.db/data.mdb; do
+            sleep 3
+            echo 'waiting for ledger db'
+          done
+          mkdir -p /data/auditor
+          touch /data/auditor/auditor.db
+          /usr/local/bin/mc-reserve-auditor \
+            scan-ledger \
+              --ledger-db /ledger/ledger.db \
+              --reserve-auditor-db /auditor/auditor.db \
+              --gnosis-safe-config /config/gnosis/config.json
+        volumeMounts:
+        - name: gnosis-config
+          mountPath: /config/gnosis
+        - name: data
+          mountPath: /ledger/
+        - name: data
+          mountPath: /auditor/
+        resources:
+          {{- toYaml .Values.ledgerScanner.resources | nindent 12 }}
+      - name: http-server
+        command:
+        - /bin/bash
+        - -ec
+        - |
+          until test -f /auditor/auditor.db; do
+            sleep 3
+            echo 'waiting for auditor db'
+          done
+          /usr/local/bin/mc-reserve-auditor \
+            start-http-server \
+            --host 0.0.0.0 \
+            --reserve-auditor-db /auditor/auditor.db \
+            --gnosis-safe-config /config/gnosis/config.json
+        volumeMounts:
+        - name: gnosis-config
+          mountPath: /config/gnosis
+        - name: data
+          mountPath: /auditor/
+        securityContext: {}
+        image: "{{ .Values.httpServer.image.repository }}:{{ .Values.httpServer.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          failureThreshold: 2
+          periodSeconds: 15
+          initialDelaySeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          failureThreshold: 2
+          periodSeconds: 15
+          initialDelaySeconds: 30
+        resources:
+          {{- toYaml .Values.httpServer.resources | nindent 12 }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+  volumeClaimTemplates:
+    {{- if .Values.persistence.enabled }}
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data
+      spec:
+        {{- toYaml .Values.persistence.pvcSpec | nindent 8 }}
+    {{- end }}

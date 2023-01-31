@@ -2,49 +2,20 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
-
 mobilecoind:
   image:
     repository: mobilecoin/mobilecoind
-    pullPolicy: Always
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: "v3.0.0"
+    # this is set at mainnet/testnet.values file
+    tag: ""
   resources:
     requests:
       cpu: 100m
       memory: 65Mi
-  chainID: test
-  threshold: 7
-  listenURI: insecure-mobilecoind://0.0.0.0:3229/
-  pollInterval: 1
-  peers:
-  - url: 'mc://node1.test.mobilecoin.com:443/'
-    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node1.test.mobilecoin.com/'
-  - url: 'mc://node2.test.mobilecoin.com:443/'
-    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node2.test.mobilecoin.com/'
-  - url: 'mc://node3.test.mobilecoin.com:443/'
-    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node3.test.mobilecoin.com/'
-  - url: 'mc://node4.test.mobilecoin.com:443/'
-    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node4.test.mobilecoin.com/'
-  - url: 'mc://node5.test.mobilecoin.com:443/'
-    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node5.test.mobilecoin.com/'
-  - url: 'mc://node6.test.mobilecoin.com:443/'
-    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node6.test.mobilecoin.com/'
-  - url: 'mc://node7.test.mobilecoin.com:443/'
-    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node7.test.mobilecoin.com/'
-  - url: 'mc://node8.test.mobilecoin.com:443/'
-    txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node8.test.mobilecoin.com/'
-
-  - url: 'mc://node1.consensus.mob.staging.namda.net:443/'
-    txSource: 'https://s3-eu-central-1.amazonaws.com/staging-namda-payments-ledger/node1.consensus.mob.staging.namda.net/'
-  - url: 'mc://node2.consensus.mob.staging.namda.net:443/'
-    txSource: 'https://s3-eu-central-1.amazonaws.com/staging-namda-payments-ledger/node2.consensus.mob.staging.namda.net/'
+  peers: {}
 
 ledgerScanner:
   image:
     repository: mobilecoin/reserve-auditor
-    pullPolicy: Always
     tag: ""
   resources:
     requests:
@@ -54,7 +25,6 @@ ledgerScanner:
 httpServer:
   image:
     repository: mobilecoin/reserve-auditor
-    pullPolicy: Always
     tag: ""
   resources:
     requests:
@@ -64,7 +34,6 @@ httpServer:
 frontend:
   image:
     repository: mobilecoin/reserve-auditor-frontend
-    pullPolicy: Always
     tag: ""
   replicas: 1
   resources:
@@ -73,8 +42,20 @@ frontend:
       memory: 65Mi
   nodeSelector: {}
   affinity: {}
-  tolerations: {}
+  tolerations: []
   env: []
+  podAnnotations: 
+    fluentbit.io/include: 'true'
+    fluentbit.io/exclude-jaeger-agent: 'true'
+
+api:
+  replicas: 1
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  podAnnotations: 
+    fluentbit.io/include: 'true'
+    fluentbit.io/exclude-jaeger-agent: 'true'
 
 persistence:
   enabled: true
@@ -93,78 +74,24 @@ gnosisConfig:
     api_url: https://safe-transaction.goerli.gnosis.io/
     token_decimals_max: 6
     tokens:
-      - token_id: 1
-        token_type: ERC20_TRANSFER
-        eth_token_contract_addr: "0xeC76FbFD75481839e456C4cb2cd23cda813f19B1"
-        name: gRSV
-        symbol: Token
-        decimals: 18
-        logo_uri: ""
-        aux_burn_contract_addr: "0x89d2c2C7853AD6015d50f39A615196e17f13Cf59"
-        aux_burn_function_sig: [199, 111, 6, 53]
+    - token_id: 1
+      token_type: ERC20_TRANSFER
+      eth_token_contract_addr: "0xeC76FbFD75481839e456C4cb2cd23cda813f19B1"
+      name: gRSV
+      symbol: Token
+      decimals: 18
+      logo_uri: ""
+      aux_burn_contract_addr: "0x89d2c2C7853AD6015d50f39A615196e17f13Cf59"
+      aux_burn_function_sig: [199, 111, 6, 53]
 
 imagePullSecrets:
-  - name: docker-credentials
+- name: docker-credentials
 
 nameOverride: ""
 fullnameOverride: ""
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  frontend:
-    type: ClusterIP
-    port: 8080
-  api:
-    type: ClusterIP
-    port: 80
-
 ingress:
-  enabled: true
-  className: ""
   annotations: 
     haproxy.org/path-rewrite: /api/(.*) /\1
-  # kubernetes.io/ingress.class: haproxy
     cert-manager.io/cluster-issuer: letsencrypt-production-http
-  # hosts:
-  #   - host: chart-example.local
-  #     paths:
-  #       - path: /
-  #         pathType: ImplementationSpecific
-  # tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: {}
-
-affinity: {}

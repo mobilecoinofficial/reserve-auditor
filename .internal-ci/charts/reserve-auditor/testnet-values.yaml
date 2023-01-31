@@ -46,31 +46,4 @@ gnosisConfig:
         aux_burn_function_sig: [199, 111, 6, 53]
 
 ingress: 
-  # enabled: true
-  # className: ""
-  # annotations: 
-  #   kubernetes.io/ingress.class: "nginx"
-  #   kubernetes.io/tls-acme: "true"
-
-  hosts:
-    - host: reserve-auditor.test.mobilecoin.com
-      paths:
-        - path: /api
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: testnet-reserve-auditor-api
-              port:
-                number: 80
-        - path: /
-          pathType: ImplementationSpecific
-          backend:
-            service:
-              name: testnet-reserve-auditor-frontend
-              port:
-                number: 8080
-  tls: 
-    - secretName: reserve-auditor.test.mobilecoin.com-tls
-      hosts:
-        - reserve-auditor.test.mobilecoin.com
-
+  host: auditor.test.mobilecoin.com

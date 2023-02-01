@@ -21,7 +21,7 @@ spec:
         app.kubernetes.io/component: api
     spec:
       imagePullSecrets:
-        {{- toYaml .Values.ImagePullSecrets | nindent 8 }}
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       securityContext: {}
       volumes:
       - name: gnosis-config

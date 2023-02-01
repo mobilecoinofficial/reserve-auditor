@@ -11,7 +11,7 @@ mobilecoind:
     requests:
       cpu: 100m
       memory: 65Mi
-  peers: {}
+  peers: []
 
 ledgerScanner:
   image:

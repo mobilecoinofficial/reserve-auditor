@@ -83,6 +83,7 @@ spec:
              --ledger-db /ledger/ledger.db \
              --mobilecoind-db /mobilecoind/mobilecoind.db \
              --listen-uri {{ .listenURI }}
+             \ # do not remove this trailing backslash. It will break mobilecoind and I can't explain why.
         resources:
           {{- toYaml .resources | nindent 12 }}
       {{- end }}

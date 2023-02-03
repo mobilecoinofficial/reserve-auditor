@@ -613,7 +613,7 @@ mod tests {
 
         // check that mint tx has been found
         let mints = mint_info.mint_txs;
-        assert_eq!(mints[0].id().unwrap(), mint_tx1_entity.id().unwrap());
+        assert_eq!(mints[0].mint_tx.id().unwrap(), mint_tx1_entity.id().unwrap());
         // check that mint config tx has been found
         let mint_config_txs = &mint_info.mint_config_txs;
         assert_eq!(

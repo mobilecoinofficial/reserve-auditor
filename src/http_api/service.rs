@@ -17,7 +17,9 @@ use crate::{
     Error,
 };
 
-use super::api_types::{GnosisSafeConfigResponse, TokenPrecision, TokenPrecisionResponse};
+use super::api_types::{
+    BurnInfoResponse, GnosisSafeConfigResponse, TokenPrecision, TokenPrecisionResponse,
+};
 
 /// Service for handling auditor requests
 pub struct ReserveAuditorHttpService {
@@ -235,6 +237,13 @@ impl ReserveAuditorHttpService {
             mint_txs: mints_with_configs,
             mint_config_txs,
         })
+    }
+
+    pub fn get_burns_by_block(&self, block_index: u64) -> Result<BurnInfoResponse, Error> {
+        let conn = self.reserve_auditor_db.get_conn()?;
+        let burn_txs = BurnTxOut::get_burn_txs_by_block(block_index, &conn)?;
+
+        Ok(BurnInfoResponse { burn_txs })
     }
 }
 

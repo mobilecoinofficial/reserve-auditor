@@ -122,3 +122,10 @@ pub struct MintInfoResponse {
     pub mint_txs: Vec<MintWithConfig>,
     pub mint_config_txs: Vec<MintConfigTx>,
 }
+
+/// Response for getting burns by block
+#[derive(Serialize, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
+pub struct BurnInfoResponse {
+    pub burn_txs: Vec<BurnTxOut>,
+}

@@ -107,14 +107,6 @@ pub struct GnosisSafeConfigResponse {
     pub config: GnosisSafeConfig,
 }
 
-/// Mint Txs
-#[derive(Serialize, Debug, Eq, PartialEq)]
-#[allow(missing_docs)]
-pub struct MintConfigTxWithConfigs {
-    pub mint_config_tx: MintConfigTx,
-    pub mint_configs: Vec<MintConfig>,
-}
-
 /// Mint with Config
 #[derive(Serialize, Debug, Eq, PartialEq)]
 #[allow(missing_docs)]
@@ -128,7 +120,7 @@ pub struct MintWithConfig {
 #[allow(missing_docs)]
 pub struct MintInfoResponse {
     pub mint_txs: Vec<MintWithConfig>,
-    pub mint_config_txs: Vec<MintConfigTxWithConfigs>,
+    pub mint_config_txs: Vec<MintConfigTx>,
 }
 
 /// Mint Config

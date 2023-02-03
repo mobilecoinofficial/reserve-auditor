@@ -11,7 +11,7 @@ use crate::{
     },
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
-        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintConfigTxWithConfigs,
+        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse,
         MintInfoResponse, MintWithConfig, UnauditedBurnTxOutResponse,
         UnauditedGnosisDepositResponse,
     },
@@ -228,26 +228,9 @@ impl ReserveAuditorHttpService {
             }
         }
 
-        // create a list of cmint onfig txs with related mint configs
-        let mut mint_configs_txs_with_configs = vec![];
-        for mint_config_tx in mint_config_txs.iter() {
-            let mut configs = vec![];
-            // In reality we should always have an id since this was returned from the database.
-            if let Some(id) = mint_config_tx.id() {
-                configs.extend(MintConfig::get_by_mint_config_tx_id(id, &conn)?);
-            }
-
-            let config_tx_with_configs = MintConfigTxWithConfigs {
-                mint_config_tx: mint_config_tx.clone(),
-                mint_configs: configs,
-            };
-
-            mint_configs_txs_with_configs.push(config_tx_with_configs);
-        }
-
         Ok(MintInfoResponse {
             mint_txs: mints_with_configs,
-            mint_config_txs: mint_configs_txs_with_configs,
+            mint_config_txs,
         })
     }
 }
@@ -599,7 +582,7 @@ mod tests {
         let mint_info = service.get_mint_info_by_block(5).unwrap();
 
         // check that mint tx has been found
-        let mints = mint_info.mint_txs;
+        let mints = &mint_info.mint_txs;
         assert_eq!(
             mints[0].mint_tx.id().unwrap(),
             mint_tx1_entity.id().unwrap()
@@ -607,15 +590,15 @@ mod tests {
         // check that mint config tx has been found
         let mint_config_txs = &mint_info.mint_config_txs;
         assert_eq!(
-            mint_config_txs[0].mint_config_tx.id().unwrap(),
+            mint_config_txs[0].id().unwrap(),
             config_tx_entity.id().unwrap()
         );
         // check that mint config has been found
-        let mint_configs = &mint_info.mint_config_txs[0].mint_configs;
-        assert_eq!(mint_configs[0].id().unwrap(), 1);
+        let mint_config = &mint_info.mint_txs[0].mint_config;
+        assert_eq!(mint_config.id().unwrap(), 1);
         assert_eq!(
-            mint_configs[0].mint_config_tx_id(),
-            mint_config_txs[0].mint_config_tx.id().unwrap()
+            mint_config.mint_config_tx_id(),
+            mint_config_txs[0].id().unwrap()
         );
         // check that nothing found for other block
         let not_found = service.get_mint_info_by_block(4).unwrap();

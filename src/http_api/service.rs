@@ -215,14 +215,18 @@ impl ReserveAuditorHttpService {
         let mint_config_txs = MintConfigTx::get_by_block_index(block_index, &conn)?;
 
         let mut mints_with_configs = vec![];
-        for mint in mint_txs.iter() {
+        for mint_tx in mint_txs.into_iter() {
             // In reality we should always have an id since this was returned from the database.
-            if let Some(id) = mint.id() {
+            if let Some(id) = mint_tx.id() {
                 if let Some(mint_config) = MintConfig::get_by_id(id, &conn)? {
-                    mints_with_configs.push(MintWithConfig {
-                        mint_tx: mint.clone(),
-                        mint_config,
-                    })
+                    if let Some(mint_config_tx) =
+                        MintConfigTx::get_by_id(mint_config.mint_config_tx_id(), &conn)?
+                    {
+                        mints_with_configs.push(MintWithConfig {
+                            mint_tx,
+                            mint_config_tx,
+                        })
+                    }
                 }
             }
         }
@@ -586,17 +590,17 @@ mod tests {
             mints[0].mint_tx.id().unwrap(),
             mint_tx1_entity.id().unwrap()
         );
-        // check that mint config tx has been found
+        // check that top level mint config tx has been found (mint config tx on block)
         let mint_config_txs = &mint_info.mint_config_txs;
         assert_eq!(
             mint_config_txs[0].id().unwrap(),
             config_tx_entity.id().unwrap()
         );
-        // check that mint config has been found
-        let mint_config = &mint_info.mint_txs[0].mint_config;
-        assert_eq!(mint_config.id().unwrap(), 1);
+        // check that nested mint config tx has been found (mint config tx for mint on block)
+        let mint_config_tx = &mint_info.mint_txs[0].mint_config_tx;
+        assert_eq!(mint_config_tx.id().unwrap(), 1);
         assert_eq!(
-            mint_config.mint_config_tx_id(),
+            mint_config_tx.id().unwrap(),
             mint_config_txs[0].id().unwrap()
         );
         // check that nothing found for other block

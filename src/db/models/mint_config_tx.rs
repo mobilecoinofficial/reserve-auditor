@@ -147,6 +147,14 @@ impl MintConfigTx {
             .optional()?)
     }
 
+    /// Get mint config tx by id.
+    pub fn get_by_id(id: i32, conn: &Conn) -> Result<Option<Self>, Error> {
+        Ok(mint_config_txs::table
+            .filter(mint_config_txs::id.eq(id))
+            .first::<MintConfigTx>(conn)
+            .optional()?)
+    }
+
     /// Get the total amount minted by all configurations in this MintConfigTx
     /// before the given block index.
     pub fn get_total_minted_before_block(
@@ -601,7 +609,7 @@ mod tests {
 
         let conn = reserve_auditor_db.get_conn().unwrap();
 
-        // Store a mint config fopr each token at block index 5.
+        // Store a mint config for each token at block index 5.
         let (mint_config_tx1, _signers) = create_mint_config_tx_and_signers(token_id1, &mut rng);
         let (mint_config_tx2, _signers) = create_mint_config_tx_and_signers(token_id2, &mut rng);
         MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();

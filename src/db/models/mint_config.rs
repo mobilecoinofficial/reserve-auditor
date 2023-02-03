@@ -105,7 +105,6 @@ impl MintConfig {
     pub fn get_by_id(id: i32, conn: &Conn) -> Result<Option<Self>, Error> {
         Ok(mint_configs::table
             .filter(mint_configs::id.eq(id))
-            .limit(1)
             .first::<MintConfig>(conn)
             .optional()?)
     }

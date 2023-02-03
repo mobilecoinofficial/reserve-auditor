@@ -107,12 +107,12 @@ pub struct GnosisSafeConfigResponse {
     pub config: GnosisSafeConfig,
 }
 
-/// Mint with Config
+/// Mint with Config tx
 #[derive(Serialize, Debug, Eq, PartialEq)]
 #[allow(missing_docs)]
 pub struct MintWithConfig {
     pub mint_tx: MintTx,
-    pub mint_config: MintConfig,
+    pub mint_config_tx: MintConfigTx,
 }
 
 /// Mint Txs

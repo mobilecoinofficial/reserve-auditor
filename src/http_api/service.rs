@@ -210,18 +210,6 @@ impl ReserveAuditorHttpService {
         })
     }
 
-    // pub fn get_mint_config_by_id(&self, id: u64) -> Result<MintConfigResponse, Error> {
-    //     let conn = self.reserve_auditor_db.get_conn()?;
-    //     let config = MintConfig::get_by_id(id as i32, &conn)?;
-    //     if let Some(mint_config) = config {
-    //         return Ok(MintConfigResponse {
-    //             mint_config
-    //         })
-    //     } else {
-    //         return Err(Error::NotFound);
-    //     }
-    // }
-
     pub fn get_mint_info_by_block(&self, block_index: u64) -> Result<MintInfoResponse, Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
         let mint_txs = MintTx::get_mint_txs_by_block_index(block_index, &conn)?;

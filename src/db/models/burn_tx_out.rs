@@ -192,6 +192,14 @@ impl BurnTxOut {
             .collect())
     }
 
+    /// get [BurnTxOut]s by block
+    pub fn get_burn_txs_by_block(block_index: u64, conn: &Conn) -> Result<Vec<Self>, Error> {
+        Ok(burn_tx_outs::table
+            .filter(burn_tx_outs::block_index.eq(block_index as i64))
+            .order_by(burn_tx_outs::id.asc())
+            .load(conn)?)
+    }
+
     /// A helper method to get a copy of this object with the id field set to
     /// None, used in tests.
     #[allow(dead_code)]
@@ -387,5 +395,22 @@ mod tests {
             assert_eq!(burn_amounts.len(), 1);
             assert_eq!(burn_amounts[0], (TokenId::from(i), i * 100));
         }
+    }
+
+    #[test_with_logger]
+    fn test_get_burn_txs_by_block(logger: Logger) {
+        let mut rng = mc_util_test_helper::get_seeded_rng();
+        let test_db_context = TestDbContext::default();
+        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let conn = reserve_auditor_db.get_conn().unwrap();
+
+        for i in 0..3 {
+            // test util inserts at block index 0
+            create_and_insert_burn_tx_out(TokenId::from(i), i * 100, &conn, &mut rng);
+        }
+        let burn_txs = BurnTxOut::get_burn_txs_by_block(0, &conn).unwrap();
+        assert_eq!(burn_txs.len(), 3);
+        let not_found = BurnTxOut::get_burn_txs_by_block(1, &conn).unwrap();
+        assert_eq!(not_found.len(), 0);
     }
 }

@@ -12,7 +12,8 @@ use crate::{
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
         AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintConfigTxWithConfigs,
-        MintInfoResponse, UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse, MintWithConfig
+        MintInfoResponse, MintWithConfig, UnauditedBurnTxOutResponse,
+        UnauditedGnosisDepositResponse,
     },
     Error,
 };
@@ -231,12 +232,10 @@ impl ReserveAuditorHttpService {
             // In reality we should always have an id since this was returned from the database.
             if let Some(id) = mint.id() {
                 if let Some(mint_config) = MintConfig::get_by_id(id, &conn)? {
-                    mints_with_configs.push(
-                        MintWithConfig {
-                            mint_tx: mint.clone(),
-                            mint_config
-                        }
-                    )
+                    mints_with_configs.push(MintWithConfig {
+                        mint_tx: mint.clone(),
+                        mint_config,
+                    })
                 }
             }
         }
@@ -613,7 +612,10 @@ mod tests {
 
         // check that mint tx has been found
         let mints = mint_info.mint_txs;
-        assert_eq!(mints[0].mint_tx.id().unwrap(), mint_tx1_entity.id().unwrap());
+        assert_eq!(
+            mints[0].mint_tx.id().unwrap(),
+            mint_tx1_entity.id().unwrap()
+        );
         // check that mint config tx has been found
         let mint_config_txs = &mint_info.mint_config_txs;
         assert_eq!(

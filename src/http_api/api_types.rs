@@ -129,3 +129,10 @@ pub struct MintInfoResponse {
 pub struct MintConfigResponse {
     pub mint_config: MintConfig,
 }
+
+/// Mint Config tx
+#[derive(Serialize, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
+pub struct MintConfigTxResponse {
+    pub mint_config_tx: MintConfigTx,
+}

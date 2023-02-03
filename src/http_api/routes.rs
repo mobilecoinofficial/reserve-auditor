@@ -8,7 +8,7 @@ use crate::{
         api_types::{
             AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse,
             LedgerBalanceResponse, MintInfoResponse, TokenType, UnauditedBurnTxOutResponse,
-            UnauditedGnosisDepositResponse,
+            UnauditedGnosisDepositResponse, MintConfigTxResponse
         },
         service::ReserveAuditorHttpService,
     },
@@ -29,6 +29,15 @@ pub fn index() -> &'static str {
 pub fn get_counters(service: &State<ReserveAuditorHttpService>) -> Result<Json<Counters>, String> {
     match service.get_counters() {
         Ok(counters) => Ok(Json(counters)),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Get counters
+#[get("/latest_mint_config_tx")]
+pub fn get_latest_mint_config_tx(service: &State<ReserveAuditorHttpService>) -> Result<Json<MintConfigTxResponse>, String> {
+    match service.get_latest_mint_config_tx() {
+        Ok(config_tx) => Ok(Json(config_tx)),
         Err(e) => Err(e.to_string()),
     }
 }

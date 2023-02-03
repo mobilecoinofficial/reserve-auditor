@@ -7,12 +7,12 @@ use mc_transaction_core::TokenId;
 use crate::{
     db::{
         AuditedBurn, AuditedMint, BlockAuditData, BlockBalance, BurnTxOut, Counters,
-        GnosisSafeDeposit, MintConfig, MintConfigTx, MintTx, ReserveAuditorDb,
+        GnosisSafeDeposit, MintConfig, MintConfigTx, MintTx, ReserveAuditorDb, 
     },
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
         AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintInfoResponse,
-        MintWithConfig, UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse,
+        MintWithConfig, UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse, MintConfigTxResponse
     },
     Error,
 };
@@ -42,6 +42,18 @@ impl ReserveAuditorHttpService {
     pub fn get_counters(&self) -> Result<Counters, Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
         Counters::get(&conn)
+    }
+
+    /// get counters
+    pub fn get_latest_mint_config_tx(&self) -> Result<MintConfigTxResponse, Error> {
+        let conn = self.reserve_auditor_db.get_conn()?;
+        if let Some(mint_config_tx) = MintConfigTx::most_recent_for_token(0, TokenId::from(1), &conn)? {
+            return Ok( MintConfigTxResponse {
+                mint_config_tx
+            })
+        }
+
+        Err(Error::NotFound)
     }
 
     /// get token precision data

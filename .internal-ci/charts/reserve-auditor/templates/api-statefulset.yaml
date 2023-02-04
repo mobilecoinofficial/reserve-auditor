@@ -27,10 +27,8 @@ spec:
       - name: gnosis-config
         configMap:
           name: {{ include "reserve-auditor.fullname" . }}-gnosis
-      {{- if not .Values.persistence.enabled }}     
       - name: data
         emptyDir: {}
-      {{- end }}
       containers:
       {{- with .Values.mobilecoind }}
       - name: mobilecoind
@@ -56,9 +54,7 @@ spec:
           periodSeconds: 30
         volumeMounts:
         - name: data
-          mountPath: /ledger/
-        - name: data
-          mountPath: /mobilecoind/
+          mountPath: /data/
         env:
         - name: "RUST_BACKTRACE"
           value: "full"
@@ -80,8 +76,8 @@ spec:
                  {{ include "reserve-auditor.quorumItem" . }},
                {{- end -}}
                {{- include "reserve-auditor.quorumItem" (last .peers) }}]}' \
-             --ledger-db /ledger/ledger.db \
-             --mobilecoind-db /mobilecoind/mobilecoind.db \
+             --ledger-db /data/ledger/ledger.db \
+             --mobilecoind-db /data/mobilecoind/mobilecoind.db \
              --listen-uri {{ .listenURI }}
              \ # do not remove this trailing backslash. It will break mobilecoind and I can't explain why.
         resources:
@@ -95,7 +91,7 @@ spec:
         - /bin/bash
         - -ec
         - |-
-          until test -f /ledger/ledger.db/data.mdb; do
+          until test -f /data/ledger/ledger.db/data.mdb; do
             sleep 3
             echo 'waiting for ledger db'
           done
@@ -103,16 +99,14 @@ spec:
           touch /data/auditor/auditor.db
           /usr/local/bin/mc-reserve-auditor \
             scan-ledger \
-              --ledger-db /ledger/ledger.db \
-              --reserve-auditor-db /auditor/auditor.db \
+              --ledger-db /data/ledger/ledger.db \
+              --reserve-auditor-db /data/auditor/auditor.db \
               --gnosis-safe-config /config/gnosis/config.json
         volumeMounts:
         - name: gnosis-config
           mountPath: /config/gnosis
         - name: data
-          mountPath: /ledger/
-        - name: data
-          mountPath: /auditor/
+          mountPath: /data/
         resources:
           {{- toYaml .Values.ledgerScanner.resources | nindent 12 }}
       - name: http-server
@@ -120,20 +114,20 @@ spec:
         - /bin/bash
         - -ec
         - |
-          until test -f /auditor/auditor.db; do
+          until test -f /data/auditor/auditor.db; do
             sleep 3
             echo 'waiting for auditor db'
           done
           /usr/local/bin/mc-reserve-auditor \
             start-http-server \
             --host 0.0.0.0 \
-            --reserve-auditor-db /auditor/auditor.db \
+            --reserve-auditor-db /data/auditor/auditor.db \
             --gnosis-safe-config /config/gnosis/config.json
         volumeMounts:
         - name: gnosis-config
           mountPath: /config/gnosis
         - name: data
-          mountPath: /auditor/
+          mountPath: /data/
         securityContext: {}
         image: "{{ .Values.httpServer.image.repository }}:{{ .Values.httpServer.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: Always

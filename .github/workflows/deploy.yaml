@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Publish backend DockerHub
+      - name: Publish backend to DockerHub
         uses: docker/build-push-action@v3
         if: "! contains(github.event.head_commit.message, '[skip docker]')"
         id: docker-push-backend
@@ -58,7 +58,7 @@ jobs:
           cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
           cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
 
-      - name: Publish frontend DockerHub
+      - name: Publish frontend to DockerHub
         uses: docker/build-push-action@v3
         if: "! contains(github.event.head_commit.message, '[skip docker]')"
         id: docker-push-frontend

@@ -27,8 +27,10 @@ spec:
       - name: gnosis-config
         configMap:
           name: {{ include "reserve-auditor.fullname" . }}-gnosis
+      {{- if not .Values.persistence.enabled }}
       - name: data
         emptyDir: {}
+      {{- end }}
       containers:
       {{- with .Values.mobilecoind }}
       - name: mobilecoind

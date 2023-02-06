@@ -4,7 +4,7 @@ name: shared-cd
 env:
   DOCKERHUB_ORG: mobilecoin
   REPO_NAME: reserve-auditor
-  TARGET_CLUSTER: utility-r1-b-k8s 
+  TARGET_CLUSTER: utility-r1-d-k8s
   CHART_REPO: https://harbor.mobilecoin.com/chartrepo/mobilecoinfoundation-public
   CHART_PATH: ./.internal-ci/charts/reserve-auditor
 
@@ -99,8 +99,8 @@ jobs:
           action: namespace-create
           namespace: ${{ matrix.target }}-reserve-auditor
           rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          rancher_url: ${{ secrets.RANCHER_URL }}
-          rancher_token: ${{ secrets.RANCHER_TOKEN }}
+          rancher_url: ${{ secrets.RANCHER_B_URL }}
+          rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
 
       - name: Deploys ${{ matrix.target }} release
         uses: mobilecoinofficial/gha-k8s-toolbox@v1
@@ -109,8 +109,8 @@ jobs:
           rancher_cluster: ${{ env.TARGET_CLUSTER }}
           namespace: ${{ matrix.target }}-reserve-auditor
           release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
-          rancher_url: ${{ secrets.RANCHER_URL }}
-          rancher_token: ${{ secrets.RANCHER_TOKEN }}
+          rancher_url: ${{ secrets.RANCHER_B_URL }}
+          rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
           chart_repo: ${{ env.CHART_REPO }}
           chart_name: ${{ env.REPO_NAME}}
           chart_version: ${{ needs.build.outputs.version }}

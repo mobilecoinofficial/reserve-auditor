@@ -15,6 +15,12 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        versions: 
+          - {mobilecoind: v3.0.0-test, prefix: testnet}
+          - {mobilecoind: v3.0.0, prefix: mainnet}
+
     name: Build
     runs-on: [self-hosted, Linux, large]
     outputs:
@@ -51,9 +57,11 @@ jobs:
         id: docker-push
         with:
           context: .
+          build-args:
+            MOBILECOIND_BASE=mobilecoin/mobilecoind:{{ matrix.versions.mobilecoind }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}:${{ steps.version_output.outputs.version }}
+          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}:${{matrix.versions.prefix}}-${{ steps.version_output.outputs.version }}
           push: true
           cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
           cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}

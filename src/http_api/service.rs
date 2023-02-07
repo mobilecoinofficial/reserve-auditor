@@ -609,12 +609,13 @@ mod tests {
         let config_tx_entity =
             MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
         let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
-        let mint_tx1_entity = MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
+        let mint_tx1_entity =
+            MintTx::insert_from_core_mint_tx(5, Some(1), &mint_tx1, &conn).unwrap();
 
         let mint_info = service.get_mint_info_by_block(5).unwrap();
-
         // check that mint tx has been found
         let mints = &mint_info.mint_txs;
+
         assert_eq!(
             mints[0].mint_tx.id().unwrap(),
             mint_tx1_entity.id().unwrap()

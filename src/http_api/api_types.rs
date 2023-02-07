@@ -10,6 +10,7 @@ use crate::{
     gnosis::{EthAddr, GnosisSafeConfig},
 };
 use mc_common::HashMap;
+use mc_transaction_core::mint::MintConfig as CoreMintConfig;
 use mc_transaction_core::TokenId;
 use rocket::serde::Serialize;
 
@@ -113,6 +114,15 @@ pub struct GnosisSafeConfigResponse {
 pub struct MintWithConfig {
     pub mint_tx: MintTx,
     pub mint_config_tx: MintConfigTx,
+    pub mint_config: CoreMintConfig,
+}
+
+/// Mint Config Tx with mint config
+#[derive(Serialize, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
+pub struct MintConfigTxWithConfig {
+    pub mint_config_tx: MintConfigTx,
+    pub mint_configs: Vec<CoreMintConfig>,
 }
 
 /// Mint Txs
@@ -120,7 +130,7 @@ pub struct MintWithConfig {
 #[allow(missing_docs)]
 pub struct MintInfoResponse {
     pub mint_txs: Vec<MintWithConfig>,
-    pub mint_config_txs: Vec<MintConfigTx>,
+    pub mint_config_txs: Vec<MintConfigTxWithConfig>,
 }
 
 /// Response for getting burns by block

@@ -11,8 +11,9 @@ use crate::{
     },
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
-        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintInfoResponse,
-        MintWithConfig, UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse,
+        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintConfigTxWithConfig,
+        MintInfoResponse, MintWithConfig, UnauditedBurnTxOutResponse,
+        UnauditedGnosisDepositResponse,
     },
     Error,
 };
@@ -216,17 +217,36 @@ impl ReserveAuditorHttpService {
         let mint_txs = MintTx::get_mint_txs_by_block_index(block_index, &conn)?;
         let mint_config_txs = MintConfigTx::get_by_block_index(block_index, &conn)?;
 
+        let mut mint_config_txs_with_configs = vec![];
+        for mint_config_tx in mint_config_txs.into_iter() {
+            // In reality we should always have an id since this was returned from the database.
+            if let Some(id) = mint_config_tx.id() {
+                let mint_configs = MintConfig::get_by_mint_config_tx_id(id, &conn)?;
+                let mut core_mint_configs = vec![];
+                for mint_config in mint_configs {
+                    core_mint_configs.push(mint_config.decode()?);
+                }
+
+                mint_config_txs_with_configs.push(MintConfigTxWithConfig {
+                    mint_config_tx,
+                    mint_configs: core_mint_configs,
+                })
+            }
+        }
+
         let mut mints_with_configs = vec![];
         for mint_tx in mint_txs.into_iter() {
             // In reality we should always have an id since this was returned from the database.
             if let Some(id) = mint_tx.id() {
                 if let Some(mint_config) = MintConfig::get_by_id(id, &conn)? {
+                    let core_mint_config = mint_config.decode()?;
                     if let Some(mint_config_tx) =
                         MintConfigTx::get_by_id(mint_config.mint_config_tx_id(), &conn)?
                     {
                         mints_with_configs.push(MintWithConfig {
                             mint_tx,
                             mint_config_tx,
+                            mint_config: core_mint_config,
                         })
                     }
                 }
@@ -235,7 +255,7 @@ impl ReserveAuditorHttpService {
 
         Ok(MintInfoResponse {
             mint_txs: mints_with_configs,
-            mint_config_txs,
+            mint_config_txs: mint_config_txs_with_configs,
         })
     }
 
@@ -602,7 +622,7 @@ mod tests {
         // check that top level mint config tx has been found (mint config tx on block)
         let mint_config_txs = &mint_info.mint_config_txs;
         assert_eq!(
-            mint_config_txs[0].id().unwrap(),
+            mint_config_txs[0].mint_config_tx.id().unwrap(),
             config_tx_entity.id().unwrap()
         );
         // check that nested mint config tx has been found (mint config tx for mint on block)
@@ -610,7 +630,7 @@ mod tests {
         assert_eq!(mint_config_tx.id().unwrap(), 1);
         assert_eq!(
             mint_config_tx.id().unwrap(),
-            mint_config_txs[0].id().unwrap()
+            mint_config_txs[0].mint_config_tx.id().unwrap()
         );
         // check that nothing found for other block
         let not_found = service.get_mint_info_by_block(4).unwrap();

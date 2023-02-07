@@ -12,6 +12,8 @@ on:
   push:
     branches:
       - release/*
+      # TODO remove before merge
+      - adds-mobilecoind
 
 jobs:
   build:
@@ -58,7 +60,7 @@ jobs:
         with:
           context: .
           build-args:
-            MOBILECOIND_BASE=mobilecoin/mobilecoind:{{ matrix.versions.mobilecoind }}
+            MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
           tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}:${{matrix.versions.prefix}}-${{ steps.version_output.outputs.version }}
@@ -77,36 +79,36 @@ jobs:
           chart_version: ${{ steps.version_output.outputs.version }}
           chart_path: ${{ env.CHART_PATH }}
 
-  deploy:
-    name: Deploy
-    runs-on: [self-hosted, Linux]
-    needs: build
-    strategy:
-      matrix:
-        target: [mainnet, testnet]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Create ${{ matrix.target }} namespace
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: namespace-create
-          namespace: ${{ matrix.target }}-reserve-auditor
-          rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          rancher_url: ${{ secrets.RANCHER_URL }}
-          rancher_token: ${{ secrets.RANCHER_TOKEN }}
-
-      - name: Deploys ${{ matrix.target }} release
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: helm-deploy
-          rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          namespace: ${{ matrix.target }}-reserve-auditor
-          release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
-          rancher_url: ${{ secrets.RANCHER_URL }}
-          rancher_token: ${{ secrets.RANCHER_TOKEN }}
-          chart_repo: ${{ env.CHART_REPO }}
-          chart_name: ${{ env.REPO_NAME}}
-          chart_version: ${{ needs.build.outputs.version }}
-          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
+#  deploy:
+#    name: Deploy
+#    runs-on: [self-hosted, Linux]
+#    needs: build
+#    strategy:
+#      matrix:
+#        target: [mainnet, testnet]
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#
+#      - name: Create ${{ matrix.target }} namespace
+#        uses: mobilecoinofficial/gha-k8s-toolbox@v1
+#        with:
+#          action: namespace-create
+#          namespace: ${{ matrix.target }}-reserve-auditor
+#          rancher_cluster: ${{ env.TARGET_CLUSTER }}
+#          rancher_url: ${{ secrets.RANCHER_URL }}
+#          rancher_token: ${{ secrets.RANCHER_TOKEN }}
+#
+#      - name: Deploys ${{ matrix.target }} release
+#        uses: mobilecoinofficial/gha-k8s-toolbox@v1
+#        with:
+#          action: helm-deploy
+#          rancher_cluster: ${{ env.TARGET_CLUSTER }}
+#          namespace: ${{ matrix.target }}-reserve-auditor
+#          release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
+#          rancher_url: ${{ secrets.RANCHER_URL }}
+#          rancher_token: ${{ secrets.RANCHER_TOKEN }}
+#          chart_repo: ${{ env.CHART_REPO }}
+#          chart_name: ${{ env.REPO_NAME}}
+#          chart_version: ${{ needs.build.outputs.version }}
+#          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml

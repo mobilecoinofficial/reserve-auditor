@@ -237,7 +237,7 @@ impl ReserveAuditorHttpService {
         let mut mints_with_configs = vec![];
         for mint_tx in mint_txs.into_iter() {
             // In reality we should always have an id since this was returned from the database.
-            if let Some(id) = mint_tx.id() {
+            if let Some(id) = mint_tx.mint_config_id() {
                 if let Some(mint_config) = MintConfig::get_by_id(id, &conn)? {
                     let core_mint_config = mint_config.decode()?;
                     if let Some(mint_config_tx) =

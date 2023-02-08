@@ -74,7 +74,7 @@ jobs:
           context: .
           file: .internal-ci/docker/Dockerfile.frontend
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}-frontend:${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
+          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}-frontend:${{ steps.version_output.outputs.version }}
           push: true
           cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
           cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
@@ -123,3 +123,5 @@ jobs:
           chart_name: ${{ env.REPO_NAME}}
           chart_version: ${{ needs.build.outputs.version }}-${{ matrix.target }}
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
+          chart_set: |
+            --set=frontend.image.tag=${{ needs.build.outputs.version }}

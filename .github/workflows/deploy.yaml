@@ -86,8 +86,8 @@ jobs:
           chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
           chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
           chart_repo: ${{ env.CHART_REPO }}
-          chart_app_version: ${{ matrix.target }}-${{ steps.version_output.outputs.version }}
-          chart_version: ${{ matrix.target }}-${{ steps.version_output.outputs.version }}
+          chart_app_version: ${{ steps.version_output.outputs.version }}-${{ matrix.target }}
+          chart_version: ${{ steps.version_output.outputs.version }}-${{ matrix.target }}
           chart_path: ${{ env.CHART_PATH }}
 
   deploy:
@@ -121,5 +121,5 @@ jobs:
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
           chart_repo: ${{ env.CHART_REPO }}
           chart_name: ${{ env.REPO_NAME}}
-          chart_version: ${{ matrix.target }}-${{ needs.build.outputs.version }}
+          chart_version: ${{ steps.version_output.outputs.version }}-${{ matrix.target }}
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml

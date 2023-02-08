@@ -4,9 +4,9 @@
 
 mobilecoind:
   image:
-    repository: mobilecoin/mobilecoind
+    repository: mobilecoin/reserve-auditor
     # this is set at mainnet/testnet.values file
-    tag: testnet-v0-adds-mobilecoind.76.sha-24f8cf1a
+    tag: ""
   resources:
     requests:
       cpu: 100m

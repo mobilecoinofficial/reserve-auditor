@@ -2,7 +2,7 @@
 
 mobilecoind:
   image:
-    tag: "v3.0.0"
+    tag: ""
   chainID: main
   threshold: 7
   listenURI: insecure-mobilecoind://0.0.0.0:3229/

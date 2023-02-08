@@ -64,7 +64,3 @@ Create the name of the service account to use
 {{- define "reserve-auditor.quorumItem" -}}
 {"args":"{{ .url | trimPrefix "mc://" | trimSuffix "/" }}","type":"Node"}
 {{- end }}
-
-{{- define "reserve-auditor.gnosisConfigName" -}}
-{{ include "reserve-auditor.fullname" . }}-gnosis
-{{- end }}

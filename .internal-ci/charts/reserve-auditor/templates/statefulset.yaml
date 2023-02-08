@@ -33,6 +33,13 @@ spec:
         - name: gnosis-config
           configMap:
             name: {{ include "reserve-auditor.gnosisConfigName" . }}
+       - name: supervisor-conf
+         projected:
+           sources:
+           - configMap:
+               name: {{ include "reserve-auditor.fullname" . }}-mobilecoind
+           - configMap:
+               name: {{ include "reserve-auditor.fullname" . }}-scanner
       {{- with .Values.persistence }}
         {{- if not .enabled }}     
         - name: {{ .Chart.Name }}
@@ -49,50 +56,43 @@ spec:
           ports:
             - name: mobilecoind-rpc
               containerPort: 3229
+            - name: http
+              containerPort: 8080
+              protocol: TCP
           livenessProbe:
             exec:
               command:
-                - "/usr/local/bin/grpc_health_probe"
-                - "-addr=:3229"
+                - /bin/bash
+                - -ec
+                -|
+                  /usr/local/bin/grpc_health_probe -addr=:3229
+                  curl localhost:/8080/
             failureThreshold: 3
             periodSeconds: 30
           readinessProbe:
             exec:
+            exec:
               command:
-                - "/usr/local/bin/grpc_health_probe"
-                - "-addr=:3229"
+                - /bin/bash
+                - -ec
+                -|
+                  /usr/local/bin/grpc_health_probe -addr=:3229
+                  curl localhost:/8080/
             failureThreshold: 4
             periodSeconds: 30
           volumeMounts:
+              mountPath: /data/
             - name: {{ $.Chart.Name }}
-              mountPath: /ledger/
-            - name: {{ $.Chart.Name }}
-              mountPath: /mobilecoind/
+              mountPath: /auditor/
+            - name: supervisor-conf
+              mountPath: /etc/supervisor/conf.d
+            - name: gnosis-config
+              mountPath: /config/gnosis
           env:
             - name: "RUST_BACKTRACE"
               value: "full"
             - name: "RUST_LOG"
               value: "info,rustls=warn,hyper=warn,tokio_reactor=warn,mio=warn,want=warn,reqwest=warn,rusoto_core=error,rusoto_signature=error,h2=error"
-          command:
-            - /bin/bash
-            - -ec
-            - |
-               /usr/bin/mobilecoind \
-                 --chain-id {{ .chainID }} \
-                 {{- range .peers }}
-                 --peer {{ .url }} \
-                 --tx-source-url {{ .txSource }} \
-                 {{- end }}
-                 --poll-interval {{ .pollInterval }} \
-                 --quorum-set '{"threshold": {{ .threshold }}, "members": [
-                   {{- range (initial .peers) -}}
-                     {{ include "reserve-auditor.quorumItem" . }},
-                   {{- end -}}
-                   {{- include "reserve-auditor.quorumItem" (last .peers) }}]}' \
-                 --ledger-db /ledger/ledger.db \
-                 --mobilecoind-db /mobilecoind/mobilecoind.db \
-                 --listen-uri {{ .listenURI }}
-                 \
           resources:
             {{- toYaml .resources | nindent 12 }}
         {{- end }}

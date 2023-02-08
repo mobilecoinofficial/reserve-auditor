@@ -123,5 +123,5 @@ jobs:
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
           chart_repo: ${{ env.CHART_REPO }}
           chart_name: ${{ env.REPO_NAME}}
-          chart_version: ${{ needs.build.outputs.version }}
+          chart_version: ${{ matrix.target }}-${{ needs.build.outputs.version }}
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml

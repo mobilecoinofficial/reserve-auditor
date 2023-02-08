@@ -43,6 +43,7 @@ pub async fn start_http_server(
                 routes::get_unaudited_burn_tx_outs,
                 routes::get_ledger_balance,
                 routes::get_gnosis_safe_config,
+                routes::get_mint_info_for_block,
                 routes::get_burns_for_block
             ],
         )

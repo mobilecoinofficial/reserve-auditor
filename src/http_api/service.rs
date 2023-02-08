@@ -7,12 +7,13 @@ use mc_transaction_core::TokenId;
 use crate::{
     db::{
         AuditedBurn, AuditedMint, BlockAuditData, BlockBalance, BurnTxOut, Counters,
-        GnosisSafeDeposit, MintTx, ReserveAuditorDb,
+        GnosisSafeDeposit, MintConfig, MintConfigTx, MintTx, ReserveAuditorDb,
     },
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
-        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse,
-        UnauditedBurnTxOutResponse, UnauditedGnosisDepositResponse,
+        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintConfigTxWithConfig,
+        MintInfoResponse, MintWithConfig, UnauditedBurnTxOutResponse,
+        UnauditedGnosisDepositResponse,
     },
     Error,
 };
@@ -208,6 +209,53 @@ impl ReserveAuditorHttpService {
     pub fn get_gnosis_safe_config(&self) -> Result<GnosisSafeConfigResponse, Error> {
         Ok(GnosisSafeConfigResponse {
             config: self.gnosis_safe_config.clone(),
+        })
+    }
+
+    pub fn get_mint_info_by_block(&self, block_index: u64) -> Result<MintInfoResponse, Error> {
+        let conn = self.reserve_auditor_db.get_conn()?;
+        let mint_txs = MintTx::get_mint_txs_by_block_index(block_index, &conn)?;
+        let mint_config_txs = MintConfigTx::get_by_block_index(block_index, &conn)?;
+
+        let mut mint_config_txs_with_configs = vec![];
+        for mint_config_tx in mint_config_txs.into_iter() {
+            // In reality we should always have an id since this was returned from the database.
+            if let Some(id) = mint_config_tx.id() {
+                let mint_configs = MintConfig::get_by_mint_config_tx_id(id, &conn)?;
+                let mut core_mint_configs = vec![];
+                for mint_config in mint_configs {
+                    core_mint_configs.push(mint_config.decode()?);
+                }
+
+                mint_config_txs_with_configs.push(MintConfigTxWithConfig {
+                    mint_config_tx,
+                    mint_configs: core_mint_configs,
+                })
+            }
+        }
+
+        let mut mints_with_configs = vec![];
+        for mint_tx in mint_txs.into_iter() {
+            // In reality we should always have an id since this was returned from the database.
+            if let Some(id) = mint_tx.mint_config_id() {
+                if let Some(mint_config) = MintConfig::get_by_id(id, &conn)? {
+                    let core_mint_config = mint_config.decode()?;
+                    if let Some(mint_config_tx) =
+                        MintConfigTx::get_by_id(mint_config.mint_config_tx_id(), &conn)?
+                    {
+                        mints_with_configs.push(MintWithConfig {
+                            mint_tx,
+                            mint_config_tx,
+                            mint_config: core_mint_config,
+                        })
+                    }
+                }
+            }
+        }
+
+        Ok(MintInfoResponse {
+            mint_txs: mints_with_configs,
+            mint_config_txs: mint_config_txs_with_configs,
         })
     }
 
@@ -544,5 +592,50 @@ mod tests {
 
         let all_audited_burns = service.get_unaudited_burn_tx_outs().unwrap();
         assert_eq!(all_audited_burns.len(), 5);
+    }
+
+    #[test_with_logger]
+    fn test_get_mint_info_by_block(logger: Logger) {
+        let config = &test_gnosis_config();
+        let mut rng = mc_util_test_helper::get_seeded_rng();
+        let test_db_context = TestDbContext::default();
+        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let conn = reserve_auditor_db.get_conn().unwrap();
+        let service = ReserveAuditorHttpService::new(reserve_auditor_db, config.clone());
+
+        // seed mint txs, mint config txs, mint configs,
+        let token_id1 = TokenId::from(1);
+        let (mint_config_tx1, signers1) = create_mint_config_tx_and_signers(token_id1, &mut rng);
+        let config_tx_entity =
+            MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
+        let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
+        let mint_tx1_entity =
+            MintTx::insert_from_core_mint_tx(5, Some(1), &mint_tx1, &conn).unwrap();
+
+        let mint_info = service.get_mint_info_by_block(5).unwrap();
+        // check that mint tx has been found
+        let mints = &mint_info.mint_txs;
+
+        assert_eq!(
+            mints[0].mint_tx.id().unwrap(),
+            mint_tx1_entity.id().unwrap()
+        );
+        // check that top level mint config tx has been found (mint config tx on block)
+        let mint_config_txs = &mint_info.mint_config_txs;
+        assert_eq!(
+            mint_config_txs[0].mint_config_tx.id().unwrap(),
+            config_tx_entity.id().unwrap()
+        );
+        // check that nested mint config tx has been found (mint config tx for mint on block)
+        let mint_config_tx = &mint_info.mint_txs[0].mint_config_tx;
+        assert_eq!(mint_config_tx.id().unwrap(), 1);
+        assert_eq!(
+            mint_config_tx.id().unwrap(),
+            mint_config_txs[0].mint_config_tx.id().unwrap()
+        );
+        // check that nothing found for other block
+        let not_found = service.get_mint_info_by_block(4).unwrap();
+        assert_eq!(not_found.mint_txs.len(), 0);
+        assert_eq!(not_found.mint_config_txs.len(), 0);
     }
 }

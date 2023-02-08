@@ -377,4 +377,29 @@ mod tests {
             assert_eq!(mint_amounts[0], (TokenId::from(i), i * 100));
         }
     }
+
+    #[test_with_logger]
+    fn test_get_mints_by_block(logger: Logger) {
+        let mut rng = mc_util_test_helper::get_seeded_rng();
+        let test_db_context = TestDbContext::default();
+        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let token_id1 = TokenId::from(1);
+
+        let conn = reserve_auditor_db.get_conn().unwrap();
+
+        let (_mint_config_tx1, signers1) = create_mint_config_tx_and_signers(token_id1, &mut rng);
+        let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
+        let mint_tx2 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
+        let should_be_found = MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(2, None, &mint_tx2, &conn).unwrap();
+
+        let found = MintTx::get_mint_txs_by_block_index(5, &conn).unwrap();
+
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].id, should_be_found.id);
+
+        // make sure nothing found in different block
+        let none_found = MintTx::get_mint_txs_by_block_index(4, &conn).unwrap();
+        assert_eq!(none_found.len(), 0);
+    }
 }

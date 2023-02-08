@@ -7,7 +7,7 @@ use crate::{
     http_api::{
         api_types::{
             AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse,
-            LedgerBalanceResponse, TokenType, UnauditedBurnTxOutResponse,
+            LedgerBalanceResponse, MintInfoResponse, TokenType, UnauditedBurnTxOutResponse,
             UnauditedGnosisDepositResponse,
         },
         service::ReserveAuditorHttpService,
@@ -147,6 +147,18 @@ pub fn get_gnosis_safe_config(
 ) -> Result<Json<GnosisSafeConfigResponse>, String> {
     match service.get_gnosis_safe_config() {
         Ok(config) => Ok(Json(config)),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Get mint information by block
+#[get("/mint_info?<block_index>")]
+pub fn get_mint_info_for_block(
+    block_index: u64,
+    service: &State<ReserveAuditorHttpService>,
+) -> Result<Json<MintInfoResponse>, String> {
+    match service.get_mint_info_by_block(block_index) {
+        Ok(mint_info) => Ok(Json(mint_info)),
         Err(e) => Err(e.to_string()),
     }
 }

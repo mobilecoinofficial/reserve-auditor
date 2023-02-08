@@ -98,11 +98,14 @@ spec:
           done
           mkdir -p /data/auditor
           touch /data/auditor/auditor.db
-          /usr/local/bin/mc-reserve-auditor \
-            scan-ledger \
-              --ledger-db /data/ledger/ledger.db \
-              --reserve-auditor-db /data/auditor/auditor.db \
-              --gnosis-safe-config /config/gnosis/config.json
+          for i in $(seq 1 5); do
+            /usr/local/bin/mc-reserve-auditor \
+              scan-ledger \
+                --ledger-db /data/ledger/ledger.db \
+                --reserve-auditor-db /data/auditor/auditor.db \
+                --gnosis-safe-config /config/gnosis/config.json
+            sleep 1
+          done
         volumeMounts:
         - name: gnosis-config
           mountPath: /config/gnosis

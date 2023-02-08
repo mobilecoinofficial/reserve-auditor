@@ -8,6 +8,7 @@ data:
   mobilecoind.conf: |
     [program:mobilecoind]
     priority=100
+
     {{- with .Values.mobilecoind }}
     command=/usr/bin/mobilecoind
       --chain-id {{ .chainID }}

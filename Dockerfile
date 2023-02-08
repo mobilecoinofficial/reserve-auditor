@@ -1,4 +1,4 @@
-ARG MOBILECOIND_BASE_TAG=v3.0.0-test
+ARG MOBILECOIND_BASE_TAG=v4.0.2-test
 FROM mobilecoin/mobilecoind:${MOBILECOIND_BASE_TAG} AS mobilecoind
 
 FROM mobilecoin/builder-install:v0.0.19 AS builder

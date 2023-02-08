@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         versions: 
-          - {mobilecoind: v3.0.0-test, prefix: testnet}
+          - {mobilecoind: v4.0.2-test, prefix: testnet}
           - {mobilecoind: v3.0.0, prefix: mainnet}
 
     name: Build

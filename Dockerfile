@@ -15,4 +15,4 @@ FROM mobilecoin/runtime-base:sha-6f1c083
 COPY --from=builder /build/target/release/mc-reserve-auditor /usr/local/bin/mc-reserve-auditor
 COPY --from=mobilecoind /usr/bin/mobilecoind /usr/bin/mobilecoind
 
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-n"]

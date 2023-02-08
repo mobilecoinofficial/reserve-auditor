@@ -12,8 +12,6 @@ on:
   push:
     branches:
       - release/*
-      # TODO remove before merge
-      - adds-mobilecoind
 
 jobs:
   build:

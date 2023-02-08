@@ -40,7 +40,6 @@ spec:
       {{- end }}
       initContainers:
       - name: setup-files
-        image: ubuntu:latest
         {{- with .Values.mobilecoind }}
         image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
         {{-  end }}
@@ -55,7 +54,7 @@ spec:
           mountPath: /data/
       containers:
       {{- with .Values.mobilecoind }}
-      - name: mobilecoind
+      - name: mobilecoind-ledget-scanner
         securityContext: {}
         image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
         imagePullPolicy: Always

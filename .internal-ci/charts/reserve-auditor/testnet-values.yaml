@@ -2,7 +2,8 @@
 #
 mobilecoind:
   image:
-    tag: "v3.0.0-test"
+    repository: mobilecoin/reserve-auditor
+    tag: testnet-v0-adds-mobilecoind.76.sha-24f8cf1a
   chainID: test
   threshold: 7
   listenURI: insecure-mobilecoind://0.0.0.0:3229/

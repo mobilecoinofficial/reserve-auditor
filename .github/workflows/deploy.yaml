@@ -61,7 +61,7 @@ jobs:
             MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}:${{matrix.versions.prefix}}-${{ steps.version_output.outputs.version }}
+          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}:${{ steps.version_output.outputs.version }}-${{matrix.versions.prefix}}
           push: true
           cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
           cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}

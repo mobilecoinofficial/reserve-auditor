@@ -4,7 +4,7 @@
 
 mobilecoind:
   image:
-    repository: mobilecoin/mobilecoind
+    repository: mobilecoin/reserve-auditor
     # this is set at mainnet/testnet.values file
     tag: ""
   resources:

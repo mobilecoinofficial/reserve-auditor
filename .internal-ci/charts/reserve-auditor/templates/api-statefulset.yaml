@@ -27,16 +27,40 @@ spec:
       - name: gnosis-config
         configMap:
           name: {{ include "reserve-auditor.fullname" . }}-gnosis
+      - name: supervisor-conf
+        projected:
+          sources:
+          - configMap:
+              name: {{ include "reserve-auditor.fullname" . }}-mobilecoind
+          - configMap:
+              name: {{ include "reserve-auditor.fullname" . }}-scanner
       {{- if not .Values.persistence.enabled }}
       - name: data
         emptyDir: {}
       {{- end }}
+      initContainers:
+      - name: setup-files
+        {{- with .Values.mobilecoind }}
+        image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
+        {{-  end }}
+        command:
+        - /bin/bash
+        - -ec
+        - |
+          mkdir -p /data/auditor/
+          touch /data/auditor/auditor.db
+        volumeMounts:
+        - name: data
+          mountPath: /data/
       containers:
       {{- with .Values.mobilecoind }}
-      - name: mobilecoind
+      - name: mobilecoind-ledger-scanner
         securityContext: {}
         image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
         imagePullPolicy: Always
+        command:
+        - /usr/bin/supervisord
+        - -n
         ports:
         - name: mobilecoind-rpc
           containerPort: 3229
@@ -57,62 +81,18 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /data/
+        - name: supervisor-conf
+          mountPath: /etc/supervisor/conf.d
+        - name: gnosis-config
+          mountPath: /config/gnosis
         env:
         - name: "RUST_BACKTRACE"
           value: "full"
         - name: "RUST_LOG"
           value: "info,rustls=warn,hyper=warn,tokio_reactor=warn,mio=warn,want=warn,reqwest=warn,rusoto_core=error,rusoto_signature=error,h2=error"
-        command:
-        - /bin/bash
-        - -ec
-        - |
-           /usr/bin/mobilecoind \
-             --chain-id {{ .chainID }} \
-             {{- range .peers }}
-             --peer {{ .url }} \
-             --tx-source-url {{ .txSource }} \
-             {{- end }}
-             --poll-interval {{ .pollInterval }} \
-             --quorum-set '{"threshold": {{ .threshold }}, "members": [
-               {{- range (initial .peers) -}}
-                 {{ include "reserve-auditor.quorumItem" . }},
-               {{- end -}}
-               {{- include "reserve-auditor.quorumItem" (last .peers) }}]}' \
-             --ledger-db /data/ledger/ledger.db \
-             --mobilecoind-db /data/mobilecoind/mobilecoind.db \
-             --listen-uri {{ .listenURI }}
         resources:
           {{- toYaml .resources | nindent 12 }}
       {{- end }}
-      - name: ledger-scanner
-        securityContext: {}
-        image: "{{ .Values.ledgerScanner.image.repository }}:{{ .Values.ledgerScanner.image.tag | default .Chart.AppVersion }}"
-        imagePullPolicy: Always
-        command:
-        - /bin/bash
-        - -ec
-        - |-
-          until test -f /data/ledger/ledger.db/data.mdb; do
-            sleep 3
-            echo 'waiting for ledger db'
-          done
-          mkdir -p /data/auditor
-          touch /data/auditor/auditor.db
-          for i in $(seq 1 5); do
-            /usr/local/bin/mc-reserve-auditor \
-              scan-ledger \
-                --ledger-db /data/ledger/ledger.db \
-                --reserve-auditor-db /data/auditor/auditor.db \
-                --gnosis-safe-config /config/gnosis/config.json
-            sleep 1
-          done
-        volumeMounts:
-        - name: gnosis-config
-          mountPath: /config/gnosis
-        - name: data
-          mountPath: /data/
-        resources:
-          {{- toYaml .Values.ledgerScanner.resources | nindent 12 }}
       - name: http-server
         command:
         - /bin/bash
@@ -133,7 +113,9 @@ spec:
         - name: data
           mountPath: /data/
         securityContext: {}
-        image: "{{ .Values.httpServer.image.repository }}:{{ .Values.httpServer.image.tag | default .Chart.AppVersion }}"
+        {{- with .Values.mobilecoind }}
+        image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
+        {{- end }}
         imagePullPolicy: Always
         ports:
         - name: http

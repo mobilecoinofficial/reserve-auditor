@@ -15,6 +15,12 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        versions: 
+          - {mobilecoind: v3.0.0-test, prefix: testnet}
+          - {mobilecoind: v3.0.0, prefix: mainnet}
+
     name: Build
     runs-on: [self-hosted, Linux, large]
     outputs:
@@ -51,9 +57,11 @@ jobs:
         id: docker-push-backend
         with:
           context: .
+          build-args:
+            MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}:${{ steps.version_output.outputs.version }}
+          tags: ${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
           push: true
           cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
           cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
@@ -66,7 +74,7 @@ jobs:
           context: .
           file: .internal-ci/docker/Dockerfile.frontend
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{env.DOCKERHUB_ORG}}/${{env.REPO_NAME}}-frontend:${{ steps.version_output.outputs.version }}
+          tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ steps.version_output.outputs.version }}
           push: true
           cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
           cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
@@ -78,8 +86,8 @@ jobs:
           chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
           chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
           chart_repo: ${{ env.CHART_REPO }}
-          chart_app_version: ${{ steps.version_output.outputs.version }}
-          chart_version: ${{ steps.version_output.outputs.version }}
+          chart_app_version: ${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
+          chart_version: ${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
           chart_path: ${{ env.CHART_PATH }}
 
   deploy:
@@ -113,5 +121,7 @@ jobs:
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
           chart_repo: ${{ env.CHART_REPO }}
           chart_name: ${{ env.REPO_NAME}}
-          chart_version: ${{ needs.build.outputs.version }}
+          chart_version: ${{ needs.build.outputs.version }}-${{ matrix.target }}
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
+          chart_set: |
+            --set=frontend.image.tag=${{ needs.build.outputs.version }}

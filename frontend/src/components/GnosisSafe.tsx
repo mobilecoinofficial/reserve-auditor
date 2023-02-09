@@ -1,8 +1,15 @@
 import { Box, Link, Tooltip, Typography } from '@mui/material'
 import React, { FC, useContext, useEffect, useState } from 'react'
-import { getGnosisSafeBalance } from '../api/apiHandler'
+import { getGnosisSafeBalance, sumGnosisSafeBalance } from '../api/apiHandler'
 import { GnosisSafeContext } from '../contexts'
 import { TGnosisSafeUsdBalanceResponse } from '../types'
+
+let gnosis_net = 'eth'; // default to a safe on the eth main network
+if (typeof MC_NETWORK !== 'undefined') {
+  if (MC_NETWORK == 'testnet') {
+    gnosis_net = 'gor'; // the testnet bridge uses the goerli eth test network
+  }
+}
 
 export const GnosisSafe: FC = () => {
   const gnosisSafeConfig = useContext(GnosisSafeContext)
@@ -22,7 +29,9 @@ export const GnosisSafe: FC = () => {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   }
-  const [token, setToken] = useState<TGnosisSafeUsdBalanceResponse>()
+
+  const [tokenSymbol, setTokenSymbol] = useState('')
+  const [tokenBalance, setTokenBalance] = useState('0')
   useEffect(() => {
     const getBalance = async () => {
       if (!gnosisSafeConfig) {
@@ -32,21 +41,31 @@ export const GnosisSafe: FC = () => {
       const token = balances.find(
         (balance) => balance.token?.symbol === gnosisSafeConfig.tokens[0].name
       )
-      setToken(token)
+      if (token !== undefined) {
+        setTokenSymbol(token.token.symbol)
+        setTokenBalance(token.balance)
+      }
+      else {
+        // if we didn't find a balance of our target token, fall back to summing transfers
+        // (this is necessary for testnet currently as the goerli Safe doesn't grok the goerli RSV)
+        const balances = await sumGnosisSafeBalance(gnosisSafeConfig.safeAddr)
+        setTokenBalance(balances)
+        setTokenSymbol(gnosisSafeConfig.tokens[0].name)
+      }
     }
     getBalance()
   }, [gnosisSafeConfig])
   return gnosisSafeConfig ? (
     <Box sx={style}>
       <Typography sx={{ fontWeight: 'bold' }}>Gnosis Safe Summary</Typography>
-      {token ? (
+      {tokenBalance ? (
         <Typography>
           Amount Locked:{' '}
           {(
-            Number(token.balance) /
+            Number(tokenBalance) /
             10 ** gnosisSafeConfig.tokens[0].decimals
           ).toLocaleString(locale, localeOptions)}{' '}
-          {token.token.symbol}
+          {tokenSymbol}
         </Typography>
       ) : (
         <Typography>loading...</Typography>
@@ -60,7 +79,7 @@ export const GnosisSafe: FC = () => {
           arrow
         >
           <Link
-            href={`https://app.safe.global/eth:${gnosisSafeConfig.safeAddr}/balances`}
+            href={`https://app.safe.global/${gnosis_net}:${gnosisSafeConfig.safeAddr}/balances`}
             color="#027cfd"
             underline="hover"
             target="_blank"

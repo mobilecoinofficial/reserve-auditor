@@ -9,6 +9,7 @@ import {
   TAuditedBurn,
   TAuditedMint,
   TGnosisSafeUsdBalanceResponse,
+  TGnosisSafeAllTransactionsListResponse,
   TLedgerBalance,
   TLedgerBalanceResponse,
   TGnosisSafeConfigResponse,
@@ -77,6 +78,39 @@ export const getGnosisSafeBalance = async (
     `/api/v1/safes/${address}/balances`,
     GNOSIS_SAFE_API_URL
   )
+}
+
+export const sumGnosisSafeBalance = async (
+  address: string
+): Promise<string> => {
+  const response = await get<TGnosisSafeAllTransactionsListResponse>(
+    `/api/v1/safes/${address}/all-transactions`,
+    GNOSIS_SAFE_API_URL
+  )
+  const transfers = response.results.filter((e) => {
+    if (e.transfers.length == 1) return true
+  })
+  const deposits = transfers
+    .filter((e) => {
+      if (e.transfers[0].to == address) return true
+    })
+    .map((e) => {
+      return e.transfers[0].value
+    })
+    .reduce((partialSum, v) => {
+      return partialSum + BigInt(v)
+    }, BigInt('0'))
+  const withdrawals = transfers
+    .filter((e) => {
+      if (e.transfers[0].from == address) return true
+    })
+    .map((e) => {
+      return e.transfers[0].value
+    })
+    .reduce((partialSum, v) => {
+      return partialSum + BigInt(v)
+    }, BigInt('0'))
+  return (deposits - withdrawals).toString()
 }
 
 export const getGnosisSafeConfig = async (): Promise<TGnosisSafeConfig> => {

@@ -6,6 +6,13 @@ import { AuditList } from './layout/AuditList'
 import { Balances } from './layout/Balances'
 import { GnosisSafeProvider } from './contexts'
 
+let bg_color = "#004e80" // mainnet background color is a shade of blue
+if (typeof MC_NETWORK  !== 'undefined') {
+  if (MC_NETWORK == 'testnet') {
+    bg_color = "#774e80" // testnet background color is lavender
+  }
+}
+
 export const App = () => {
   const theme = createTheme({
     palette: {
@@ -35,7 +42,7 @@ export const App = () => {
             height: '100vh',
             display: 'flex',
             flexDirection: 'column',
-            backgroundColor: '#004e80',
+            backgroundColor: `${bg_color}`
           }}
         >
           <Header />

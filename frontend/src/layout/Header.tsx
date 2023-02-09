@@ -2,6 +2,13 @@ import React, { FC, ReactElement } from 'react'
 import { Box, Container, Toolbar, Typography } from '@mui/material'
 import { eUSDIcon } from '../components/icons'
 
+let net_name = ""; // network name prefix for the header, blank for mainnet.
+if (typeof MC_NETWORK !== 'undefined') {  // env variable set in webpack.<net>.js.
+  if (MC_NETWORK == 'testnet') {
+    net_name = 'TestNet'
+  }
+}
+
 export const Header: FC = (): ReactElement => {
   return (
     <>
@@ -35,7 +42,7 @@ export const Header: FC = (): ReactElement => {
                 paddingLeft: 2,
               }}
             >
-              MobileCoin / Reserve Electronic Dollar (eUSD) Auditor
+              {net_name} MobileCoin / Reserve Electronic Dollar (eUSD) Auditor
             </Typography>
           </Toolbar>
         </Container>

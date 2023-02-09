@@ -88,7 +88,7 @@ export const AuditList: FC = (): ReactElement => {
               dataLength={mints.length}
               next={fetchMints}
               hasMore={true}
-              loader={<h4>Loading...</h4>}
+              // loader={<h4>Loading...</h4>}
               scrollableTarget="scrollableMints"
             >
               {mints.map((i, index) => (
@@ -110,17 +110,22 @@ export const AuditList: FC = (): ReactElement => {
               boxShadow: 'rgba(0, 0, 0, 1) 0px 5px 15px',
             }}
           >
-            <InfiniteScroll
-              dataLength={burns.length}
-              next={fetchBurns}
-              hasMore={true}
-              loader={<h4>Loading...</h4>}
-              scrollableTarget="scrollableBurns"
-            >
-              {burns.map((i, index) => (
-                <AuditedBurn auditedBurn={i} key={index} />
-              ))}
-            </InfiniteScroll>
+            {burns.length > 0 && 
+              <InfiniteScroll
+                dataLength={burns.length}
+                next={fetchBurns}
+                hasMore={true}
+                scrollableTarget="scrollableBurns"
+              >
+                {burns.map((i, index) => (
+                  <AuditedBurn auditedBurn={i} key={index} />
+                ))}
+
+              </InfiniteScroll>
+            }
+            {burns.length == 0 &&
+              <h4>&nbsp;&nbsp;None</h4>
+            }
           </div>
         </Grid>
       </Grid>

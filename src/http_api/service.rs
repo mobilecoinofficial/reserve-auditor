@@ -13,7 +13,7 @@ use crate::{
     http_api::api_types::{
         AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintConfigTxWithConfig,
         MintInfoResponse, MintWithConfig, UnauditedBurnTxOutResponse,
-        UnauditedGnosisDepositResponse,
+        UnauditedGnosisDepositResponse, HybridMintConfig
     },
     Error,
 };
@@ -222,14 +222,21 @@ impl ReserveAuditorHttpService {
             // In reality we should always have an id since this was returned from the database.
             if let Some(id) = mint_config_tx.id() {
                 let mint_configs = MintConfig::get_by_mint_config_tx_id(id, &conn)?;
-                let mut core_mint_configs = vec![];
+                let mut hybrid_mint_configs = vec![];
                 for mint_config in mint_configs {
-                    core_mint_configs.push(mint_config.decode()?);
+                    let core_mint_config = mint_config.decode()?;
+                    let hybrid = HybridMintConfig {
+                        id: mint_config.id().ok_or(Error::ObjectNotSaved)?,
+                        token_id: core_mint_config.token_id,
+                        signer_set: core_mint_config.signer_set,
+                        mint_limit: core_mint_config.mint_limit,
+                    };
+                    hybrid_mint_configs.push(hybrid);
                 }
 
                 mint_config_txs_with_configs.push(MintConfigTxWithConfig {
                     mint_config_tx,
-                    mint_configs: core_mint_configs,
+                    mint_configs: hybrid_mint_configs,
                 })
             }
         }
@@ -238,8 +245,8 @@ impl ReserveAuditorHttpService {
         for mint_tx in mint_txs.into_iter() {
             let mint_tx_signers = mint_tx.get_signers(&conn)?;
             // In reality we should always have an id since this was returned from the database.
-            if let Some(id) = mint_tx.mint_config_id() {
-                if let Some(mint_config) = MintConfig::get_by_id(id, &conn)? {
+            if let Some(config_id) = mint_tx.mint_config_id() {
+                if let Some(mint_config) = MintConfig::get_by_id(config_id, &conn)? {
                     let core_mint_config = mint_config.decode()?;
                     if let Some(mint_config_tx) =
                         MintConfigTx::get_by_id(mint_config.mint_config_tx_id(), &conn)?
@@ -247,7 +254,12 @@ impl ReserveAuditorHttpService {
                         mints_with_configs.push(MintWithConfig {
                             mint_tx,
                             mint_config_tx,
-                            mint_config: core_mint_config,
+                            mint_config: HybridMintConfig {
+                                id: config_id,
+                                token_id: core_mint_config.token_id,
+                                signer_set: core_mint_config.signer_set,
+                                mint_limit: core_mint_config.mint_limit,
+                            },
                             mint_tx_signers,
                         })
                     }

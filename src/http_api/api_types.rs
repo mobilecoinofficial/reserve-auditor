@@ -11,7 +11,7 @@ use crate::{
 };
 use mc_common::HashMap;
 use mc_crypto_keys::Ed25519Public;
-use mc_transaction_core::mint::MintConfig as CoreMintConfig;
+use mc_crypto_multisig::SignerSet;
 use mc_transaction_core::TokenId;
 use rocket::serde::Serialize;
 
@@ -109,13 +109,23 @@ pub struct GnosisSafeConfigResponse {
     pub config: GnosisSafeConfig,
 }
 
+/// Core Mint config plus the db ID
+#[derive(Serialize, Debug, Eq, PartialEq)]
+#[allow(missing_docs)]
+pub struct HybridMintConfig {
+    pub id: i32,
+    pub token_id: u64,
+    pub signer_set: SignerSet<Ed25519Public>,
+    pub mint_limit: u64,
+}
+
 /// Mint with Config tx
 #[derive(Serialize, Debug, Eq, PartialEq)]
 #[allow(missing_docs)]
 pub struct MintWithConfig {
     pub mint_tx: MintTx,
     pub mint_config_tx: MintConfigTx,
-    pub mint_config: CoreMintConfig,
+    pub mint_config: HybridMintConfig,
     pub mint_tx_signers: Vec<Ed25519Public>,
 }
 
@@ -124,7 +134,7 @@ pub struct MintWithConfig {
 #[allow(missing_docs)]
 pub struct MintConfigTxWithConfig {
     pub mint_config_tx: MintConfigTx,
-    pub mint_configs: Vec<CoreMintConfig>,
+    pub mint_configs: Vec<HybridMintConfig>,
 }
 
 /// Mint Txs

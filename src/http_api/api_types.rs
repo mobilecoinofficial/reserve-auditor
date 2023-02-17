@@ -10,6 +10,7 @@ use crate::{
     gnosis::{EthAddr, GnosisSafeConfig},
 };
 use mc_common::HashMap;
+use mc_crypto_keys::Ed25519Public;
 use mc_transaction_core::mint::MintConfig as CoreMintConfig;
 use mc_transaction_core::TokenId;
 use rocket::serde::Serialize;
@@ -115,6 +116,7 @@ pub struct MintWithConfig {
     pub mint_tx: MintTx,
     pub mint_config_tx: MintConfigTx,
     pub mint_config: CoreMintConfig,
+    pub mint_tx_signers: Vec<Ed25519Public>,
 }
 
 /// Mint Config Tx with mint config

@@ -236,6 +236,7 @@ impl ReserveAuditorHttpService {
 
         let mut mints_with_configs = vec![];
         for mint_tx in mint_txs.into_iter() {
+            let mint_tx_signers = mint_tx.get_signers(&conn)?;
             // In reality we should always have an id since this was returned from the database.
             if let Some(id) = mint_tx.mint_config_id() {
                 if let Some(mint_config) = MintConfig::get_by_id(id, &conn)? {
@@ -247,6 +248,7 @@ impl ReserveAuditorHttpService {
                             mint_tx,
                             mint_config_tx,
                             mint_config: core_mint_config,
+                            mint_tx_signers,
                         })
                     }
                 }
@@ -637,5 +639,9 @@ mod tests {
         let not_found = service.get_mint_info_by_block(4).unwrap();
         assert_eq!(not_found.mint_txs.len(), 0);
         assert_eq!(not_found.mint_config_txs.len(), 0);
+
+        // check that we found the mint signers
+        let mint_tx_signers = &mints[0].mint_tx_signers;
+        assert!(mint_tx_signers.len() > 0);
     }
 }

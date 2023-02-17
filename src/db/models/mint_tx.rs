@@ -16,8 +16,9 @@ use diesel::{
 };
 use hex::ToHex;
 use mc_account_keys::PublicAddress;
-use mc_api::{external::Ed25519Public, printable::PrintableWrapper};
+use mc_api::printable::PrintableWrapper;
 use mc_blockchain_types::BlockIndex;
+use mc_crypto_keys::Ed25519Public;
 use mc_transaction_core::{mint::MintTx as CoreMintTx, TokenId};
 use mc_util_serial::{decode, encode};
 use serde::{Deserialize, Serialize};
@@ -223,10 +224,7 @@ impl MintTx {
 
         Ok(mint_config
             .signer_set
-            .verify(&message, &core_mint_tx.signature)?
-            .iter()
-            .map(From::from)
-            .collect())
+            .verify(&message, &core_mint_tx.signature)?)
     }
 }
 

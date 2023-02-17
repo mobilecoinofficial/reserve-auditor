@@ -642,6 +642,6 @@ mod tests {
 
         // check that we found the mint signers
         let mint_tx_signers = &mints[0].mint_tx_signers;
-        assert!(mint_tx_signers.len() > 0);
+        assert!(!mint_tx_signers.is_empty());
     }
 }

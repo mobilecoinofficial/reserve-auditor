@@ -6,7 +6,7 @@ use crate::{
     db::{
         last_insert_rowid,
         schema::{audited_mints, mint_txs},
-        Conn, MintConfig
+        Conn, MintConfig,
     },
     Error,
 };
@@ -16,7 +16,7 @@ use diesel::{
 };
 use hex::ToHex;
 use mc_account_keys::PublicAddress;
-use mc_api::printable::PrintableWrapper;
+use mc_api::{external::Ed25519Public, printable::PrintableWrapper};
 use mc_blockchain_types::BlockIndex;
 use mc_transaction_core::{mint::MintTx as CoreMintTx, TokenId};
 use mc_util_serial::{decode, encode};
@@ -211,17 +211,23 @@ impl MintTx {
             .load(conn)?)
     }
 
-    pub fn get_signers(&self, conn: &Conn) -> Result<Any, Error> {
+    /// Get the list of Ed25519 public keys that signed this MintTx.
+    pub fn get_signers(&self, conn: &Conn) -> Result<Vec<Ed25519Public>, Error> {
         let core_mint_tx = self.decode()?;
-        let mint_tx_sig = core_mint_tx.signature;
-        
+        let message = core_mint_tx.prefix.hash();
 
-        // should always exist
-        if let Some(mint_config_id) = self.mint_config_id() {
-            if let Some(mint_config) = MintConfig::get_by_id(mint_config_id, conn)? {
-                // look at signers
-            }
-    };
+        let sql_mint_config =
+            MintConfig::get_by_id(self.mint_config_id().ok_or(Error::ObjectNotSaved)?, conn)?
+                .ok_or(Error::NotFound)?;
+        let mint_config = sql_mint_config.decode()?;
+
+        Ok(mint_config
+            .signer_set
+            .verify(&message, &core_mint_tx.signature)?
+            .iter()
+            .map(From::from)
+            .collect())
+    }
 }
 
 #[cfg(test)]

@@ -6,7 +6,7 @@ use crate::{
     db::{
         last_insert_rowid,
         schema::{audited_mints, mint_txs},
-        Conn,
+        Conn, MintConfig
     },
     Error,
 };
@@ -210,6 +210,18 @@ impl MintTx {
             .order_by(mint_txs::id)
             .load(conn)?)
     }
+
+    pub fn get_signers(&self, conn: &Conn) -> Result<Any, Error> {
+        let core_mint_tx = self.decode()?;
+        let mint_tx_sig = core_mint_tx.signature;
+        
+
+        // should always exist
+        if let Some(mint_config_id) = self.mint_config_id() {
+            if let Some(mint_config) = MintConfig::get_by_id(mint_config_id, conn)? {
+                // look at signers
+            }
+    };
 }
 
 #[cfg(test)]

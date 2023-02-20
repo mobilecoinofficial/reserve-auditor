@@ -11,9 +11,9 @@ use crate::{
     },
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
-        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintConfigTxWithConfig,
-        MintInfoResponse, MintWithConfig, UnauditedBurnTxOutResponse,
-        UnauditedGnosisDepositResponse, HybridMintConfig
+        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, HybridMintConfig,
+        MintConfigTxWithConfig, MintInfoResponse, MintWithConfig, UnauditedBurnTxOutResponse,
+        UnauditedGnosisDepositResponse,
     },
     Error,
 };

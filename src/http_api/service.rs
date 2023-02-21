@@ -11,8 +11,8 @@ use crate::{
     },
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
-        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, MintConfigTxWithConfig,
-        MintInfoResponse, MintWithConfig, UnauditedBurnTxOutResponse,
+        AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse, HybridMintConfig,
+        MintConfigTxWithConfig, MintInfoResponse, MintWithConfig, UnauditedBurnTxOutResponse,
         UnauditedGnosisDepositResponse,
     },
     Error,
@@ -222,23 +222,31 @@ impl ReserveAuditorHttpService {
             // In reality we should always have an id since this was returned from the database.
             if let Some(id) = mint_config_tx.id() {
                 let mint_configs = MintConfig::get_by_mint_config_tx_id(id, &conn)?;
-                let mut core_mint_configs = vec![];
+                let mut hybrid_mint_configs = vec![];
                 for mint_config in mint_configs {
-                    core_mint_configs.push(mint_config.decode()?);
+                    let core_mint_config = mint_config.decode()?;
+                    let hybrid = HybridMintConfig {
+                        id: mint_config.id().ok_or(Error::ObjectNotSaved)?,
+                        token_id: core_mint_config.token_id,
+                        signer_set: core_mint_config.signer_set,
+                        mint_limit: core_mint_config.mint_limit,
+                    };
+                    hybrid_mint_configs.push(hybrid);
                 }
 
                 mint_config_txs_with_configs.push(MintConfigTxWithConfig {
                     mint_config_tx,
-                    mint_configs: core_mint_configs,
+                    mint_configs: hybrid_mint_configs,
                 })
             }
         }
 
         let mut mints_with_configs = vec![];
         for mint_tx in mint_txs.into_iter() {
+            let mint_tx_signers = mint_tx.get_signers(&conn)?;
             // In reality we should always have an id since this was returned from the database.
-            if let Some(id) = mint_tx.mint_config_id() {
-                if let Some(mint_config) = MintConfig::get_by_id(id, &conn)? {
+            if let Some(config_id) = mint_tx.mint_config_id() {
+                if let Some(mint_config) = MintConfig::get_by_id(config_id, &conn)? {
                     let core_mint_config = mint_config.decode()?;
                     if let Some(mint_config_tx) =
                         MintConfigTx::get_by_id(mint_config.mint_config_tx_id(), &conn)?
@@ -246,7 +254,13 @@ impl ReserveAuditorHttpService {
                         mints_with_configs.push(MintWithConfig {
                             mint_tx,
                             mint_config_tx,
-                            mint_config: core_mint_config,
+                            mint_config: HybridMintConfig {
+                                id: config_id,
+                                token_id: core_mint_config.token_id,
+                                signer_set: core_mint_config.signer_set,
+                                mint_limit: core_mint_config.mint_limit,
+                            },
+                            mint_tx_signers,
                         })
                     }
                 }
@@ -637,5 +651,9 @@ mod tests {
         let not_found = service.get_mint_info_by_block(4).unwrap();
         assert_eq!(not_found.mint_txs.len(), 0);
         assert_eq!(not_found.mint_config_txs.len(), 0);
+
+        // check that we found the mint signers
+        let mint_tx_signers = &mints[0].mint_tx_signers;
+        assert!(!mint_tx_signers.is_empty());
     }
 }

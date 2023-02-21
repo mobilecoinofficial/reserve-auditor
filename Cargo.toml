@@ -18,6 +18,7 @@ mc-api = { path = "mobilecoin/api" }
 mc-blockchain-types = { path = "mobilecoin/blockchain/types" }
 mc-common = { path = "mobilecoin/common", features = ["log", "loggers"] }
 mc-crypto-keys = { path = "mobilecoin/crypto/keys" }
+mc-crypto-multisig = { path = "mobilecoin/crypto/multisig" }
 mc-ledger-db = { path = "mobilecoin/ledger/db" }
 mc-reserve-auditor-api = { path = "api" }
 mc-transaction-core = { path = "mobilecoin/transaction/core" }

@@ -6,7 +6,7 @@ use crate::{
     db::{
         last_insert_rowid,
         schema::{audited_mints, mint_txs},
-        Conn,
+        Conn, MintConfig,
     },
     Error,
 };
@@ -18,6 +18,7 @@ use hex::ToHex;
 use mc_account_keys::PublicAddress;
 use mc_api::printable::PrintableWrapper;
 use mc_blockchain_types::BlockIndex;
+use mc_crypto_keys::Ed25519Public;
 use mc_transaction_core::{mint::MintTx as CoreMintTx, TokenId};
 use mc_util_serial::{decode, encode};
 use serde::{Deserialize, Serialize};
@@ -209,6 +210,21 @@ impl MintTx {
             .filter(mint_txs::block_index.eq(block_index as i64))
             .order_by(mint_txs::id)
             .load(conn)?)
+    }
+
+    /// Get the list of Ed25519 public keys that signed this MintTx.
+    pub fn get_signers(&self, conn: &Conn) -> Result<Vec<Ed25519Public>, Error> {
+        let core_mint_tx = self.decode()?;
+        let message = core_mint_tx.prefix.hash();
+
+        let sql_mint_config =
+            MintConfig::get_by_id(self.mint_config_id().ok_or(Error::ObjectNotSaved)?, conn)?
+                .ok_or(Error::NotFound)?;
+        let mint_config = sql_mint_config.decode()?;
+
+        Ok(mint_config
+            .signer_set
+            .verify(&message, &core_mint_tx.signature)?)
     }
 }
 

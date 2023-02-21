@@ -13,6 +13,7 @@ use hex::FromHexError;
 use mc_api::display::Error as ApiDisplayError;
 use mc_blockchain_types::BlockIndex;
 use mc_crypto_keys::KeyError;
+use mc_crypto_keys::SignatureError;
 use mc_ledger_db::Error as LedgerDbError;
 use mc_transaction_core::ViewKeyMatchError;
 use mc_transaction_std::MemoDecodingError;
@@ -90,6 +91,9 @@ pub enum Error {
 
     /// Invalid memo type
     InvalidMemoType,
+
+    /// Signature error: {0}
+    Signature(SignatureError),
 
     /// Other: {0}
     Other(String),
@@ -170,6 +174,12 @@ impl From<ViewKeyMatchError> for Error {
 impl From<MemoDecodingError> for Error {
     fn from(err: MemoDecodingError) -> Self {
         Self::MemoDecoding(err)
+    }
+}
+
+impl From<SignatureError> for Error {
+    fn from(err: SignatureError) -> Self {
+        Self::Signature(err)
     }
 }
 

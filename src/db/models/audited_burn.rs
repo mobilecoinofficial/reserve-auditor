@@ -558,8 +558,8 @@ mod tests {
         let mut withdrawal = create_gnosis_safe_withdrawal_from_burn_tx_out(&burn_tx_out, &mut rng);
         insert_gnosis_withdrawal(&mut withdrawal, &conn);
 
-        config.tokens[0].eth_token_contract_addr =
-            EthAddr::from_str("0x0000000000000000000000000000000000000000").unwrap();
+        config.tokens[0].eth_token_contract_addrs =
+            vec![EthAddr::from_str("0x0000000000000000000000000000000000000000").unwrap()];
 
         assert!(matches!(
             AuditedBurn::try_match_withdrawal_with_burn(&withdrawal, &config, &conn),
@@ -791,8 +791,8 @@ mod tests {
         let mut withdrawal = create_gnosis_safe_withdrawal_from_burn_tx_out(&burn_tx_out, &mut rng);
         insert_gnosis_withdrawal(&mut withdrawal, &conn);
 
-        config.safes[0].tokens[0].eth_token_contract_addr =
-            EthAddr::from_str("0x0000000000000000000000000000000000000000").unwrap();
+        config.safes[0].tokens[0].eth_token_contract_addrs =
+            vec![EthAddr::from_str("0x0000000000000000000000000000000000000000").unwrap()];
 
         assert!(matches!(
             AuditedBurn::try_match_burn_with_withdrawal(&burn_tx_out, &config, &conn),

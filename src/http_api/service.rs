@@ -55,7 +55,7 @@ impl ReserveAuditorHttpService {
             .into_iter()
             .map(|token| TokenPrecision {
                 token_id: token.token_id,
-                token_eth_addr: token.eth_token_contract_addr,
+                token_eth_addrs: token.eth_token_contract_addrs,
                 token_precision: token.decimals,
             })
             .collect::<Vec<TokenPrecision>>();

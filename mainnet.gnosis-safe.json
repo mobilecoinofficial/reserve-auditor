@@ -6,7 +6,10 @@
             {
                 "token_id": 1,
                 "token_type": "ERC20_TRANSFER",
-                "eth_token_contract_addr": "0x196f4727526ea7fb1e17b2071b3d8eaa38486988",
+                "eth_token_contract_addrs": [
+                    "0x196f4727526ea7fb1e17b2071b3d8eaa38486988",
+                    "0xA0d69E286B938e21CBf7E51D71F6A4c8918f482F"
+                ],
                 "name": "RSV",
                 "symbol": "Token",
                 "decimals": 18,

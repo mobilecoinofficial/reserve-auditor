@@ -17,8 +17,9 @@ pub struct AuditedToken {
     /// The type of the token (e.g. ERC20 smart contract)
     pub token_type: String,
 
-    /// The Ethereum token contract address.
-    pub eth_token_contract_addr: EthAddr,
+    /// The Ethereum token contract addresses.
+    /// We allow multiple since at some point we switched from RSV to RToken and we need to suppoprt both.
+    pub eth_token_contract_addrs: Vec<EthAddr>,
 
     /// The longform name of the token
     pub name: String,
@@ -66,7 +67,7 @@ impl AuditedSafeConfig {
     ) -> Option<&AuditedToken> {
         self.tokens
             .iter()
-            .find(|token| token.eth_token_contract_addr == *eth_contract_addr)
+            .find(|token| token.eth_token_contract_addrs.contains(eth_contract_addr))
     }
 }
 
@@ -127,7 +128,7 @@ mod tests {
         symbol = "TTO"
         decimals = 9
         logo_uri = "https://safe-transaction-assets.gnosis-safe.io/tokens/logos/0xd92e713d051c37ebb2561803a3b5fbabc4962431.png"
-        eth_token_contract_addr = "0xd92e713d051c37ebb2561803a3b5fbabc4962431"
+        eth_token_contract_addrs = ["0xd92e713d051c37ebb2561803a3b5fbabc4962431"]
         aux_burn_contract_addr = "0x76BD419fBa96583d968b422D4f3CB2A70bf4CF40"
         aux_burn_function_sig = [0xc7, 0x6f, 0x06, 0x35]
 
@@ -138,7 +139,7 @@ mod tests {
         symbol = "TTT"
         decimals = 9
         logo_uri = "https://safe-transaction-assets.gnosis-safe.io/tokens/logos/0x1111111111111111111111111111111111111111.png"
-        eth_token_contract_addr = "0x1111111111111111111111111111111111111111"
+        eth_token_contract_addrs = ["0x1111111111111111111111111111111111111111"]
         aux_burn_contract_addr = "0x2222222222222222222222222222222222222222"
         aux_burn_function_sig = [0xaa, 0xbb, 0xcc, 0xdd]
     "#;
@@ -157,7 +158,7 @@ mod tests {
                         "symbol": "TTO",
                         "decimals": 9,
                         "logo_uri": "https://safe-transaction-assets.gnosis-safe.io/tokens/logos/0xd92e713d051c37ebb2561803a3b5fbabc4962431.png",
-                        "eth_token_contract_addr": "0xd92e713d051c37ebb2561803a3b5fbabc4962431",
+                        "eth_token_contract_addrs": ["0xd92e713d051c37ebb2561803a3b5fbabc4962431"],
                         "aux_burn_contract_addr": "0x76BD419fBa96583d968b422D4f3CB2A70bf4CF40",
                         "aux_burn_function_sig": [199, 111, 6, 53]
                     },
@@ -168,7 +169,7 @@ mod tests {
                         "symbol": "TTT",
                         "decimals": 9,
                         "logo_uri": "https://safe-transaction-assets.gnosis-safe.io/tokens/logos/0x1111111111111111111111111111111111111111.png",
-                        "eth_token_contract_addr": "0x1111111111111111111111111111111111111111",
+                        "eth_token_contract_addrs": ["0x1111111111111111111111111111111111111111"],
                         "aux_burn_contract_addr": "0x2222222222222222222222222222222222222222",
                         "aux_burn_function_sig": [170, 187, 204, 221]
                     }
@@ -195,10 +196,10 @@ mod tests {
                         AuditedToken {
                             token_id: TokenId::from(1),
                             token_type: "ERC20".to_string(),
-                            eth_token_contract_addr: EthAddr::from_str(
+                            eth_token_contract_addrs: vec![EthAddr::from_str(
                                 "0xd92e713d051c37ebb2561803a3b5fbabc4962431",
                             )
-                            .unwrap(),
+                            .unwrap()],
                             name: "TestTokenOne".to_string(),
                             symbol: "TTO".to_string(),
                             decimals: 9,
@@ -212,10 +213,10 @@ mod tests {
                         AuditedToken {
                             token_id: TokenId::from(2),
                             token_type: "ERC20".to_string(),
-                            eth_token_contract_addr: EthAddr::from_str(
+                            eth_token_contract_addrs: vec![EthAddr::from_str(
                                 "0x1111111111111111111111111111111111111111",
                             )
-                            .unwrap(),
+                            .unwrap()],
                             name: "TestTokenTwo".to_string(),
                             symbol: "TTT".to_string(),
                             decimals: 9,

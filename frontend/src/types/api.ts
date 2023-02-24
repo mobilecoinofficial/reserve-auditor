@@ -91,7 +91,7 @@ export type TAuditedSafeResponse = {
 export type TAuditedTokenResponse = {
   token_id: number
   token_type: string
-  eth_token_contract_addr: string
+  eth_token_contract_addrs: string[]
   name: string
   symbol: string
   decimals: number

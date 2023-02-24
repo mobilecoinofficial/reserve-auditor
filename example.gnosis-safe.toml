@@ -8,7 +8,7 @@ token_decimals_max = 9
 [[safes.tokens]]
 token_id = 0
 token_type = "ERC20"
-eth_token_contract_addr = "0x50b347Ddbc73e45BD54683a57fcc28AA449Cf229" # GoerliTestTether
+eth_token_contract_addrs = ["0x50b347Ddbc73e45BD54683a57fcc28AA449Cf229"] # GoerliTestTether
 name = "GoerliTestTether"
 symbol = "GTT"
 decimals = 18
@@ -19,7 +19,7 @@ aux_burn_function_sig = [0xc7, 0x6f, 0x06, 0x35] # Auxiliary metadata emitBytes 
 [[safes.tokens]]
 token_id = 1
 token_type = "ERC20"
-eth_token_contract_addr = "0x5ADF1E64251b5010d5597003FD1Be2d6365F5e84" # TestMobTether
+eth_token_contract_addrs = ["0x5ADF1E64251b5010d5597003FD1Be2d6365F5e84"] # TestMobTether
 name = "TestMobTether"
 symbol = "TMOBT"
 decimals = 18

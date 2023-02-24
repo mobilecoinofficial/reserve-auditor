@@ -148,7 +148,7 @@ impl GnosisSync {
                         .audited_safe
                         .tokens
                         .iter()
-                        .find(|token| token.eth_token_contract_addr == *token_addr)
+                        .find(|token| token.eth_token_contract_addrs.contains(token_addr))
                         .ok_or_else(|| {
                             GnosisError::ApiResultParse("Unknown transfer token address".into())
                         })?;
@@ -440,11 +440,11 @@ impl GnosisSync {
             .audited_safe
             .tokens
             .iter()
-            .find(|token| token.eth_token_contract_addr == audited_token.eth_token_contract_addr)
+            .find(|token| token.eth_token_contract_addrs.contains(&transfer_data.to))
             .ok_or_else(|| {
                 GnosisError::InvalidAddress(format!(
                     "No matching token in config for address: {}",
-                    audited_token.eth_token_contract_addr
+                    transfer_data.to
                 ))
             })?;
 
@@ -531,7 +531,7 @@ mod test {
                 symbol: "TT".to_string(),
                 decimals: 18,
                 logo_uri: "https://safe-transaction-assets.gnosis-safe.io/tokens/logos/0x50b347Ddbc73e45BD54683a57fcc28AA449Cf229.png".to_string(),
-                eth_token_contract_addr: EthAddr::from_str(ETH_TOKEN_CONTRACT_ADDR).unwrap(),
+                eth_token_contract_addrs: vec![EthAddr::from_str(ETH_TOKEN_CONTRACT_ADDR).unwrap()],
                 aux_burn_contract_addr: EthAddr::from_str(AUX_BURN_CONTRACT_ADDR).unwrap(),
                 aux_burn_function_sig: AUX_BURN_FUNCTION_SIG,
             }],
@@ -663,7 +663,7 @@ mod test {
                 symbol: "TT".to_string(),
                 decimals: 9,
                 logo_uri: "https://safe-transaction-assets.gnosis-safe.io/tokens/logos/0x50b347Ddbc73e45BD54683a57fcc28AA449Cf229.png".to_string(),
-                eth_token_contract_addr: EthAddr::from_str(ETH_TOKEN_CONTRACT_ADDR).unwrap(),
+                eth_token_contract_addrs: vec![EthAddr::from_str(ETH_TOKEN_CONTRACT_ADDR).unwrap()],
                 aux_burn_contract_addr: EthAddr::from_str(AUX_BURN_CONTRACT_ADDR).unwrap(),
                 aux_burn_function_sig: AUX_BURN_FUNCTION_SIG,
             }],
@@ -685,10 +685,10 @@ mod test {
                     symbol: "TT".to_string(),
                     decimals: 9,
                     logo_uri: "https://safe-transaction-assets.gnosis-safe.io/tokens/logos/0x50b347Ddbc73e45BD54683a57fcc28AA449Cf229.png".to_string(),
-                    eth_token_contract_addr: EthAddr::from_str(
+                    eth_token_contract_addrs: vec![EthAddr::from_str(
                         "0x0000000000000000000000000000000000000000",
                     )
-                    .unwrap(),
+                    .unwrap()],
                     aux_burn_contract_addr: EthAddr::from_str(AUX_BURN_CONTRACT_ADDR).unwrap(),
                     aux_burn_function_sig: AUX_BURN_FUNCTION_SIG,
                 },
@@ -700,7 +700,7 @@ mod test {
                     symbol: "TT".to_string(),
                     decimals: 9,
                     logo_uri: "https://safe-transaction-assets.gnosis-safe.io/tokens/logos/0x50b347Ddbc73e45BD54683a57fcc28AA449Cf229.png".to_string(),
-                    eth_token_contract_addr: EthAddr::from_str(ETH_TOKEN_CONTRACT_ADDR).unwrap(),
+                    eth_token_contract_addrs: vec![EthAddr::from_str(ETH_TOKEN_CONTRACT_ADDR).unwrap()],
                     aux_burn_contract_addr: EthAddr::from_str(
                         "0x0000000000000000000000000000000000000000",
                     )
@@ -715,7 +715,7 @@ mod test {
                     symbol: "TT".to_string(),
                     decimals: 9,
                     logo_uri: "https://safe-transaction-assets.gnosis-safe.io/tokens/logos/0x50b347Ddbc73e45BD54683a57fcc28AA449Cf229.png".to_string(),
-                    eth_token_contract_addr: EthAddr::from_str(ETH_TOKEN_CONTRACT_ADDR).unwrap(),
+                    eth_token_contract_addrs: vec![EthAddr::from_str(ETH_TOKEN_CONTRACT_ADDR).unwrap()],
                     aux_burn_contract_addr: EthAddr::from_str(AUX_BURN_CONTRACT_ADDR).unwrap(),
                     aux_burn_function_sig: [0xc7, 0x6f, 0x06, 0xFF],
                 },

@@ -20,7 +20,7 @@ use rocket::serde::Serialize;
 pub struct TokenPrecision {
     pub token_id: TokenId,
 
-    pub token_eth_addr: EthAddr,
+    pub token_eth_addrs: Vec<EthAddr>,
 
     pub token_precision: u8,
 }

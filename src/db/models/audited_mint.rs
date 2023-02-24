@@ -553,8 +553,8 @@ mod tests {
         insert_gnosis_deposit(&mut deposit, &conn);
         insert_mint_tx_from_deposit(&deposit, &conn, &mut rng);
 
-        config.tokens[0].eth_token_contract_addr =
-            EthAddr::from_str("0x0000000000000000000000000000000000000000").unwrap();
+        config.tokens[0].eth_token_contract_addrs =
+            vec![EthAddr::from_str("0x0000000000000000000000000000000000000000").unwrap()];
 
         assert!(matches!(
             AuditedMint::try_match_deposit_with_mint(&deposit, &config, &conn),
@@ -775,8 +775,8 @@ mod tests {
         insert_gnosis_deposit(&mut deposit, &conn);
         let sql_mint_tx = insert_mint_tx_from_deposit(&deposit, &conn, &mut rng);
 
-        config.safes[0].tokens[0].eth_token_contract_addr =
-            EthAddr::from_str("0x0000000000000000000000000000000000000000").unwrap();
+        config.safes[0].tokens[0].eth_token_contract_addrs =
+            vec![EthAddr::from_str("0x0000000000000000000000000000000000000000").unwrap()];
 
         assert!(matches!(
             AuditedMint::try_match_mint_with_deposit(&sql_mint_tx, &config, &conn),

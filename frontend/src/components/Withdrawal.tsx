@@ -71,7 +71,7 @@ export const Withdrawal: FC<TProps> = ({ withdrawal }: TProps) => {
         </Tooltip>
       </Box>
     </Box>
-  )  : (
+  ) : (
     <Box>
       <Typography>Loading</Typography>
     </Box>

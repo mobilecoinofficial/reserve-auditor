@@ -35,6 +35,7 @@ export const Deposit: FC<TProps> = ({ deposit }: TProps) => {
     textOverflow: 'ellipsis',
   }
 
+  console.log(deposit)
   return gnosisSafeConfig ? (
     <Box sx={style}>
       <Typography sx={{ fontWeight: 'bold' }}>Gnosis Safe Deposit</Typography>

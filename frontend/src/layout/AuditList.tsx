@@ -110,7 +110,7 @@ export const AuditList: FC = (): ReactElement => {
               boxShadow: 'rgba(0, 0, 0, 1) 0px 5px 15px',
             }}
           >
-            {burns.length > 0 && 
+            {burns.length > 0 && (
               <InfiniteScroll
                 dataLength={burns.length}
                 next={fetchBurns}
@@ -120,12 +120,9 @@ export const AuditList: FC = (): ReactElement => {
                 {burns.map((i, index) => (
                   <AuditedBurn auditedBurn={i} key={index} />
                 ))}
-
               </InfiniteScroll>
-            }
-            {burns.length == 0 &&
-              <h4>&nbsp;&nbsp;None</h4>
-            }
+            )}
+            {burns.length == 0 && <h4>&nbsp;&nbsp;None</h4>}
           </div>
         </Grid>
       </Grid>

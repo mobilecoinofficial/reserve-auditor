@@ -144,6 +144,10 @@ impl ReserveAuditorHttpService {
         let response = query_result
             .into_iter()
             .map(|(audited, burn, withdrawal)| AuditedBurnResponse {
+                decoded_burn_memo_bytes: burn
+                    .burn_redemption_memo()
+                    .map(|memo| memo.memo_data().to_vec())
+                    .ok(),
                 audited,
                 burn,
                 withdrawal,
@@ -161,7 +165,13 @@ impl ReserveAuditorHttpService {
 
         let response = query_result
             .into_iter()
-            .map(|burn| UnauditedBurnTxOutResponse { burn })
+            .map(|burn| UnauditedBurnTxOutResponse {
+                decoded_burn_memo_bytes: burn
+                    .burn_redemption_memo()
+                    .map(|memo| memo.memo_data().to_vec())
+                    .ok(),
+                burn,
+            })
             .collect();
 
         Ok(response)

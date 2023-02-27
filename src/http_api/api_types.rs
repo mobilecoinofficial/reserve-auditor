@@ -76,6 +76,7 @@ pub struct AuditedBurnResponse {
     pub audited: AuditedBurn,
     pub burn: BurnTxOut,
     pub withdrawal: GnosisSafeWithdrawal,
+    pub decoded_burn_memo_bytes: Option<Vec<u8>>,
 }
 
 /// Burn tx outs without a corresponding gnosis safe withdrawal
@@ -83,6 +84,7 @@ pub struct AuditedBurnResponse {
 #[allow(missing_docs)]
 pub struct UnauditedBurnTxOutResponse {
     pub burn: BurnTxOut,
+    pub decoded_burn_memo_bytes: Option<Vec<u8>>,
 }
 
 /// Token information

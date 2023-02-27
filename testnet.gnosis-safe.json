@@ -7,7 +7,7 @@
                 "token_id": 1,
                 "token_type": "ERC20_TRANSFER",
                 "eth_token_contract_addrs": ["0xeC76FbFD75481839e456C4cb2cd23cda813f19B1"],
-                "name": "gRSV",
+                "name": "geUSD",
                 "symbol": "Token",
                 "decimals": 18,
                 "logo_uri": "",

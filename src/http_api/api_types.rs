@@ -151,5 +151,6 @@ pub struct MintInfoResponse {
 #[derive(Serialize, Debug, Eq, PartialEq)]
 #[allow(missing_docs)]
 pub struct BurnInfoResponse {
-    pub burn_txs: Vec<BurnTxOut>,
+    pub burn: BurnTxOut,
+    pub decoded_burn_memo_bytes: Option<Vec<u8>>,
 }

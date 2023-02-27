@@ -283,11 +283,20 @@ impl ReserveAuditorHttpService {
         })
     }
 
-    pub fn get_burns_by_block(&self, block_index: u64) -> Result<BurnInfoResponse, Error> {
+    pub fn get_burns_by_block(&self, block_index: u64) -> Result<Vec<BurnInfoResponse>, Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
         let burn_txs = BurnTxOut::get_burn_txs_by_block(block_index, &conn)?;
 
-        Ok(BurnInfoResponse { burn_txs })
+        Ok(burn_txs
+            .into_iter()
+            .map(|burn| BurnInfoResponse {
+                decoded_burn_memo_bytes: burn
+                    .burn_redemption_memo()
+                    .map(|memo| memo.memo_data().to_vec())
+                    .ok(),
+                burn,
+            })
+            .collect())
     }
 }
 

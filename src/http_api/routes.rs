@@ -168,7 +168,7 @@ pub fn get_mint_info_for_block(
 pub fn get_burns_for_block(
     block_index: u64,
     service: &State<ReserveAuditorHttpService>,
-) -> Result<Json<BurnInfoResponse>, String> {
+) -> Result<Json<Vec<BurnInfoResponse>>, String> {
     match service.get_burns_by_block(block_index) {
         Ok(burns) => Ok(Json(burns)),
         Err(e) => Err(e.to_string()),

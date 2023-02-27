@@ -45,7 +45,7 @@ export const GnosisSafe: FC = () => {
         setSafeBalances(balances)
       } else {
         // if we didn't find a balance of our target token, fall back to summing transfers
-        // (this is necessary for testnet currently as the goerli Safe doesn't grok the goerli RSV)
+        // (this is necessary for testnet currently as the goerli Safe doesn't grok the goerli eUSD)
         const sumBalance = await sumGnosisSafeBalance(gnosisSafeConfig.safeAddr)
         setSafeSumBalance(sumBalance)
       }
@@ -89,6 +89,10 @@ export const GnosisSafe: FC = () => {
         }
       }
     })
+    if (tokenBalanceStrings.length == 1) {
+      // No need to itemize the backing tokens when there is only 1 kind
+      balanceBlock = <br />
+    }
   } else if (safeSumBalance !== undefined) {
     // Alternate way of calculating the Safe balance for use on testnet as the testnet
     // erc20s are not recognized by getGnosisSafeBalance

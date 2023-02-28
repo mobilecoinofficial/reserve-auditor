@@ -114,7 +114,7 @@ jobs:
         with:
           action: helm-deploy
           rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          namespace: ${{ matrix.target }}-reserve-auditor
+          namespace: reserve-auditor-staging
           release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
           rancher_url: ${{ secrets.RANCHER_B_URL }}
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}

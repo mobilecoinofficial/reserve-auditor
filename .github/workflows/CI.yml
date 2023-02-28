@@ -18,7 +18,7 @@ permissions:
   checks: write
 
 jobs:
-  build:
+  test-rust-build:
     runs-on: [self-hosted, Linux, large]
     container: mobilecoin/builder-install:v0.0.21
     steps:

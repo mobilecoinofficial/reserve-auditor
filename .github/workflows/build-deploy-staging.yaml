@@ -1,5 +1,4 @@
----
-name: shared-cd
+name: build and deploy staging
 
 env:
   DOCKERHUB_ORG: mobilecoin
@@ -105,7 +104,7 @@ jobs:
         uses: mobilecoinofficial/gha-k8s-toolbox@v1
         with:
           action: namespace-create
-          namespace: ${{ matrix.target }}-reserve-auditor
+          namespace: staging-reserve-auditor
           rancher_cluster: ${{ env.TARGET_CLUSTER }}
           rancher_url: ${{ secrets.RANCHER_B_URL }}
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
@@ -125,3 +124,4 @@ jobs:
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
           chart_set: |
             --set=frontend.image.tag=${{ needs.build.outputs.version }}
+            --set=ingress.host=auditor.stage.${{ matrix.target }}.mobilecoin.com

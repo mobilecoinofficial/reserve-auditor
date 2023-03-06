@@ -43,4 +43,4 @@ jobs:
           chart_version: ${{ github.ref_name }}-${{ matrix.target }}
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
           chart_set: |
-            --set=frontend.image.tag=${{ needs.build.outputs.version }}
+            --set=frontend.image.tag=${{ needs.build.outputs.tag }}

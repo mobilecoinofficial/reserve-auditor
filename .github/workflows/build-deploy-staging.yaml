@@ -30,21 +30,24 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Extract version
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        id: version_output
+      - name: Generate Docker Tags
+        id: docker_meta
+        uses: docker/metadata-action@v4
         with:
-          action: generate-metadata
+          flavor: latest=true
+          images: mobilecoin/reserve-auditor
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern=v{{version}}
+            type=sha
 
       - name: Setup Docker Buildx
         id: buildx
-        if: "! contains(github.event.head_commit.message, '[skip docker]')"
         uses: docker/setup-buildx-action@v2
         with:
           install: true
 
       - name: Login to DockerHub
-        if: "! contains(github.event.head_commit.message, '[skip docker]')"
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -52,7 +55,6 @@ jobs:
 
       - name: Publish backend to DockerHub
         uses: docker/build-push-action@v3
-        if: "! contains(github.event.head_commit.message, '[skip docker]')"
         id: docker-push-backend
         with:
           context: .
@@ -67,7 +69,6 @@ jobs:
 
       - name: Publish frontend to DockerHub
         uses: docker/build-push-action@v3
-        if: "! contains(github.event.head_commit.message, '[skip docker]')"
         id: docker-push-frontend
         with:
           context: .
@@ -104,7 +105,7 @@ jobs:
         uses: mobilecoinofficial/gha-k8s-toolbox@v1
         with:
           action: namespace-create
-          namespace: staging-reserve-auditor
+          namespace: reserve-auditor-staging
           rancher_cluster: ${{ env.TARGET_CLUSTER }}
           rancher_url: ${{ secrets.RANCHER_B_URL }}
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}

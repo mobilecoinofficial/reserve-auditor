@@ -64,7 +64,7 @@ jobs:
             MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
+          tags: ${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:${{ steps.docker_meta.outputs.tags }}-${{ matrix.versions.prefix }}
           push: true
           # cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
           # cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
@@ -86,8 +86,8 @@ jobs:
           chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
           chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
           chart_repo: ${{ env.CHART_REPO }}
-          chart_app_version: ${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
-          chart_version: ${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
+          chart_app_version: ${{ steps.docker_meta.outputs.version }}-${{ matrix.versions.prefix }}
+          chart_version: ${{ steps.docker_meta.outputs.version }}-${{ matrix.versions.prefix }}
           chart_path: ${{ env.CHART_PATH }}
 
   # deploy:

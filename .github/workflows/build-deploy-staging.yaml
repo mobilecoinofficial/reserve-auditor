@@ -40,7 +40,7 @@ jobs:
           images: mobilecoin/reserve-auditor
           tags: |
             type=ref,event=branch
-            type=semver,pattern=v{{version}},suffix=-${{ matrix.versions.prefix }}
+            type=semver,pattern=v{{version}}
             type=sha
 
       - name: Setup Docker Buildx
@@ -64,7 +64,7 @@ jobs:
             MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:${{ steps.docker_meta.outputs.tags }}-${{ matrix.versions.prefix }}
+          tags: ${{ steps.docker_meta.outputs.tags }}-${{ matrix.versions.prefix }}
           push: true
 
       # - name: Publish frontend to DockerHub

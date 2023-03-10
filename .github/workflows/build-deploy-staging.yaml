@@ -96,6 +96,11 @@ jobs:
           tags: ${{ steps.docker_meta.outputs.tags }}-${{ matrix.versions.prefix }}
           push: true
 
+  harbor:
+    needs: backend
+    name: Publish to Harbor
+    runs-on: [self-hosted, Linux, small]
+    steps:
       - name: Package and publish chart
         uses: mobilecoinofficial/gha-k8s-toolbox@v1
         with:
@@ -103,8 +108,8 @@ jobs:
           chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
           chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
           chart_repo: ${{ env.CHART_REPO }}
-          chart_app_version: ${{ steps.docker_meta.outputs.version }}-${{ matrix.versions.prefix }}
-          chart_version: ${{ steps.docker_meta.outputs.version }}-${{ matrix.versions.prefix }}
+          chart_app_version: ${{ needs.backend.docker_meta.outputs.version }}
+          chart_version: ${{ needs.backend.docker_meta.outputs.version }}
           chart_path: ${{ env.CHART_PATH }}
 
   # deploy:

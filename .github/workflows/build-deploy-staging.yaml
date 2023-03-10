@@ -40,7 +40,7 @@ jobs:
           images: mobilecoin/reserve-auditor
           tags: |
             type=ref,event=branch
-            type=semver,pattern=v{{version}}
+            type=semver,pattern=v{{version}},suffix=-${{ matrix.versions.prefix }}
             type=sha
 
       - name: Setup Docker Buildx
@@ -66,30 +66,28 @@ jobs:
           labels: ${{ steps.docker_meta.outputs.labels }}
           tags: ${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:${{ steps.docker_meta.outputs.tags }}-${{ matrix.versions.prefix }}
           push: true
-          # cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
-          # cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
 
-      - name: Publish frontend to DockerHub
-        uses: docker/build-push-action@v3
-        id: docker-push-frontend
-        with:
-          context: .
-          file: .internal-ci/docker/Dockerfile.frontend
-          labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ steps.docker_meta.outputs.tags }}
-          push: true
-
-      - name: Package and publish chart
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: helm-publish
-          chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
-          chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
-          chart_repo: ${{ env.CHART_REPO }}
-          chart_app_version: ${{ steps.docker_meta.outputs.version }}-${{ matrix.versions.prefix }}
-          chart_version: ${{ steps.docker_meta.outputs.version }}-${{ matrix.versions.prefix }}
-          chart_path: ${{ env.CHART_PATH }}
-
+      # - name: Publish frontend to DockerHub
+      #   uses: docker/build-push-action@v3
+      #   id: docker-push-frontend
+      #   with:
+      #     context: .
+      #     file: .internal-ci/docker/Dockerfile.frontend
+      #     labels: ${{ steps.docker_meta.outputs.labels }}
+      #     tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ steps.docker_meta.outputs.tags }}
+      #     push: true
+      #
+      # - name: Package and publish chart
+      #   uses: mobilecoinofficial/gha-k8s-toolbox@v1
+      #   with:
+      #     action: helm-publish
+      #     chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
+      #     chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
+      #     chart_repo: ${{ env.CHART_REPO }}
+      #     chart_app_version: ${{ steps.docker_meta.outputs.version }}-${{ matrix.versions.prefix }}
+      #     chart_version: ${{ steps.docker_meta.outputs.version }}-${{ matrix.versions.prefix }}
+      #     chart_path: ${{ env.CHART_PATH }}
+      #
   # deploy:
   #   name: Deploy
   #   runs-on: [self-hosted, Linux]

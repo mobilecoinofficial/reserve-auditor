@@ -64,8 +64,8 @@ jobs:
           labels: ${{ steps.docker_meta.outputs.labels }}
           tags: ${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
           push: true
-          cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
-          cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
+          # cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
+          # cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
 
       - name: Publish frontend to DockerHub
         uses: docker/build-push-action@v3
@@ -74,10 +74,8 @@ jobs:
           context: .
           file: .internal-ci/docker/Dockerfile.frontend
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ steps.version_output.outputs.version }}
+          tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ steps.docker_meta.outputs.tags }}
           push: true
-          cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
-          cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
 
       - name: Package and publish chart
         uses: mobilecoinofficial/gha-k8s-toolbox@v1
@@ -90,39 +88,39 @@ jobs:
           chart_version: ${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
           chart_path: ${{ env.CHART_PATH }}
 
-  deploy:
-    name: Deploy
-    runs-on: [self-hosted, Linux]
-    needs: build
-    strategy:
-      matrix:
-        target: [mainnet, testnet]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Create ${{ matrix.target }} namespace
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: namespace-create
-          namespace: reserve-auditor-staging
-          rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          rancher_url: ${{ secrets.RANCHER_B_URL }}
-          rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
-
-      - name: Deploys ${{ matrix.target }} release
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: helm-deploy
-          rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          namespace: reserve-auditor-staging
-          release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
-          rancher_url: ${{ secrets.RANCHER_B_URL }}
-          rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
-          chart_repo: ${{ env.CHART_REPO }}
-          chart_name: ${{ env.REPO_NAME}}
-          chart_version: ${{ needs.build.outputs.version }}-${{ matrix.target }}
-          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
-          chart_set: |
-            --set=frontend.image.tag=${{ needs.build.outputs.version }}
-            --set=ingress.host=auditor.stage.${{ matrix.target }}.mobilecoin.com
+  # deploy:
+  #   name: Deploy
+  #   runs-on: [self-hosted, Linux]
+  #   needs: build
+  #   strategy:
+  #     matrix:
+  #       target: [mainnet, testnet]
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #
+  #     - name: Create ${{ matrix.target }} namespace
+  #       uses: mobilecoinofficial/gha-k8s-toolbox@v1
+  #       with:
+  #         action: namespace-create
+  #         namespace: reserve-auditor-staging
+  #         rancher_cluster: ${{ env.TARGET_CLUSTER }}
+  #         rancher_url: ${{ secrets.RANCHER_B_URL }}
+  #         rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
+  #
+  #     - name: Deploys ${{ matrix.target }} release
+  #       uses: mobilecoinofficial/gha-k8s-toolbox@v1
+  #       with:
+  #         action: helm-deploy
+  #         rancher_cluster: ${{ env.TARGET_CLUSTER }}
+  #         namespace: reserve-auditor-staging
+  #         release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
+  #         rancher_url: ${{ secrets.RANCHER_B_URL }}
+  #         rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
+  #         chart_repo: ${{ env.CHART_REPO }}
+  #         chart_name: ${{ env.REPO_NAME}}
+  #         chart_version: ${{ needs.build.outputs.version }}-${{ matrix.target }}
+  #         chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
+  #         chart_set: |
+  #           --set=frontend.image.tag=${{ needs.build.outputs.version }}
+  #           --set=ingress.host=auditor.stage.${{ matrix.target }}.mobilecoin.com

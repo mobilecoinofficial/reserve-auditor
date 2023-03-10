@@ -122,7 +122,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: [self-hosted, Linux]
-    needs: backend
+    needs: [backend,harbar]
     strategy:
       matrix:
         target: [mainnet, testnet]

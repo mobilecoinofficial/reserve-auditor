@@ -9,6 +9,8 @@ env:
 
 on:
   push:
+    tags:
+    - 'v*.*.*'
     branches:
       - release/*
 

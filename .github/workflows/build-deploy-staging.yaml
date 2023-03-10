@@ -38,7 +38,7 @@ jobs:
           context: .
           file: .internal-ci/docker/Dockerfile.frontend
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ github.ref }}
+          tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ github.ref_name }}
           push: true
 
   backend:

@@ -5,6 +5,7 @@ export type {
   TErc20Info,
   TLedgerBalanceResponse,
   TGnosisSafeConfigResponse,
+  TGnosisSafeAllTransactionsListResponse,
 } from './api'
 
 export type { TAuditedMint, TMint, TDeposit } from './mint'

@@ -19,7 +19,7 @@ jobs:
       matrix:
         versions: 
           - {mobilecoind: v4.0.2-test, prefix: testnet}
-          - {mobilecoind: v3.0.0, prefix: mainnet}
+          - {mobilecoind: v4.0.2, prefix: mainnet}
 
     name: Build
     runs-on: [self-hosted, Linux, large]

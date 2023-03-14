@@ -12,6 +12,12 @@ declare let ETHERSCAN_URL: string // env var set by webpack
 export const Withdrawal: FC<TProps> = ({ withdrawal }: TProps) => {
   const gnosisSafeConfig = useContext(GnosisSafeContext)
 
+  const ercSymbols = {
+    "0x196f4727526eA7FB1e17b2071B3d8eAA38486988": "RSV",
+    "0xA0d69E286B938e21CBf7E51D71F6A4c8918f482F": "eUSD",
+    "0xeC76FbFD75481839e456C4cb2cd23cda813f19B1": "geUSD" /* goerli testnet token */
+  }
+
   const precision = 10 ** 6
   const locale = 'en-US'
   const localeOptions = {
@@ -42,7 +48,7 @@ export const Withdrawal: FC<TProps> = ({ withdrawal }: TProps) => {
       <Box>
         amount:{' '}
         {(withdrawal.amount / precision).toLocaleString(locale, localeOptions)}{' '}
-        {gnosisSafeConfig.tokens[0].name}
+        {ercSymbols[withdrawal.tokenAddr]}
       </Box>
       <Box sx={noWrapStyle}>
         tx hash:{' '}

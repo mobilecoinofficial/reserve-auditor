@@ -3,6 +3,12 @@ import React, { FC, useContext } from 'react'
 import { GnosisSafeContext } from '../contexts'
 import { TDeposit } from '../types'
 
+const ercSymbols = {
+  "0x196f4727526eA7FB1e17b2071B3d8eAA38486988": "RSV",
+  "0xA0d69E286B938e21CBf7E51D71F6A4c8918f482F": "eUSD",
+  "0xeC76FbFD75481839e456C4cb2cd23cda813f19B1": "geUSD" /* goerli testnet token */
+}
+
 const precision = 10 ** 6
 const locale = 'en-US'
 const localeOptions = {
@@ -41,7 +47,7 @@ export const Deposit: FC<TProps> = ({ deposit }: TProps) => {
       <Box>
         amount:{' '}
         {(deposit.amount / precision).toLocaleString(locale, localeOptions)}{' '}
-        {gnosisSafeConfig.tokens[0].name}
+        {ercSymbols[deposit.tokenAddr]}
       </Box>
       <Box sx={noWrapStyle}>
         tx hash:{' '}

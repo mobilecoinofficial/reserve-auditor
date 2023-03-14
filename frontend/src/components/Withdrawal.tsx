@@ -2,6 +2,7 @@ import { Box, Link, Tooltip, Typography } from '@mui/material'
 import React, { FC, useContext } from 'react'
 import { GnosisSafeContext } from '../contexts'
 import { TWithdrawal } from '../types'
+import { getSymbolFromContactAddress } from '../utils/ercTokens'
 
 type TProps = {
   withdrawal: TWithdrawal
@@ -42,7 +43,7 @@ export const Withdrawal: FC<TProps> = ({ withdrawal }: TProps) => {
       <Box>
         amount:{' '}
         {(withdrawal.amount / precision).toLocaleString(locale, localeOptions)}{' '}
-        {gnosisSafeConfig.tokens[0].name}
+        {getSymbolFromContactAddress(withdrawal.tokenAddr)}
       </Box>
       <Box sx={noWrapStyle}>
         tx hash:{' '}

@@ -2,6 +2,7 @@ import { Box, Link, Tooltip, Typography } from '@mui/material'
 import React, { FC, useContext } from 'react'
 import { GnosisSafeContext } from '../contexts'
 import { TDeposit } from '../types'
+import { getSymbolFromContactAddress } from '../utils/ercTokens'
 
 const precision = 10 ** 6
 const locale = 'en-US'
@@ -41,7 +42,7 @@ export const Deposit: FC<TProps> = ({ deposit }: TProps) => {
       <Box>
         amount:{' '}
         {(deposit.amount / precision).toLocaleString(locale, localeOptions)}{' '}
-        {gnosisSafeConfig.tokens[0].name}
+        {getSymbolFromContactAddress(deposit.tokenAddr)}
       </Box>
       <Box sx={noWrapStyle}>
         tx hash:{' '}

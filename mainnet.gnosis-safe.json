@@ -11,7 +11,7 @@
                     "0xA0d69E286B938e21CBf7E51D71F6A4c8918f482F"
                 ],
                 "name": "eUSD",
-                "symbol": "Token",
+                "symbol": "Electronic Dollar",
                 "decimals": 18,
                 "logo_uri": "",
                 "aux_burn_contract_addr": "0x76BD419fBa96583d968b422D4f3CB2A70bf4CF40",

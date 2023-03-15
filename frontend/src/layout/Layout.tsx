@@ -11,7 +11,7 @@ export default function Layout() {
     <Container maxWidth="lg">
       <Header />
       <Toolbar />
-      <Grid>
+      <Grid container>
         <Grid item xs={12}>
           <TopContent />
         </Grid>

@@ -1,9 +1,18 @@
 import React from 'react'
+import { Grid } from '@mui/material'
+
+import BalanceSummary from './BalanceSummary'
+import AuditorInfo from './AuditorIntro'
 
 export default function TopContent() {
   return (
-    <div style={{ height: 350, border: '1px solid black', padding: 16 }}>
-      top content goes here
-    </div>
+    <Grid container columnSpacing={8}>
+      <Grid item xs={12} md={6}>
+        <BalanceSummary />
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <AuditorInfo />
+      </Grid>
+    </Grid>
   )
 }

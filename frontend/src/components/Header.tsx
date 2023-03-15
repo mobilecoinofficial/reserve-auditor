@@ -2,13 +2,17 @@ import React from 'react'
 import { AppBar, Container, Toolbar, Typography, Box } from '@mui/material'
 import MobileCoinLogo from './MobileCoinLogo'
 
+// TODO why does header text dissapear on mobile
 export default function Header() {
   return (
     <AppBar>
       <Container maxWidth="lg">
         <Toolbar
           disableGutters
-          sx={{ display: 'flex', justifyContent: 'space-between' }}
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
         >
           <Box
             display="flex"

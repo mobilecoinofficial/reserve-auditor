@@ -4,38 +4,74 @@ import { getGnosisSafeBalance, sumGnosisSafeBalance } from '../apiHandler'
 import { GnosisSafeContext } from '../../contexts'
 import { eUSDTokenAddress } from '../../utils/ercTokens'
 import { formatNumber } from '../../utils/mcNetworkTokens'
+import { TGnosisSafeUsdBalanceResponse } from '../../types'
+import isTestnet from '../../utils/isTestnet'
 
-export default function useSafeBalance(): string | null {
+export type SafeBalance = {
+  mainBalance?: string
+  hasOtherBalance: boolean
+}
+
+export default function useSafeBalance(): SafeBalance {
   const gnosisSafeConfig = useContext(GnosisSafeContext)
-  const [mainBalance, setMainBalance] = useState<string | null>(null)
+  const [balances, setBalances] = useState<SafeBalance>({
+    mainBalance: undefined,
+    hasOtherBalance: false,
+  })
 
   useEffect(() => {
     const getBalance = async () => {
       if (!gnosisSafeConfig) {
         return
       }
-      const balances = await getGnosisSafeBalance(gnosisSafeConfig.safeAddr)
-      const eUSDBalance = balances.find(
-        (balance) => balance.tokenAddress === eUSDTokenAddress
-      )
+      let mainBalance
+      let hasOtherBalance: boolean
 
-      if (!eUSDBalance) {
-        return
-        // TODO handle this error state
+      if (!isTestnet) {
+        const balances = await getGnosisSafeBalance(gnosisSafeConfig.safeAddr)
+        mainBalance = geteUSDBalance(balances)
+        hasOtherBalance = safeHasOtherBalance(balances)
+      } else {
+        // this is necessary for testnet currently as the goerli Safe doesn't grok the goerli eUSD
+        const safeSumBalance = await sumGnosisSafeBalance(
+          gnosisSafeConfig.safeAddr
+        )
+        mainBalance = formatNumber(
+          Number(safeSumBalance) / 10 ** gnosisSafeConfig.tokens[0].decimals
+        )
+        hasOtherBalance = false
       }
-      const formattedBalance = formatNumber(
-        Number(eUSDBalance.balance) / 10 ** eUSDBalance.token.decimals
-      )
-      // TODO handle testnet
-      // // if we didn't find a balance of our target token, fall back to summing transfers
-      // // (this is necessary for testnet currently as the goerli Safe doesn't grok the goerli eUSD)
-      // const sumBalance = await sumGnosisSafeBalance(gnosisSafeConfig.safeAddr)
-      // setSafeSumBalance(sumBalance)
 
-      setMainBalance(formattedBalance)
+      setBalances({
+        mainBalance,
+        hasOtherBalance,
+      })
     }
     getBalance()
   }, [gnosisSafeConfig])
 
-  return mainBalance ?? null
+  return balances
+}
+
+function geteUSDBalance(balances: TGnosisSafeUsdBalanceResponse[]) {
+  const eUSDBalance = balances.find(
+    (balance) => balance.tokenAddress === eUSDTokenAddress
+  )
+
+  if (!eUSDBalance) {
+    return
+  }
+
+  return formatNumber(
+    Number(eUSDBalance.balance) / 10 ** eUSDBalance.token.decimals
+  )
+}
+
+function safeHasOtherBalance(balances: TGnosisSafeUsdBalanceResponse[]) {
+  return Boolean(
+    balances.find(
+      (balance) =>
+        balance.tokenAddress !== eUSDTokenAddress && Number(balance.balance) > 0
+    )
+  )
 }

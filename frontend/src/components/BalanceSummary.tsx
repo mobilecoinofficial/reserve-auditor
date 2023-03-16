@@ -1,13 +1,18 @@
-import React from 'react'
-import { Box, Typography, Link } from '@mui/material'
+import React, { useContext } from 'react'
+import { Box, Typography, Link, Tooltip } from '@mui/material'
+import ErrorIcon from '@mui/icons-material/Error'
 
 import useLedgerBalance from '../api/hooks/useLedgerBalance'
 import useSafeBalance from '../api/hooks/useSafeBalance'
+import isTestnet from '../utils/isTestnet'
+import { GnosisSafeContext } from '../contexts'
 
-// TODO: link for reserve safe
-export default function MCeUSDBalance() {
+export default function BalanceSummary() {
   const ledgerBalance = useLedgerBalance()
-  const safeBalance = useSafeBalance()
+  const { mainBalance, hasOtherBalance } = useSafeBalance()
+  const gnosisSafeConfig = useContext(GnosisSafeContext)
+
+  const safeAddressNet = isTestnet() ? 'gor' : 'eth'
 
   return (
     <Box
@@ -15,6 +20,7 @@ export default function MCeUSDBalance() {
       height="100%"
       width="100%"
       justifyContent="space-between"
+      alignItems="center"
       sx={{ paddingTop: 2, paddingBottom: 2 }}
     >
       <Box>
@@ -24,30 +30,28 @@ export default function MCeUSDBalance() {
         <Typography variant="h4" gutterBottom>
           {ledgerBalance?.totalSupply}
         </Typography>
-        <Box display="flex">
-          <Typography color="textSecondary" sx={{ marginRight: 1 }}>
-            Minted:
-          </Typography>
-          <Typography color="textSecondary">
-            {ledgerBalance?.totalMinted}
-          </Typography>
-        </Box>
-        <Box display="flex">
-          <Typography color="textSecondary" sx={{ marginRight: 1 }}>
-            Burned:
-          </Typography>
-          <Typography color="textSecondary">
-            {ledgerBalance?.totalBurned}
-          </Typography>
-        </Box>
       </Box>
       <Box>
         <Typography color="textSecondary">
-          eUSD in the <Link href="/">Reserve Safe</Link>
+          eUSD in the{' '}
+          <Link
+            target="_blank"
+            rel="noreferrer"
+            href={`https://app.safe.global/${safeAddressNet}:${gnosisSafeConfig?.safeAddr}/balances`}
+          >
+            Reserve Safe
+          </Link>
         </Typography>
-        <Typography variant="h4" sx={{ marginBottom: 2 }}>
-          {safeBalance}
-        </Typography>
+        <Box display="flex">
+          <Typography variant="h4" sx={{ marginBottom: 2 }}>
+            {mainBalance}
+          </Typography>
+          {hasOtherBalance && (
+            <Tooltip title="The safe currently contains additional non-eUSD assets. Visit safe for more details">
+              <ErrorIcon color="warning" />
+            </Tooltip>
+          )}
+        </Box>
       </Box>
     </Box>
   )

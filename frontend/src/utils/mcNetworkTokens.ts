@@ -7,5 +7,6 @@ export function formatNumber(number: number): string {
 }
 
 export function formatEUSD(eUSDAmount: number): string {
+  console.log(eUSDAmount, eUSDAmount / 10 ** 6)
   return formatNumber(eUSDAmount / 10 ** 6)
 }

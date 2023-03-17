@@ -8,6 +8,7 @@ import {
   TAuditedMintResponse,
   TAuditedBurn,
   TAuditedMint,
+  TWithdrawal,
   TGnosisSafeUsdBalanceResponse,
   TGnosisSafeAllTransactionsListResponse,
   TLedgerBalance,
@@ -139,4 +140,10 @@ export const getLedgerBalance = async (
     `/ledger_balance?token_id=${tokenId}`
   )
   return camelCaseKeys(response) as TLedgerBalance
+}
+
+export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
+  const response = await get<TWithdrawal[]>('/unaudited_withdrawals')
+
+  return camelCaseKeys(response) as TWithdrawal[]
 }

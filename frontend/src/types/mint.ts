@@ -30,3 +30,7 @@ export type TDeposit = {
   amount: number
   expectedMcMintTxNonceHex: string
 }
+
+export type TUnauditedSafeDeposit = {
+  deposit: TDeposit
+}

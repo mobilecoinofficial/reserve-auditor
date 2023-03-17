@@ -161,6 +161,25 @@ impl GnosisSafeWithdrawal {
         Ok(())
     }
 
+    /// Attempt to find all [GnosisSafeWithdrawal] that do not have a
+    /// matching entry in the `audited_burns` table.
+    pub fn find_unaudited_withdrawals(
+        conn: &Conn,
+    ) -> Result<Vec<Self>, Error> {
+        Ok(gnosis_safe_withdrawals::table
+            .filter(not(exists(
+                audited_burns::table
+                    .select(audited_burns::gnosis_safe_withdrawal_id)
+                    .filter(
+                        audited_burns::gnosis_safe_withdrawal_id
+                            .nullable()
+                            .eq(gnosis_safe_withdrawals::id),
+                    ),
+            )))
+            .load(conn)?)
+    }
+    
+
     /// Attempt to find a [GnosisSafeWithdrawal] that has a given nonce and no
     /// matching entry in the `audited_burns` table.
     pub fn find_unaudited_withdrawal_by_public_key(
@@ -330,6 +349,96 @@ mod tests {
             )
             .unwrap()
             .is_none()
+        );
+    }
+
+    #[test_with_logger]
+    fn test_find_unaudited_withdrawals(logger: Logger) {
+        let mut rng = mc_util_test_helper::get_seeded_rng();
+        let test_db_context = TestDbContext::default();
+        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let token_id = TokenId::from(1);
+        let conn = reserve_auditor_db.get_conn().unwrap();
+
+        // Create two BurnTxOuts.
+        let burn_tx_out1 = create_and_insert_burn_tx_out(token_id, 100, &conn, &mut rng);
+        let burn_tx_out2 = create_and_insert_burn_tx_out(token_id, 100, &conn, &mut rng);
+
+        // Create two Gnosis withdrawals.
+        let mut withdrawal1 =
+            create_gnosis_safe_withdrawal_from_burn_tx_out(&burn_tx_out1, &mut rng);
+        let mut withdrawal2 =
+            create_gnosis_safe_withdrawal_from_burn_tx_out(&burn_tx_out2, &mut rng);
+
+        // Since they haven't been inserted yet, they should not be found.
+        assert!(
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(
+                &conn
+            )
+            .unwrap()
+            .is_empty()
+        );
+
+        // Insert the first withdrawal, it should now be found.
+        insert_gnosis_withdrawal(&mut withdrawal1, &conn);
+
+        assert_eq!(
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(
+                &conn
+            )
+            .unwrap()[0],
+            withdrawal1
+        );
+
+        // Insert the second withdrawal, they should both be found.
+        insert_gnosis_withdrawal(&mut withdrawal2, &conn);
+
+        assert_eq!(
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(
+                &conn
+            )
+            .unwrap().len(),
+            2,
+        );
+
+        // Insert a row to the `audited_burns` table marking the first withdrawal as
+        // audited. We should no longer be able to find it.
+        AuditedBurn::associate_withdrawal_with_burn(
+            withdrawal1.id().unwrap(),
+            burn_tx_out1.id().unwrap(),
+            &conn,
+        )
+        .unwrap();
+
+        assert_eq!(
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(
+                &conn
+            )
+            .unwrap().len(), 1
+        );
+
+        assert_eq!(
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(
+                &conn
+            )
+            .unwrap()[0],
+            withdrawal2
+        );
+
+        // Mark the second withdrawal as audited. We should no longer be able to find
+        // it.
+        AuditedBurn::associate_withdrawal_with_burn(
+            withdrawal2.id().unwrap(),
+            burn_tx_out2.id().unwrap(),
+            &conn,
+        )
+        .unwrap();
+
+        assert!(
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(
+                &conn
+            )
+            .unwrap().is_empty()
         );
     }
 }

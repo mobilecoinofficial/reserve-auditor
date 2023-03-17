@@ -8,9 +8,14 @@ export type {
   TGnosisSafeAllTransactionsListResponse,
 } from './api'
 
-export type { TAuditedMint, TMint, TDeposit } from './mint'
+export type {
+  TAuditedMint,
+  TMint,
+  TDeposit,
+  TUnauditedSafeDeposit,
+} from './mint'
 
-export type { TAuditedBurn, TBurn, TWithdrawal } from './burn'
+export type { TAuditedBurn, TBurn, TWithdrawal, TUnauditedBurn } from './burn'
 
 export type { TLedgerBalance } from './ledger'
 

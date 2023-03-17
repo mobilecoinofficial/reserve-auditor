@@ -14,6 +14,8 @@ import {
   TLedgerBalanceResponse,
   TGnosisSafeConfigResponse,
   TGnosisSafeConfig,
+  TUnauditedBurn,
+  TUnauditedSafeDeposit,
 } from '../types'
 
 declare let AUDITOR_URL: string // env var set by webpack
@@ -53,6 +55,18 @@ const camelCaseKeys = (
 
     acc[camelKey] = _isObject(value) ? camelCaseKeys(value) : value
   })
+}
+
+export const getUnauditedBurns = async (): Promise<TUnauditedBurn[]> => {
+  const response = await get<TAuditedMintResponse>(`/unaudited_burn_tx_outs`)
+  return camelCaseKeys(response) as TUnauditedBurn[]
+}
+
+export const getUnauditedSafeDeposits = async (): Promise<
+  TUnauditedSafeDeposit[]
+> => {
+  const response = await get<TAuditedMintResponse>(`/unaudited_gnosis_deposits`)
+  return camelCaseKeys(response) as TUnauditedSafeDeposit[]
 }
 
 export const getAuditedMints = async (page: number): Promise<TAuditedMint> => {

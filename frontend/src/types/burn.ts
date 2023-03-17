@@ -27,3 +27,8 @@ export type TWithdrawal = {
   amount: number
   mcTxOutPublicKeyHex: string
 }
+
+export type TUnauditedBurn = {
+  burn: TBurn
+  decoded_burn_memo_bytes: number[]
+}

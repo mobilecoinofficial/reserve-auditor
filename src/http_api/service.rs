@@ -305,6 +305,13 @@ impl ReserveAuditorHttpService {
 
         Ok(query_result)   
     }
+
+    pub fn get_unaudited_mints(&self) -> Result<Vec<MintTx>, Error> {
+        let conn = self.reserve_auditor_db.get_conn()?;
+        let query_result = MintTx::find_unaudited_mint_txs(&conn)?;
+
+        Ok(query_result)  
+    }
 }
 
 #[cfg(test)]

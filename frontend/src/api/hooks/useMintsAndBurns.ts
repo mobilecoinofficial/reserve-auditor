@@ -7,6 +7,7 @@ import {
   getUnauditedSafeDeposits,
   getUnauditedBurns,
   getUnauditedWithdrawals,
+  getUnauditedMints,
 } from '../apiHandler'
 
 export default function useMintsAndBurns() {
@@ -20,7 +21,13 @@ export default function useMintsAndBurns() {
       const unAuditedSafeDeposits = await getUnauditedSafeDeposits()
       const unAuditedBurns = await getUnauditedBurns()
       const unauditedWithdrawals = await getUnauditedWithdrawals()
-      console.log(unAuditedSafeDeposits, unAuditedBurns, unauditedWithdrawals)
+      const unauditedMints = await getUnauditedMints()
+      console.log(
+        unAuditedSafeDeposits,
+        unAuditedBurns,
+        unauditedWithdrawals,
+        unauditedMints
+      )
     }
     fetchData()
   }, [])

@@ -8,6 +8,7 @@ import {
   TAuditedMintResponse,
   TAuditedBurn,
   TAuditedMint,
+  TMint,
   TWithdrawal,
   TGnosisSafeUsdBalanceResponse,
   TGnosisSafeAllTransactionsListResponse,
@@ -142,8 +143,57 @@ export const getLedgerBalance = async (
   return camelCaseKeys(response) as TLedgerBalance
 }
 
-export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
-  const response = await get<TWithdrawal[]>('/unaudited_withdrawals')
+// TODO: remove fake handlers
 
-  return camelCaseKeys(response) as TWithdrawal[]
+// export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
+//   const response = await get<TWithdrawal[]>('/unaudited_withdrawals')
+
+//   return camelCaseKeys(response) as TWithdrawal[]
+// }
+
+// export const getUnauditedMints = async (): Promise<TMint[]> => {
+//   const response = await get<TMint[]>('/unaudited_mints')
+
+//   return camelCaseKeys(response) as TMint[]
+// }
+
+export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
+  return Promise.resolve([
+    {
+      id: 45,
+      ethTxHash: '12dsfsdfsdf4sdfsdf3q23sdf',
+      ethBlockNumber: 1234455,
+      safeAddr: 'someSafeaddr',
+      tokenAddr: 'sometokenaddr',
+      toAddr: 'targetAddr',
+      amount: 420000000,
+      mcTxOutPublicKeyHex: 'pubkeyhex',
+    },
+    {
+      id: 46,
+      ethTxHash: '1asdasdasd2dsfsdfsdf4sdfsdf3q23sdf',
+      ethBlockNumber: 1234489,
+      safeAddr: 'someSafeaddr2',
+      tokenAddr: 'sometokenaddr2',
+      toAddr: 'targetAddr2',
+      amount: 42100000000,
+      mcTxOutPublicKeyHex: 'pubkeyhex2',
+    },
+  ])
+}
+
+export const getUnauditedMints = async (): Promise<TMint[]> => {
+  return Promise.resolve([
+    {
+      id: 32,
+      blockIndex: 100000,
+      tokenId: 1,
+      amount: 42000000000,
+      nonceHex: 'someNonceHex',
+      recipientB58Addr: 'recipAddr',
+      tombstoneBlock: 100001,
+      protobuf: [1, 2, 3, 4, 4],
+      mintConfigId: 1,
+    },
+  ])
 }

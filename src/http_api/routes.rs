@@ -3,7 +3,7 @@
 //! Routing for the http server
 
 use crate::{
-    db::{Counters, GnosisSafeWithdrawal},
+    db::{Counters, GnosisSafeWithdrawal, MintTx},
     http_api::{
         api_types::{
             AuditedBurnResponse, AuditedMintResponse, BlockAuditDataResponse,
@@ -182,6 +182,17 @@ pub fn get_unaudited_withdrawals(
 ) -> Result<Json<Vec<GnosisSafeWithdrawal>>, String> {
     match service.get_unaudited_withdrawals() {
         Ok(withdrawals) => Ok(Json(withdrawals)),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+/// Get unaudited mints.
+#[get("/unaudited_mints")]
+pub fn get_unaudited_mints(
+    service: &State<ReserveAuditorHttpService>,
+) -> Result<Json<Vec<MintTx>>, String> {
+    match service.get_unaudited_mints() {
+        Ok(mints) => Ok(Json(mints)),
         Err(e) => Err(e.to_string()),
     }
 }

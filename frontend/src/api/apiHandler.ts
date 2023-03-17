@@ -23,13 +23,6 @@ import {
 declare let AUDITOR_URL: string // env var set by webpack
 declare let GNOSIS_SAFE_API_URL: string // env var set by webpack
 
-const paginate = (pageNumber: number): Record<string, number> => {
-  const offset = pageNumber * 50
-  const limit = 50
-
-  return { offset, limit }
-}
-
 const get = async <T>(
   path: string,
   url?: string,
@@ -71,20 +64,18 @@ export const getUnauditedSafeDeposits = async (): Promise<
   return camelCaseKeys(response) as TUnauditedSafeDeposit[]
 }
 
-export const getAuditedMints = async (page: number): Promise<TAuditedMint> => {
-  const { offset, limit } = paginate(page)
+export const getAuditedMints = async (): Promise<TAuditedMint[]> => {
   const response = await get<TAuditedMintResponse>(
-    `/audited_mints?offset=${offset}&limit=${limit}`
+    `/audited_mints?offset=${0}&limit=${300}`
   )
-  return camelCaseKeys(response) as TAuditedMint
+  return camelCaseKeys(response) as TAuditedMint[]
 }
 
-export const getAuditedBurns = async (page: number): Promise<TAuditedBurn> => {
-  const { offset, limit } = paginate(page)
+export const getAuditedBurns = async (): Promise<TAuditedBurn[]> => {
   const response = await get<TAuditedBurnResponse>(
-    `/audited_burns?offset=${offset}&limit=${limit}`
+    `/audited_burns?offset=${0}&limit=${300}`
   )
-  return camelCaseKeys(response) as TAuditedBurn
+  return camelCaseKeys(response) as TAuditedBurn[]
 }
 
 export const getGnosisSafeBalance = async (

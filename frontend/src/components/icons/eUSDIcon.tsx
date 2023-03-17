@@ -1,11 +1,17 @@
 import React from 'react'
 
-export const eUSDIcon = (color?: string, pxSize?: number) => {
+export const EUSDIcon = ({
+  color,
+  pxSize,
+}: {
+  color?: string
+  pxSize?: number
+}) => {
   if (!color) {
-    color = '#027cfd'
+    color = '#000000'
   }
   if (!pxSize) {
-    pxSize = 48
+    pxSize = 16
   }
   return (
     <svg

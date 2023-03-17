@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { sortBy } from 'lodash'
 
 import { TAuditedBurn, TAuditedMint } from '../../types'
 import {
@@ -10,39 +11,55 @@ import {
   getUnauditedMints,
 } from '../apiHandler'
 
+// Punting the pagination issue for now.
+// We want to show audited mints and burns in the same table,
+// but they have separate endpoints, each with their own pagination,
+// and combined pagination would be messy. We're not expecting to have more
+// than a few hundred mints or burns any time soon, so I'm just gonna set a high
+// limit and we can deal with actual pagination when we need to.
 export default function useMintsAndBurns() {
-  const [mints, setMints] = useState<TAuditedMint[]>([])
-  const [burns, setBurns] = useState<TAuditedBurn[]>([])
+  const [auditedData, setAuditedData] = useState<
+    Array<TAuditedMint | TAuditedBurn>
+  >([])
 
+  // TODO: handle unaudited data
   useEffect(() => {
     const fetchData = async () => {
-      await fetchMints()
-      await fetchBurns()
-      const unAuditedSafeDeposits = await getUnauditedSafeDeposits()
-      const unAuditedBurns = await getUnauditedBurns()
-      const unauditedWithdrawals = await getUnauditedWithdrawals()
-      const unauditedMints = await getUnauditedMints()
-      console.log(
-        unAuditedSafeDeposits,
-        unAuditedBurns,
+      const [
+        auditedMints,
+        auditedBurns,
+        unauditedMints,
+        unauditedBurns,
         unauditedWithdrawals,
-        unauditedMints
-      )
+        unauditedSafeDeposits,
+      ] = await Promise.all([
+        getAuditedMints(),
+        getAuditedBurns(),
+        getUnauditedMints(),
+        getUnauditedBurns(),
+        getUnauditedWithdrawals(),
+        getUnauditedSafeDeposits(),
+      ])
+      console.log(auditedMints)
+
+      setAuditedData(processAuditedData(auditedMints, auditedBurns))
     }
     fetchData()
   }, [])
+  return auditedData
+}
 
-  const fetchBurns = async () => {
-    const newBurns = await getAuditedBurns(0)
-    setBurns(burns.concat(newBurns))
-    // setBurnPage(burnPage + 1)
-  }
-
-  const fetchMints = async () => {
-    const newMints = await getAuditedMints(0)
-    setMints(mints.concat(newMints))
-    // setMintPage(mintPage + 1)
-  }
-
-  console.log(mints, burns)
+function processAuditedData(
+  mints: TAuditedMint[],
+  burns: TAuditedBurn[]
+): Array<TAuditedMint | TAuditedBurn> {
+  const combined: Array<TAuditedMint | TAuditedBurn> = [...mints, ...burns]
+  return sortBy(combined, (mb) => {
+    if ('mint' in mb) {
+      return mb.mint.blockIndex
+    }
+    if ('burn' in mb) {
+      return mb.burn.blockIndex
+    }
+  })
 }

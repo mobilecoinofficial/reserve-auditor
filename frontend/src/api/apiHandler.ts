@@ -176,15 +176,20 @@ export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
 export const getUnauditedMints = async (): Promise<TMint[]> => {
   return Promise.resolve([
     {
-      id: 32,
-      blockIndex: 100000,
+      amount: 95503000000,
+      blockIndex: 885147,
+      id: 3,
+      mintConfigId: 2,
+      nonceHex:
+        '0130d61e5330e52dfccdc74a10055b7cfe8e8ed3e035ebe0925ec51631909f470a00000000000000000000000000000000000000000000000000000000000000',
+      protobuf: [
+        10, 151, 1, 8, 1, 16, 192, 195, 176, 227, 227, 2, 26, 34, 10, 32, 170,
+        46, 138, 159, 93, 109, 59, 181,
+      ],
+      recipientB58Addr:
+        '38vzyUNoFvRCEUSeDP8N7shCeoSDsvjd3X4cqkyw1ZNDXxgHnvoQJ4ouct5FhQrWqSippX9dxCMB5SueXMqQZ4hcvXTH75wqZbA3fBxh7Td',
       tokenId: 1,
-      amount: 42000000000,
-      nonceHex: 'someNonceHex',
-      recipientB58Addr: 'recipAddr',
-      tombstoneBlock: 100001,
-      protobuf: [1, 2, 3, 4, 4],
-      mintConfigId: 1,
+      tombstoneBlock: 889931,
     },
   ])
 }

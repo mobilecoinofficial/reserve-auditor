@@ -1,15 +1,27 @@
-import React, { useContext } from 'react'
-import { Box, TableRow, TableCell, Typography, Link } from '@mui/material'
+import React, { useContext, useState } from 'react'
+import {
+  Box,
+  TableRow,
+  TableCell,
+  Typography,
+  Link,
+  Button,
+  IconButton,
+  Collapse,
+} from '@mui/material'
 import { styled } from '@mui/material/styles'
-
-import { TAuditedBurn, TAuditedMint } from '../types'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
+
+import { TAuditedBurn, TAuditedMint, TMint } from '../types'
 import { formatEUSD } from '../utils/mcNetworkTokens'
-import { getIconFromContactAddress } from '../utils/ercTokens'
+import { getIconFromContactAddress, eUSDTokenAddress } from '../utils/ercTokens'
 import { GnosisSafeContext } from '../contexts'
 import { abbreviateHash } from '../utils/truncate'
 import { Mint } from './Mint'
+import CopyableField from './CopyableField'
 
 const borderStyle = '1px solid #cecece'
 
@@ -27,6 +39,7 @@ type TableRowInfo = {
   ethTxHash: string
   blockIndex: number
   type: 'Wrap + Mint' | 'Unwrap + Burn'
+  icon: React.ReactNode
 }
 
 function extractTableRowInfo(
@@ -38,6 +51,13 @@ function extractTableRowInfo(
       amount: rowItem.mint.amount,
       ethTxHash: rowItem.deposit.ethTxHash,
       blockIndex: rowItem.mint.blockIndex,
+      icon: (
+        <AddCircleOutlineIcon
+          color="success"
+          fontSize="small"
+          sx={{ marginRight: 1 }}
+        />
+      ),
       type: 'Wrap + Mint',
     }
   }
@@ -47,7 +67,14 @@ function extractTableRowInfo(
       amount: rowItem.burn.amount,
       ethTxHash: rowItem.withdrawal.ethTxHash,
       blockIndex: rowItem.burn.blockIndex,
-      type: 'Wrap + Mint',
+      icon: (
+        <LocalFireDepartmentIcon
+          color="error"
+          fontSize="small"
+          sx={{ marginRight: 1 }}
+        />
+      ),
+      type: 'Unwrap + Burn',
     }
   }
   console.warn('wrap table item not registering as mint or burn:', rowItem)
@@ -60,6 +87,7 @@ export default function WrapTableRow({
   rowItem: TAuditedMint | TAuditedBurn
 }) {
   const rowInfo = extractTableRowInfo(rowItem)
+  const [expanded, setExpanded] = useState(false)
 
   if (!rowInfo) {
     return null
@@ -69,12 +97,8 @@ export default function WrapTableRow({
     <StyledTableRow hover>
       <StyledTableCell sx={{ borderLeft: borderStyle }}>
         <Box display="flex" alignItems="center">
-          <AddCircleOutlineIcon
-            color="success"
-            fontSize="small"
-            sx={{ marginRight: 1 }}
-          />
-          <Typography>Wrap + Mint</Typography>
+          {rowInfo.icon}
+          <Typography>{rowInfo.type}</Typography>
         </Box>
       </StyledTableCell>
       <StyledTableCell sx={{ width: 180 }}>
@@ -103,8 +127,35 @@ export default function WrapTableRow({
           {abbreviateHash(rowInfo.ethTxHash)}
         </Link>
       </StyledTableCell>
+    </StyledTableRow>
+  )
+}
+
+export function UnAuditedMintTableRow({ mint }: { mint: TMint }) {
+  return (
+    <StyledTableRow hover>
+      <StyledTableCell sx={{ borderLeft: borderStyle }}>
+        <CopyableField text={mint.recipientB58Addr} />
+      </StyledTableCell>
+      <StyledTableCell sx={{ width: 180 }}>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          {getIconFromContactAddress(eUSDTokenAddress)}
+          <Typography sx={{ marginLeft: 1 }}>
+            {formatEUSD(mint.amount)}
+          </Typography>
+        </Box>
+      </StyledTableCell>
+      <StyledTableCell align="right" sx={{ width: 180 }}>
+        <Link
+          href={`${BLOCK_EXPLORER_URL}/blocks/${mint.blockIndex}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {mint.blockIndex}
+        </Link>
+      </StyledTableCell>
       <StyledTableCell sx={{ borderRight: borderStyle }}>
-        <Typography color="text.secondary">Details</Typography>
+        <CopyableField text={mint.nonceHex} />
       </StyledTableCell>
     </StyledTableRow>
   )

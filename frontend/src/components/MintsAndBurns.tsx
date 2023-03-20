@@ -27,8 +27,8 @@ export default function MintsAndBurns() {
           <TableHead>
             <TableRow>
               <TableCell>Type</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>Block Index</TableCell>
+              <TableCell align="right">Amount</TableCell>
+              <TableCell align="right">Block Index</TableCell>
               <TableCell>Eth Tx</TableCell>
               <TableCell></TableCell>
             </TableRow>

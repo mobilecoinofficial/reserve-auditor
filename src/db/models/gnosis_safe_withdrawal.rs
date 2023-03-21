@@ -152,9 +152,7 @@ impl GnosisSafeWithdrawal {
 
     /// Attempt to find all [GnosisSafeWithdrawal] that do not have a
     /// matching entry in the `audited_burns` table.
-    pub fn find_unaudited_withdrawals(
-        conn: &Conn,
-    ) -> Result<Vec<Self>, Error> {
+    pub fn find_unaudited_withdrawals(conn: &Conn) -> Result<Vec<Self>, Error> {
         Ok(gnosis_safe_withdrawals::table
             .filter(not(exists(
                 audited_burns::table
@@ -167,7 +165,6 @@ impl GnosisSafeWithdrawal {
             )))
             .load(conn)?)
     }
-    
 
     /// Attempt to find a [GnosisSafeWithdrawal] that has a given nonce and no
     /// matching entry in the `audited_burns` table.
@@ -360,22 +357,15 @@ mod tests {
             create_gnosis_safe_withdrawal_from_burn_tx_out(&burn_tx_out2, &mut rng);
 
         // Since they haven't been inserted yet, they should not be found.
-        assert!(
-            GnosisSafeWithdrawal::find_unaudited_withdrawals(
-                &conn
-            )
+        assert!(GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn)
             .unwrap()
-            .is_empty()
-        );
+            .is_empty());
 
         // Insert the first withdrawal, it should now be found.
         insert_gnosis_withdrawal(&mut withdrawal1, &conn);
 
         assert_eq!(
-            GnosisSafeWithdrawal::find_unaudited_withdrawals(
-                &conn
-            )
-            .unwrap()[0],
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn).unwrap()[0],
             withdrawal1
         );
 
@@ -383,10 +373,9 @@ mod tests {
         insert_gnosis_withdrawal(&mut withdrawal2, &conn);
 
         assert_eq!(
-            GnosisSafeWithdrawal::find_unaudited_withdrawals(
-                &conn
-            )
-            .unwrap().len(),
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn)
+                .unwrap()
+                .len(),
             2,
         );
 
@@ -400,17 +389,14 @@ mod tests {
         .unwrap();
 
         assert_eq!(
-            GnosisSafeWithdrawal::find_unaudited_withdrawals(
-                &conn
-            )
-            .unwrap().len(), 1
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn)
+                .unwrap()
+                .len(),
+            1
         );
 
         assert_eq!(
-            GnosisSafeWithdrawal::find_unaudited_withdrawals(
-                &conn
-            )
-            .unwrap()[0],
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn).unwrap()[0],
             withdrawal2
         );
 
@@ -423,11 +409,8 @@ mod tests {
         )
         .unwrap();
 
-        assert!(
-            GnosisSafeWithdrawal::find_unaudited_withdrawals(
-                &conn
-            )
-            .unwrap().is_empty()
-        );
+        assert!(GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn)
+            .unwrap()
+            .is_empty());
     }
 }

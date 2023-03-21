@@ -4,6 +4,7 @@
 //! See https://safe-transaction.gnosis.io/ for the API spec.
 
 use super::{Error, EthAddr, EthTxHash, EthTxValue};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::str::FromStr;
@@ -99,6 +100,10 @@ pub struct MultiSigTransaction {
     /// token transfer data
     #[serde(rename = "transfers")]
     pub transfer_data: Vec<EthereumTransfer>,
+
+    /// Execution date
+    #[serde(rename = "executionDate")]
+    pub execution_date: DateTime<Utc>,
 }
 
 /// Token Info for Ethereum Transfer
@@ -154,6 +159,10 @@ pub struct EthereumTransaction {
 
     /// Transfers
     pub transfers: Vec<EthereumTransfer>,
+
+    /// Execution date
+    #[serde(rename = "executionDate")]
+    pub execution_date: DateTime<Utc>,
 }
 
 /// Possible transaction types that are returned from

@@ -30,9 +30,10 @@ mc-util-parse = { path = "mobilecoin/util/parse" }
 mc-util-serial = { path = "mobilecoin/util/serial" }
 mc-util-uri = { path = "mobilecoin/util/uri" }
 
+chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "3.2", features = ["derive", "env"] }
 # Override diesel dependency with our fork, to statically link SQLite.
-diesel = { version = "1.4", features = ["sqlite-bundled", "r2d2"] }
+diesel = { version = "1.4", features = ["sqlite-bundled", "r2d2", "chrono"] }
 diesel_migrations = { version = "1.4", features = ["sqlite"] }
 displaydoc = "0.2"
 grpcio = "0.11"

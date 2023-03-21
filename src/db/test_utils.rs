@@ -10,6 +10,7 @@ use crate::{
         EthTxValue, GnosisSafeConfig,
     },
 };
+use chrono::Utc;
 use mc_account_keys::burn_address;
 use mc_blockchain_types::{BlockContents, BlockIndex, BlockVersion};
 use mc_common::logger::Logger;
@@ -157,6 +158,7 @@ pub fn create_gnosis_safe_deposit(
     GnosisSafeDeposit::new(
         None,
         EthTxHash::from_random(rng),
+        Utc::now(),
         EthTxValue::from_str(&format!("{}{}", amount, "000000000000")).unwrap(),
         1,
         EthAddr::from_str(SAFE_ADDR).unwrap(),

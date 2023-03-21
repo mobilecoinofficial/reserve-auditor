@@ -171,6 +171,9 @@ message GnosisSafeDeposit {
     /// The hex-encoded MintTx nonce we expect to see on the MobileCoin
     /// blockchain
     string expected_mc_mint_tx_nonce_hex = 9;
+
+    /// Execution date, as a unix timestamp (in nanoseconds).
+    uint64 execution_date = 10;
 }
 
 /// A Gnosis Safe transaction.

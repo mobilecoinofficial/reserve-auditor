@@ -113,6 +113,7 @@ CREATE TABLE gnosis_safe_txs (
 CREATE TABLE gnosis_safe_deposits (
     id INTEGER PRIMARY KEY,
     eth_tx_hash VARCHAR(66) NOT NULL UNIQUE,
+    execution_date TIMESTAMP NOT NULL,
     -- This represents the ethereum-chain transaction value, and is expected to exceed u64::MAX, as eth tokens
     -- often have a precision of 18 decimal places.
     eth_tx_value VARCHAR(80) NOT NULL,

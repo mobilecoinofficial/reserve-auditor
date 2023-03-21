@@ -162,6 +162,7 @@ impl GnosisSync {
                     Ok(GnosisSafeDeposit::new(
                         None,
                         transfer.tx_hash,
+                        tx.execution_date,
                         transfer.value,
                         tx.eth_block_number,
                         transfer.to.clone(),
@@ -487,6 +488,7 @@ mod test {
             EthTxValue,
         },
     };
+    use chrono::{DateTime, Utc};
     use diesel::prelude::*;
     use mc_common::logger::{test_with_logger, Logger};
     use mc_transaction_core::TokenId;
@@ -544,6 +546,9 @@ mod test {
                     "0xa202a4c37f0670557ceeb33f796fba0c187f699f5dd4d8add0eba1c3154b2fa7",
                 )
                 .unwrap(),
+                DateTime::parse_from_rfc3339("2022-06-09T23:59:07Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 EthTxValue(1000000000000000000),
                 10824613,
                 EthAddr::from_str(SAFE_ADDR).unwrap(),
@@ -557,6 +562,9 @@ mod test {
                     "0x4f3124c61c48aa7c7892f8fe426e0c0d8afae100fc0a9aa8e290e530a7632849",
                 )
                 .unwrap(),
+                DateTime::parse_from_rfc3339("2022-06-10T00:11:23Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 EthTxValue(10000000000000000000),
                 10824662,
                 EthAddr::from_str(SAFE_ADDR).unwrap(),

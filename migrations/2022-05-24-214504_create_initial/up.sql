@@ -66,6 +66,8 @@ CREATE TABLE mint_txs (
     id INTEGER PRIMARY KEY,
     -- The block index at which this mint tx appreared.
     block_index BIGINT NOT NULL,
+    -- The block timestamp
+    block_timestamp TIMESTAMP,
      -- The token id this mint tx is for.
     token_id BIGINT NOT NULL,
     -- The amount that was minted.

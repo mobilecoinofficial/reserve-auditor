@@ -10,6 +10,7 @@ use crate::{
     },
     Error,
 };
+use chrono::{DateTime, NaiveDateTime, Utc};
 use diesel::{
     dsl::{exists, not},
     prelude::*,
@@ -34,6 +35,9 @@ pub struct MintTx {
 
     /// The block index at which this mint tx appreared.
     block_index: i64,
+
+    /// The block timestamp
+    block_timestamp: Option<NaiveDateTime>,
 
     /// The token id this mint tx is for.
     token_id: i64,
@@ -66,6 +70,11 @@ impl MintTx {
     /// Get block index.
     pub fn block_index(&self) -> u64 {
         self.block_index as u64
+    }
+
+    /// Get block timestamp.
+    pub fn block_timestamp(&self) -> Option<DateTime<Utc>> {
+        self.block_timestamp.map(|ts| DateTime::from_utc(ts, Utc))
     }
 
     /// Get token id.
@@ -107,6 +116,7 @@ impl MintTx {
     /// [mc_transaction_core::mint::MintTx] and some extra information.
     pub fn from_core_mint_tx(
         block_index: BlockIndex,
+        block_timestamp: Option<DateTime<Utc>>,
         mint_config_id: Option<i32>,
         tx: &CoreMintTx,
     ) -> Result<Self, Error> {
@@ -118,6 +128,7 @@ impl MintTx {
         Ok(Self {
             id: None,
             block_index: block_index as i64,
+            block_timestamp: block_timestamp.map(|ts| ts.naive_utc()),
             token_id: tx.prefix.token_id as i64,
             amount: tx.prefix.amount as i64,
             nonce_hex: tx.prefix.nonce.encode_hex(),
@@ -149,11 +160,13 @@ impl MintTx {
     /// extra information.
     pub fn insert_from_core_mint_tx(
         block_index: BlockIndex,
+        block_timestamp: Option<DateTime<Utc>>,
         mint_config_id: Option<i32>,
         tx: &CoreMintTx,
         conn: &Conn,
     ) -> Result<Self, Error> {
-        let mut mint_tx = Self::from_core_mint_tx(block_index, mint_config_id, tx)?;
+        let mut mint_tx =
+            Self::from_core_mint_tx(block_index, block_timestamp, mint_config_id, tx)?;
         mint_tx.insert(conn)?;
         Ok(mint_tx)
     }
@@ -252,10 +265,10 @@ mod tests {
         let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
 
         // Store a MintTx for the first time.
-        MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(5, None, None, &mint_tx1, &conn).unwrap();
 
         // Trying again should fail.
-        assert!(MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).is_err());
+        assert!(MintTx::insert_from_core_mint_tx(5, None, None, &mint_tx1, &conn).is_err());
     }
 
     #[test_with_logger]
@@ -294,7 +307,8 @@ mod tests {
         .is_none());
 
         // Insert the first MintTx, it should now be found.
-        let sql_mint_tx1 = MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
+        let sql_mint_tx1 =
+            MintTx::insert_from_core_mint_tx(5, None, None, &mint_tx1, &conn).unwrap();
 
         assert_eq!(
             MintTx::find_unaudited_mint_tx_by_nonce(&hex::encode(&mint_tx1.prefix.nonce), &conn)
@@ -311,7 +325,8 @@ mod tests {
         .is_none());
 
         // Insert the second MintTx, they should both be found.
-        let sql_mint_tx2 = MintTx::insert_from_core_mint_tx(5, None, &mint_tx2, &conn).unwrap();
+        let sql_mint_tx2 =
+            MintTx::insert_from_core_mint_tx(5, None, None, &mint_tx2, &conn).unwrap();
 
         assert_eq!(
             MintTx::find_unaudited_mint_tx_by_nonce(&hex::encode(&mint_tx1.prefix.nonce), &conn)
@@ -386,7 +401,7 @@ mod tests {
             let (_mint_config_tx, signers) =
                 create_mint_config_tx_and_signers(TokenId::from(i), &mut rng);
             let mint_tx = create_mint_tx(TokenId::from(i), &signers, i * 100, &mut rng);
-            MintTx::insert_from_core_mint_tx(5, None, &mint_tx, &conn).unwrap();
+            MintTx::insert_from_core_mint_tx(5, None, None, &mint_tx, &conn).unwrap();
 
             let mint_amounts = MintTx::get_mint_amounts(&conn, TokenId::from(i)).unwrap();
             assert_eq!(mint_amounts.len(), 1);
@@ -406,8 +421,9 @@ mod tests {
         let (_mint_config_tx1, signers1) = create_mint_config_tx_and_signers(token_id1, &mut rng);
         let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
         let mint_tx2 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
-        let should_be_found = MintTx::insert_from_core_mint_tx(5, None, &mint_tx1, &conn).unwrap();
-        MintTx::insert_from_core_mint_tx(2, None, &mint_tx2, &conn).unwrap();
+        let should_be_found =
+            MintTx::insert_from_core_mint_tx(5, None, None, &mint_tx1, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(2, None, None, &mint_tx2, &conn).unwrap();
 
         let found = MintTx::get_mint_txs_by_block_index(5, &conn).unwrap();
 

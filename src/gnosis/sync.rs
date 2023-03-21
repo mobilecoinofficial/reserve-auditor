@@ -585,6 +585,7 @@ mod test {
         let mint_tx3 = MintTx::insert_from_core_mint_tx(
             0,
             None,
+            None,
             &create_mint_tx(token_id, &signers, 100, &mut rng),
             &conn,
         )

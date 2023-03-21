@@ -128,7 +128,7 @@ pub fn append_and_sync(
 
     let block = block_data.block();
     reserve_auditor_db
-        .sync_block(block, block_data.contents())
+        .sync_block(block, block_data.contents(), Some(Utc::now()))
         .map(|sync_block_data| (sync_block_data, block.index))
 }
 
@@ -180,7 +180,7 @@ pub fn insert_mint_tx_from_deposit(
     let (_mint_config_tx, signers) = create_mint_config_tx_and_signers(token_id, rng);
     let mut mint_tx = create_mint_tx(token_id, &signers, deposit.amount(), rng);
     mint_tx.prefix.nonce = hex::decode(&deposit.expected_mc_mint_tx_nonce_hex()).unwrap();
-    MintTx::insert_from_core_mint_tx(0, None, &mint_tx, conn).unwrap()
+    MintTx::insert_from_core_mint_tx(0, Some(Utc::now()), None, &mint_tx, conn).unwrap()
 }
 
 /// Create a [BurnTxOut].

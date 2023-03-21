@@ -227,8 +227,10 @@ mod tests {
         mint_tx1.prefix.nonce = hex::decode(&nonce1).unwrap();
         mint_tx2.prefix.nonce = hex::decode(&nonce2).unwrap();
 
-        let sql_mint_tx1 = MintTx::insert_from_core_mint_tx(0, None, &mint_tx1, &conn).unwrap();
-        let sql_mint_tx2 = MintTx::insert_from_core_mint_tx(0, None, &mint_tx2, &conn).unwrap();
+        let sql_mint_tx1 =
+            MintTx::insert_from_core_mint_tx(0, None, None, &mint_tx1, &conn).unwrap();
+        let sql_mint_tx2 =
+            MintTx::insert_from_core_mint_tx(0, None, None, &mint_tx2, &conn).unwrap();
 
         // Since they haven't been inserted yet, they should not be found.
         assert!(

@@ -165,6 +165,7 @@ async fn main() {
 }
 
 /// Implementation of the ScanLedger CLI command.
+#[allow(clippy::too_many_arguments)]
 fn cmd_scan_ledger(
     ledger_db_path: PathBuf,
     watcher_db_path: Option<PathBuf>,
@@ -366,12 +367,11 @@ fn sync_loop(
 
                 // Get block timestamp if we are running with a watcher. Note that poll_block_timestamp blocks until a timestamp can be obtained,
                 // the timeout only controls when a warning log message is printed.
-                let timestamp = watcher_db
-                    .as_ref()
-                    .map(|db| {
-                        db.poll_block_timestamp(block_data.block().index, Duration::from_secs(30))
-                    })
-                    .unwrap_or_default();
+                let block_timestamp = watcher_db.as_ref().map(|db| {
+                    let timestamp =
+                        db.poll_block_timestamp(block_data.block().index, Duration::from_secs(30));
+                    Utc.timestamp(timestamp as i64, 0)
+                });
 
                 // SQLite3 does not like concurrent writes. Since we are going to be writing to
                 // the database, ensure we are the only writers.
@@ -380,7 +380,7 @@ fn sync_loop(
                         &conn,
                         block_data.block(),
                         block_data.contents(),
-                        Utc.timestamp(timestamp, 0),
+                        block_timestamp,
                     )?;
 
                     // If we were configured to audit Gnosis safes, attempt to do that with

@@ -469,19 +469,19 @@ mod tests {
 
         // Write some mint txs so we have what to test with.
         let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
-        MintTx::insert_from_core_mint_tx(3, mint_config_id1, &mint_tx1, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(3, None, mint_config_id1, &mint_tx1, &conn).unwrap();
 
         let mint_tx2 = create_mint_tx(token_id1, &signers1, 200, &mut rng);
-        MintTx::insert_from_core_mint_tx(6, mint_config_id1, &mint_tx2, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(6, None, mint_config_id1, &mint_tx2, &conn).unwrap();
 
         let mint_tx3 = create_mint_tx(token_id1, &signers1, 300, &mut rng);
-        MintTx::insert_from_core_mint_tx(8, mint_config_id1, &mint_tx3, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(8, None, mint_config_id1, &mint_tx3, &conn).unwrap();
 
         let mint_tx4 = create_mint_tx(token_id1, &signers2, 400, &mut rng);
-        MintTx::insert_from_core_mint_tx(11, mint_config_id2, &mint_tx4, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(11, None, mint_config_id2, &mint_tx4, &conn).unwrap();
 
         let mint_tx5 = create_mint_tx(token_id2, &signers3, 2000, &mut rng);
-        MintTx::insert_from_core_mint_tx(11, mint_config_id3, &mint_tx5, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(11, None, mint_config_id3, &mint_tx5, &conn).unwrap();
 
         // Sanity test that we get the expected total minted amounts.
 
@@ -568,7 +568,7 @@ mod tests {
 
         // Adding another mint tx to sql_mint_config_tx_2 should work as expected.
         let mint_tx6 = create_mint_tx(token_id2, &signers3, 3000, &mut rng);
-        MintTx::insert_from_core_mint_tx(12, mint_config_id3, &mint_tx6, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(12, None, mint_config_id3, &mint_tx6, &conn).unwrap();
 
         assert_eq!(
             sql_mint_config_tx_3

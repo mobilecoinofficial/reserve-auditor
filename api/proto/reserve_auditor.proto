@@ -213,6 +213,9 @@ message GnosisSafeWithdrawal {
 
     /// Associated mobilecoin transaction public key (hex-encoded).
     external.CompressedRistretto mc_tx_out_pub_key = 9;
+
+    /// Execution date, as a unix timestamp (in nanoseconds).
+    uint64 execution_date = 10;
 }
 
 /// Mint Configuration transaction details

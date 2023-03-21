@@ -7,6 +7,7 @@ use crate::{
     gnosis::{EthAddr, EthTxHash, EthTxValue},
     Error,
 };
+use chrono::{TimeZone, Utc};
 use hex::ToHex;
 use mc_reserve_auditor_api::GnosisSafeWithdrawal as ProtoGnosisSafeWithdrawal;
 use std::str::FromStr;
@@ -26,6 +27,7 @@ impl TryFrom<&DbGnosisSafeWithdrawal> for ProtoGnosisSafeWithdrawal {
         dst.set_to_addr(src.to_addr().to_string());
         dst.set_amount(src.amount());
         dst.set_mc_tx_out_pub_key((&src.mc_tx_out_public_key()?).into());
+        dst.set_execution_date(src.execution_date().timestamp_nanos() as u64);
         Ok(dst)
     }
 }
@@ -35,12 +37,15 @@ impl TryFrom<&ProtoGnosisSafeWithdrawal> for DbGnosisSafeWithdrawal {
     type Error = Error;
 
     fn try_from(src: &ProtoGnosisSafeWithdrawal) -> Result<Self, Error> {
+        let execution_date = Utc.timestamp_nanos(src.get_execution_date() as i64);
+
         Ok(Self::new(
             match src.get_id() {
                 0 => None,
                 id => Some(id),
             },
             EthTxHash::from_str(src.get_eth_tx_hash())?,
+            execution_date,
             EthTxValue::from_str(src.get_eth_tx_value())?,
             src.get_eth_block_number(),
             EthAddr::from_str(src.get_safe_addr())?,
@@ -69,6 +74,7 @@ mod tests {
                 "0x0e781edb7739aa88ad2ffb6a69aab46ff9e32dbd0f0c87e4006a176838b075d2",
             )
             .unwrap(),
+            Utc::now(),
             EthTxValue(333000000000000),
             123456,
             EthAddr::from_str(SAFE_ADDR).unwrap(),

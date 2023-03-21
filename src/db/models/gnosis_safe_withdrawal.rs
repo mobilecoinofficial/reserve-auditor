@@ -11,6 +11,7 @@ use crate::{
     error::Error,
     gnosis::{EthAddr, EthTxHash, EthTxValue},
 };
+use chrono::{DateTime, NaiveDateTime, Utc};
 use diesel::{
     dsl::{exists, not},
     prelude::*,
@@ -31,6 +32,9 @@ pub struct GnosisSafeWithdrawal {
 
     /// Ethereum transaction hash.
     eth_tx_hash: SqlEthTxHash,
+
+    /// Execution date.
+    execution_date: NaiveDateTime,
 
     /// Ethereum transaction value.
     eth_tx_value: SqlEthTxValue,
@@ -60,6 +64,7 @@ impl GnosisSafeWithdrawal {
     pub fn new(
         id: Option<i32>,
         eth_tx_hash: EthTxHash,
+        execution_date: DateTime<Utc>,
         eth_tx_value: EthTxValue,
         eth_block_number: u64,
         safe_addr: EthAddr,
@@ -71,6 +76,7 @@ impl GnosisSafeWithdrawal {
         Self {
             id,
             eth_tx_hash: eth_tx_hash.into(),
+            execution_date: execution_date.naive_utc(),
             eth_tx_value: eth_tx_value.into(),
             eth_block_number: eth_block_number as i64,
             safe_addr: safe_addr.into(),
@@ -89,6 +95,11 @@ impl GnosisSafeWithdrawal {
     /// Get ethereum transaction hash.
     pub fn eth_tx_hash(&self) -> &EthTxHash {
         &self.eth_tx_hash
+    }
+
+    /// Get execution date.
+    pub fn execution_date(&self) -> DateTime<Utc> {
+        DateTime::from_utc(self.execution_date, Utc)
     }
 
     /// Get ethereum transaction value.

@@ -92,6 +92,7 @@ diesel::table! {
     gnosis_safe_withdrawals (id) {
         id -> Nullable<Integer>,
         eth_tx_hash -> Text,
+        execution_date -> Timestamp,
         eth_tx_value -> Text,
         eth_block_number -> BigInt,
         safe_addr -> Text,

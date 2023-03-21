@@ -459,6 +459,7 @@ impl GnosisSync {
         Ok(GnosisSafeWithdrawal::new(
             None,
             multi_sig_tx.tx_hash,
+            multi_sig_tx.execution_date,
             eth_tx_value,
             multi_sig_tx.eth_block_number,
             multi_sig_tx.safe.clone(),
@@ -619,6 +620,9 @@ mod test {
                     "0x323b145662d2a64de0a55977089b7a89ed6003e341d5a68266a200dde83639d4",
                 )
                 .unwrap(),
+                DateTime::parse_from_rfc3339("2022-06-10T00:04:38Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 EthTxValue(500000000000000000),
                 10824635,
                 EthAddr::from_str(SAFE_ADDR).unwrap(),
@@ -633,6 +637,9 @@ mod test {
                     "0x2f55d7b7620876c1dfc25419937a7fd2538489c1dd3adf6b438396a958d88e28",
                 )
                 .unwrap(),
+                DateTime::parse_from_rfc3339("2022-06-10T00:15:23Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 EthTxValue(2000000000000000000),
                 10824678,
                 EthAddr::from_str(SAFE_ADDR).unwrap(),

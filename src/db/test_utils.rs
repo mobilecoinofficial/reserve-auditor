@@ -234,6 +234,7 @@ pub fn create_gnosis_safe_withdrawal(
     GnosisSafeWithdrawal::new(
         None,
         EthTxHash::from_random(rng),
+        Utc::now(),
         EthTxValue::from_str(&format!("{}{}", amount, "000000000000")).unwrap(),
         1,
         EthAddr::from_str(SAFE_ADDR).unwrap(),
@@ -252,6 +253,7 @@ pub fn create_gnosis_safe_withdrawal_from_burn_tx_out(
     GnosisSafeWithdrawal::new(
         None,
         EthTxHash::from_random(rng),
+        Utc::now(),
         EthTxValue::from_str(&format!("{}{}", burn_tx_out.amount(), "000000000000")).unwrap(),
         1,
         EthAddr::from_str(SAFE_ADDR).unwrap(),

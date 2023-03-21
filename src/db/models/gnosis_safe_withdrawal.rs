@@ -365,8 +365,8 @@ mod tests {
         insert_gnosis_withdrawal(&mut withdrawal1, &conn);
 
         assert_eq!(
-            GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn).unwrap()[0],
-            withdrawal1
+            GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn).unwrap(),
+            vec![withdrawal1.clone()]
         );
 
         // Insert the second withdrawal, they should both be found.
@@ -374,9 +374,8 @@ mod tests {
 
         assert_eq!(
             GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn)
-                .unwrap()
-                .len(),
-            2,
+                .unwrap(),
+                vec![withdrawal1.clone(), withdrawal2.clone()],
         );
 
         // Insert a row to the `audited_burns` table marking the first withdrawal as
@@ -390,14 +389,8 @@ mod tests {
 
         assert_eq!(
             GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn)
-                .unwrap()
-                .len(),
-            1
-        );
-
-        assert_eq!(
-            GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn).unwrap()[0],
-            withdrawal2
+                .unwrap(),
+                vec![withdrawal2.clone()]
         );
 
         // Mark the second withdrawal as audited. We should no longer be able to find

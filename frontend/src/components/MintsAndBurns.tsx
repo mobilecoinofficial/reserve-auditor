@@ -1,6 +1,7 @@
 import React, { useState, useRef, useLayoutEffect } from 'react'
 import {
   Box,
+  Grid,
   Typography,
   TableContainer,
   Table,
@@ -11,13 +12,16 @@ import {
 } from '@mui/material'
 
 import useMintsAndBurns from '../api/hooks/useMintsAndBurns'
-import WrapTableRow, { UnAuditedMintTableRow } from './WrapTableRow'
+import WrapTableRow, {
+  UnAuditedMintTableRow,
+  UnauditedWithdrawalTableRow,
+} from './WrapTableRow'
 
-const PAGE_LENGTH = 10
+const PAGE_LENGTH = 15
 
 export default function MintsAndBurns() {
-  const { auditedData, unauditedMints } = useMintsAndBurns()
-  console.log(unauditedMints)
+  const { auditedData, unauditedMints, unauditedWithdrawals } =
+    useMintsAndBurns()
   const [currentPage, setCurrentPage] = useState(1)
   const tableEl = useRef<HTMLTableElement>(null)
   const [distanceBottom, setDistanceBottom] = useState(0)
@@ -30,6 +34,7 @@ export default function MintsAndBurns() {
     if (!distanceBottom) {
       setDistanceBottom(Math.round(bottom * 0.6))
     }
+    console.log(auditedData.length)
     if (
       tableEl.current.scrollTop > bottom - distanceBottom &&
       currentPage * PAGE_LENGTH < auditedData.length
@@ -50,93 +55,150 @@ export default function MintsAndBurns() {
   }, [scrollListener])
 
   return (
-    <>
-      <Box marginBottom={4}>
-        <Typography variant="h5" gutterBottom>
-          Wrapping and Unwrapping
-        </Typography>
-        <Box overflow="hidden">
-          <TableContainer
-            ref={tableEl}
-            sx={{ overflowY: 'scroll', maxHeight: 600 }}
-          >
-            <Table stickyHeader size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Type</TableCell>
-                  <TableCell align="right">Amount</TableCell>
-                  <TableCell align="right">Block Index</TableCell>
-                  <TableCell>Eth Tx</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {auditedData
-                  .slice(0, currentPage * PAGE_LENGTH)
-                  .map((mintOrBurn, index) => (
-                    <WrapTableRow
-                      rowItem={mintOrBurn}
-                      key={`mintOrBurnRow-${index}`}
+    <Grid container columnSpacing={2}>
+      <Grid item xs={12}>
+        <Box marginBottom={4}>
+          <Typography variant="h5" gutterBottom>
+            Wrapping and Unwrapping
+          </Typography>
+          <Box overflow="hidden">
+            <TableContainer
+              ref={tableEl}
+              // infinite scrolls depends on the relationship between this height value and the PAGE_LENGTH
+              sx={{ overflowY: 'scroll', maxHeight: 550 }}
+            >
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Type</TableCell>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Block Index</TableCell>
+                    <TableCell>Eth Tx</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {auditedData
+                    .slice(0, currentPage * PAGE_LENGTH)
+                    .map((mintOrBurn, index) => (
+                      <WrapTableRow
+                        rowItem={mintOrBurn}
+                        key={`mintOrBurnRow-${index}`}
+                      />
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Grid>
+      <Grid item sm={12} md={6}>
+        <Box marginBottom={4}>
+          <Typography variant="h5" gutterBottom>
+            Unpaired Mints
+          </Typography>
+          <Box>
+            <TableContainer>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Block Index</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {unauditedMints.map((mint, index) => (
+                    <UnAuditedMintTableRow
+                      mint={mint}
+                      key={`unAuditedMint-${index}`}
                     />
                   ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
         </Box>
-      </Box>
-      <Box marginBottom={4}>
-        <Typography variant="h5" gutterBottom>
-          Unpaired Mints
-        </Typography>
-        <Box>
-          <TableContainer>
-            <Table stickyHeader size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Recipient Address</TableCell>
-                  <TableCell align="right">Amount</TableCell>
-                  <TableCell align="right">Block Index</TableCell>
-                  <TableCell>Nonce Hex</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {unauditedMints.map((mint, index) => (
-                  <UnAuditedMintTableRow
-                    mint={mint}
-                    key={`unAuditedMint-${index}`}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+      </Grid>
+      <Grid item sm={12} md={6}>
+        <Box marginBottom={4}>
+          <Typography variant="h5" gutterBottom>
+            Unpaired Unwraps
+          </Typography>
+          <Box>
+            <TableContainer>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Eth Tx</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {unauditedWithdrawals.map((withdrawal, index) => (
+                    <UnauditedWithdrawalTableRow
+                      withdrawal={withdrawal}
+                      key={`unAuditedWithdrawal-${index}`}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
         </Box>
-      </Box>
-      <Box marginBottom={4}>
-        <Typography variant="h5" gutterBottom>
-          Unpaired Withdrawals
-        </Typography>
-        <Box>
-          <TableContainer>
-            <Table stickyHeader size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Recipient Address</TableCell>
-                  <TableCell align="right">Amount</TableCell>
-                  <TableCell align="right">Block Index</TableCell>
-                  <TableCell>Nonce Hex</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {unauditedMints.map((mint, index) => (
-                  <UnAuditedMintTableRow
-                    mint={mint}
-                    key={`unAuditedMint-${index}`}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+      </Grid>
+      <Grid item sm={12} md={6}>
+        <Box marginBottom={4}>
+          <Typography variant="h5" gutterBottom>
+            Unpaired Burns
+          </Typography>
+          <Box>
+            <TableContainer>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Block Index</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {unauditedMints.map((mint, index) => (
+                    <UnAuditedMintTableRow
+                      mint={mint}
+                      key={`unAuditedMint-${index}`}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
         </Box>
-      </Box>
-    </>
+      </Grid>
+      <Grid item sm={12} md={6}>
+        <Box marginBottom={4}>
+          <Typography variant="h5" gutterBottom>
+            Unpaired Wraps
+          </Typography>
+          <Box>
+            <TableContainer>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Eth Tx</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {[].map((withdrawal, index) => (
+                    <UnauditedWithdrawalTableRow
+                      withdrawal={withdrawal}
+                      key={`unAuditedWithdrawal-${index}`}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Grid>
+    </Grid>
   )
 }

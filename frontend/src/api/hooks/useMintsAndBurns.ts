@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { sortBy } from 'lodash'
 
-import { TAuditedBurn, TAuditedMint, TMint } from '../../types'
+import { TAuditedBurn, TAuditedMint, TMint, TWithdrawal } from '../../types'
 import {
   getAuditedMints,
   getAuditedBurns,
@@ -22,6 +22,9 @@ export default function useMintsAndBurns() {
     Array<TAuditedMint | TAuditedBurn>
   >([])
   const [unauditedMints, setUnauditedMints] = useState<TMint[]>([])
+  const [unauditedWithdrawals, setUnauditedWithdrawals] = useState<
+    TWithdrawal[]
+  >([])
 
   // TODO: handle unaudited data
   useEffect(() => {
@@ -42,19 +45,21 @@ export default function useMintsAndBurns() {
         getUnauditedSafeDeposits(),
       ])
       console.log(
-        unauditedMints
+        // unauditedMints
         // unauditedBurns,
         // unauditedSafeDeposits,
-        // unauditedWithdrawals
+        unauditedWithdrawals
       )
       setAuditedData(processAuditedData(auditedMints, auditedBurns))
       setUnauditedMints(unauditedMints)
+      setUnauditedWithdrawals(unauditedWithdrawals)
     }
     fetchData()
   }, [])
   return {
     auditedData,
     unauditedMints,
+    unauditedWithdrawals,
   }
 }
 

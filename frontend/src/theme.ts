@@ -16,7 +16,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: 'SohneMono-Buch',
+    fontFamily: 'Sohne-Buch',
   },
 })
 export default theme

@@ -15,7 +15,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
 
-import { TAuditedBurn, TAuditedMint, TMint } from '../types'
+import { TAuditedBurn, TAuditedMint, TMint, TWithdrawal } from '../types'
 import { formatEUSD } from '../utils/mcNetworkTokens'
 import { getIconFromContactAddress, eUSDTokenAddress } from '../utils/ercTokens'
 import { GnosisSafeContext } from '../contexts'
@@ -87,7 +87,6 @@ export default function WrapTableRow({
   rowItem: TAuditedMint | TAuditedBurn
 }) {
   const rowInfo = extractTableRowInfo(rowItem)
-  const [expanded, setExpanded] = useState(false)
 
   if (!rowInfo) {
     return null
@@ -102,14 +101,14 @@ export default function WrapTableRow({
         </Box>
       </StyledTableCell>
       <StyledTableCell sx={{ width: 180 }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Box display="flex" alignItems="center">
           {getIconFromContactAddress(rowInfo.tokenAddr)}
-          <Typography sx={{ marginLeft: 1 }}>
+          <Typography sx={{ marginLeft: 1, fontFamily: 'SohneMono-Buch' }}>
             {formatEUSD(rowInfo.amount)}
           </Typography>
         </Box>
       </StyledTableCell>
-      <StyledTableCell align="right" sx={{ width: 180 }}>
+      <StyledTableCell sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}>
         <Link
           href={`${BLOCK_EXPLORER_URL}/blocks/${rowInfo.blockIndex}`}
           target="_blank"
@@ -118,7 +117,7 @@ export default function WrapTableRow({
           {rowInfo.blockIndex}
         </Link>
       </StyledTableCell>
-      <StyledTableCell>
+      <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
         <Link
           target="_blank"
           rel="noreferrer"
@@ -134,18 +133,15 @@ export default function WrapTableRow({
 export function UnAuditedMintTableRow({ mint }: { mint: TMint }) {
   return (
     <StyledTableRow hover>
-      <StyledTableCell sx={{ borderLeft: borderStyle }}>
-        <CopyableField text={mint.recipientB58Addr} />
-      </StyledTableCell>
-      <StyledTableCell sx={{ width: 180 }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
+      <StyledTableCell sx={{ width: 180, borderLeft: borderStyle }}>
+        <Box display="flex" alignItems="center">
           {getIconFromContactAddress(eUSDTokenAddress)}
           <Typography sx={{ marginLeft: 1 }}>
             {formatEUSD(mint.amount)}
           </Typography>
         </Box>
       </StyledTableCell>
-      <StyledTableCell align="right" sx={{ width: 180 }}>
+      <StyledTableCell sx={{ width: 180, borderRight: borderStyle }}>
         <Link
           href={`${BLOCK_EXPLORER_URL}/blocks/${mint.blockIndex}`}
           target="_blank"
@@ -154,8 +150,32 @@ export function UnAuditedMintTableRow({ mint }: { mint: TMint }) {
           {mint.blockIndex}
         </Link>
       </StyledTableCell>
-      <StyledTableCell sx={{ borderRight: borderStyle }}>
-        <CopyableField text={mint.nonceHex} />
+    </StyledTableRow>
+  )
+}
+export function UnauditedWithdrawalTableRow({
+  withdrawal,
+}: {
+  withdrawal: TWithdrawal
+}) {
+  return (
+    <StyledTableRow hover>
+      <StyledTableCell sx={{ width: 180, borderLeft: borderStyle }}>
+        <Box display="flex" alignItems="center">
+          {getIconFromContactAddress(withdrawal.tokenAddr)}
+          <Typography sx={{ marginLeft: 1 }}>
+            {formatEUSD(withdrawal.amount)}
+          </Typography>
+        </Box>
+      </StyledTableCell>
+      <StyledTableCell sx={{ width: 180, borderRight: borderStyle }}>
+        <Link
+          target="_blank"
+          rel="noreferrer"
+          href={`${ETHERSCAN_URL}/tx/${withdrawal.ethTxHash}`}
+        >
+          {abbreviateHash(withdrawal.ethTxHash)}
+        </Link>
       </StyledTableCell>
     </StyledTableRow>
   )

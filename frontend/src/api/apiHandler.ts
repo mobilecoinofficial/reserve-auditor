@@ -151,24 +151,17 @@ export const getLedgerBalance = async (
 export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
   return Promise.resolve([
     {
-      id: 45,
-      ethTxHash: '12dsfsdfsdf4sdfsdf3q23sdf',
-      ethBlockNumber: 1234455,
-      safeAddr: 'someSafeaddr',
-      tokenAddr: 'sometokenaddr',
-      toAddr: 'targetAddr',
-      amount: 420000000,
-      mcTxOutPublicKeyHex: 'pubkeyhex',
-    },
-    {
-      id: 46,
-      ethTxHash: '1asdasdasd2dsfsdfsdf4sdfsdf3q23sdf',
-      ethBlockNumber: 1234489,
-      safeAddr: 'someSafeaddr2',
-      tokenAddr: 'sometokenaddr2',
-      toAddr: 'targetAddr2',
-      amount: 42100000000,
-      mcTxOutPublicKeyHex: 'pubkeyhex2',
+      amount: 510002000000,
+      ethBlockNumber: 16715739,
+      ethTxHash:
+        '0xc29b4add3980f21dc8723ec2ee68afad4bbc6f99fe9416f9bdee874489a0ab06',
+      ethTxValue: '510002000000000000000000',
+      id: 1,
+      mcTxOutPublicKeyHex:
+        '1ce8b64b310574a2863cac63c0993eeeb421ba238ebe9c9efe513333e1b1af6e',
+      safeAddr: '0x30DA4EB397215cF407C46854CA7188f4e60F3402',
+      toAddr: '0xf9c2cA545e343d93fc9E7980B789757c961B1c56',
+      tokenAddr: '0x196f4727526eA7FB1e17b2071B3d8eAA38486988',
     },
   ])
 }

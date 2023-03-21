@@ -32,7 +32,9 @@ CREATE TABLE mint_config_txs (
     id INTEGER PRIMARY KEY,
     -- The block index at which this mint config tx appreared.
     block_index BIGINT NOT NULL,
-    -- The token id this mint config tx is for.
+    -- The block timestamp
+    block_timestamp TIMESTAMP,
+     -- The token id this mint config tx is for.
     token_id BIGINT NOT NULL,
     -- The nonce, as hex-encoded bytes.
     nonce_hex VARCHAR(128) NOT NULL UNIQUE,

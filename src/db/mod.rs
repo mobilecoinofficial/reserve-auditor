@@ -139,6 +139,7 @@ impl ReserveAuditorDb {
             for validated_mint_config_tx in &block_contents.validated_mint_config_txs {
                 MintConfigTx::insert_from_core_mint_config_tx(
                     block_index,
+                    block_timestamp,
                     &validated_mint_config_tx.mint_config_tx,
                     conn,
                 )?;

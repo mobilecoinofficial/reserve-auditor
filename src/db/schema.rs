@@ -107,6 +107,7 @@ diesel::table! {
     mint_config_txs (id) {
         id -> Nullable<Integer>,
         block_index -> BigInt,
+        block_timestamp -> Nullable<Timestamp>,
         token_id -> BigInt,
         nonce_hex -> Text,
         total_mint_limit -> BigInt,

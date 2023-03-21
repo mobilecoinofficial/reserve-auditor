@@ -170,8 +170,8 @@ mod tests {
         // Store two mint config txs.
         let (mint_config_tx1, _signers) = create_mint_config_tx_and_signers(token_id1, &mut rng);
         let (mint_config_tx2, _signers) = create_mint_config_tx_and_signers(token_id2, &mut rng);
-        MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
-        MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx2, &conn).unwrap();
+        MintConfigTx::insert_from_core_mint_config_tx(5, None, &mint_config_tx1, &conn).unwrap();
+        MintConfigTx::insert_from_core_mint_config_tx(5, None, &mint_config_tx2, &conn).unwrap();
 
         // Get the sql mint config txs.
         let sql_mint_config_tx1 = MintConfigTx::most_recent_for_token(6, token_id1, &conn)
@@ -224,9 +224,9 @@ mod tests {
         let (mint_config_tx2, signers2) = create_mint_config_tx_and_signers(token_id1, &mut rng);
         let (mint_config_tx3, signers3) = create_mint_config_tx_and_signers(token_id2, &mut rng);
 
-        MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
-        MintConfigTx::insert_from_core_mint_config_tx(10, &mint_config_tx2, &conn).unwrap();
-        MintConfigTx::insert_from_core_mint_config_tx(7, &mint_config_tx3, &conn).unwrap();
+        MintConfigTx::insert_from_core_mint_config_tx(5, None, &mint_config_tx1, &conn).unwrap();
+        MintConfigTx::insert_from_core_mint_config_tx(10, None, &mint_config_tx2, &conn).unwrap();
+        MintConfigTx::insert_from_core_mint_config_tx(7, None, &mint_config_tx3, &conn).unwrap();
 
         // Get the mint configs we'll be testing with.
         let sql_mint_config_tx1 = MintConfigTx::most_recent_for_token(6, token_id1, &conn)

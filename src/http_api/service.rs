@@ -641,7 +641,8 @@ mod tests {
         let token_id1 = TokenId::from(1);
         let (mint_config_tx1, signers1) = create_mint_config_tx_and_signers(token_id1, &mut rng);
         let config_tx_entity =
-            MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
+            MintConfigTx::insert_from_core_mint_config_tx(5, None, &mint_config_tx1, &conn)
+                .unwrap();
         let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
         let mint_tx1_entity =
             MintTx::insert_from_core_mint_tx(5, None, Some(1), &mint_tx1, &conn).unwrap();

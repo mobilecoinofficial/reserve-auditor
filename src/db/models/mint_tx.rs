@@ -36,7 +36,7 @@ pub struct MintTx {
     /// The block index at which this mint tx appreared.
     block_index: i64,
 
-    /// The block timestamp
+    /// The block timestamp.
     block_timestamp: Option<NaiveDateTime>,
 
     /// The token id this mint tx is for.

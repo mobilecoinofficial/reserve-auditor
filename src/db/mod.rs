@@ -206,7 +206,9 @@ impl ReserveAuditorDb {
             let mut burn_tx_outs: Vec<_> = block_contents
                 .outputs
                 .par_iter()
-                .filter_map(|tx_out| BurnTxOut::from_core_tx_out(block_index, tx_out).ok())
+                .filter_map(|tx_out| {
+                    BurnTxOut::from_core_tx_out(block_index, block_timestamp, tx_out).ok()
+                })
                 .collect();
 
             for burn_tx_out in burn_tx_outs.iter_mut() {
@@ -510,8 +512,8 @@ mod tests {
                 balance_map: HashMap::from_iter([(token_id1, 41), (token_id2, 2)]),
                 mint_txs: MintTx::get_mint_txs_by_block_index(block_index, &conn).unwrap(),
                 burn_tx_outs: vec![
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out1).unwrap(),
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out2).unwrap()
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out1).unwrap(),
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out2).unwrap()
                 ],
             }
         );
@@ -573,8 +575,8 @@ mod tests {
                 ]),
                 mint_txs: MintTx::get_mint_txs_by_block_index(block_index, &conn).unwrap(),
                 burn_tx_outs: vec![
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out1).unwrap(),
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out2).unwrap()
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out1).unwrap(),
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out2).unwrap()
                 ],
             }
         );
@@ -834,8 +836,8 @@ mod tests {
                 balance_map: HashMap::from_iter([(token_id1, 0), (token_id2, 0)]),
                 mint_txs: MintTx::get_mint_txs_by_block_index(block_index, &conn).unwrap(),
                 burn_tx_outs: vec![
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out1).unwrap(),
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out2).unwrap()
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out1).unwrap(),
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out2).unwrap()
                 ],
             }
         );

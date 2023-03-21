@@ -38,6 +38,7 @@ diesel::table! {
     burn_tx_outs (id) {
         id -> Nullable<Integer>,
         block_index -> BigInt,
+        block_timestamp -> Nullable<Timestamp>,
         token_id -> BigInt,
         amount -> BigInt,
         public_key_hex -> Text,

@@ -128,7 +128,7 @@ pub fn append_and_sync(
 
     let block = block_data.block();
     reserve_auditor_db
-        .sync_block(block, block_data.contents(), Some(Utc::now()))
+        .sync_block(block, block_data.contents(), None)
         .map(|sync_block_data| (sync_block_data, block.index))
 }
 
@@ -208,7 +208,7 @@ pub fn create_burn_tx_out(
         .add_output(Amount::new(amount, token_id), &burn_address(), rng)
         .unwrap();
 
-    BurnTxOut::from_core_tx_out(0, &tx_out_context.tx_out).unwrap()
+    BurnTxOut::from_core_tx_out(0, Some(Utc::now()), &tx_out_context.tx_out).unwrap()
 }
 
 /// Create and insert a [BurnTxOut].

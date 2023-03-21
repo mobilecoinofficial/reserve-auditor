@@ -32,7 +32,7 @@ CREATE TABLE mint_config_txs (
     id INTEGER PRIMARY KEY,
     -- The block index at which this mint config tx appreared.
     block_index BIGINT NOT NULL,
-    -- The block timestamp
+    -- The block timestamp.
     block_timestamp TIMESTAMP,
      -- The token id this mint config tx is for.
     token_id BIGINT NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE mint_txs (
     id INTEGER PRIMARY KEY,
     -- The block index at which this mint tx appreared.
     block_index BIGINT NOT NULL,
-    -- The block timestamp
+    -- The block timestamp.
     block_timestamp TIMESTAMP,
      -- The token id this mint tx is for.
     token_id BIGINT NOT NULL,
@@ -95,7 +95,9 @@ CREATE TABLE burn_tx_outs (
     id INTEGER PRIMARY KEY,
     -- The block index at which this TxOut appeared.
     block_index BIGINT NOT NULL,
-     -- The token id this tx out is for.
+    -- The block timestamp.
+    block_timestamp TIMESTAMP,
+    -- The token id this tx out is for.
     token_id BIGINT NOT NULL,
     -- The amount that was burned.
     amount BIGINT NOT NULL,

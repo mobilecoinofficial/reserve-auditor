@@ -29,6 +29,7 @@ mc-util-metrics = { path = "mobilecoin/util/metrics" }
 mc-util-parse = { path = "mobilecoin/util/parse" }
 mc-util-serial = { path = "mobilecoin/util/serial" }
 mc-util-uri = { path = "mobilecoin/util/uri" }
+mc-watcher = { path = "mobilecoin/watcher" }
 
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "3.2", features = ["derive", "env"] }

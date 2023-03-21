@@ -120,6 +120,7 @@ impl ReserveAuditorDb {
         conn: &Conn,
         block: &Block,
         block_contents: &BlockContents,
+        block_timestamp: DateTime<Utc>,
     ) -> Result<SyncBlockData, Error> {
         transaction(conn, |conn| {
             let block_index = block.index;

@@ -15,13 +15,21 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
 
-import { TAuditedBurn, TAuditedMint, TMint, TWithdrawal } from '../types'
+import {
+  TAuditedBurn,
+  TAuditedMint,
+  TMint,
+  TWithdrawal,
+  TUnauditedBurn,
+  TUnauditedSafeDeposit,
+} from '../types'
 import { formatEUSD } from '../utils/mcNetworkTokens'
 import { getIconFromContactAddress, eUSDTokenAddress } from '../utils/ercTokens'
 import { GnosisSafeContext } from '../contexts'
 import { abbreviateHash } from '../utils/truncate'
 import { Mint } from './Mint'
 import CopyableField from './CopyableField'
+import { TTableData } from '../api/hooks/useMintsAndBurns'
 
 const borderStyle = '1px solid #cecece'
 
@@ -33,115 +41,86 @@ const StyledTableRow = styled(TableRow)(() => ({
   backgroundColor: 'white',
 }))
 
-type TableRowInfo = {
-  tokenAddr: string
-  amount: number
-  ethTxHash: string
-  blockIndex: number
-  type: 'Wrap + Mint' | 'Unwrap + Burn'
-  icon: React.ReactNode
-}
-
-function extractTableRowInfo(
-  rowItem: TAuditedMint | TAuditedBurn
-): TableRowInfo | null {
-  if ('mint' in rowItem) {
-    return {
-      tokenAddr: rowItem.deposit.tokenAddr,
-      amount: rowItem.mint.amount,
-      ethTxHash: rowItem.deposit.ethTxHash,
-      blockIndex: rowItem.mint.blockIndex,
-      icon: (
-        <AddCircleOutlineIcon
-          color="success"
-          fontSize="small"
-          sx={{ marginRight: 1 }}
-        />
-      ),
-      type: 'Wrap + Mint',
-    }
+export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
+  // audited mint
+  if ('mint' in rowItem && 'audited' in rowItem) {
+    return <AuditedMintRow mint={rowItem} />
   }
+  // audited burn
+  if ('burn' in rowItem && 'audited' in rowItem) {
+    return <AuditedBurnRow burn={rowItem} />
+  }
+  // unudited mint
+  if ('mintConfigId' in rowItem) {
+    return <UnauditedMintRow mint={rowItem} />
+  }
+  // unaudited burn
   if ('burn' in rowItem) {
-    return {
-      tokenAddr: rowItem.withdrawal.tokenAddr,
-      amount: rowItem.burn.amount,
-      ethTxHash: rowItem.withdrawal.ethTxHash,
-      blockIndex: rowItem.burn.blockIndex,
-      icon: (
-        <LocalFireDepartmentIcon
-          color="error"
-          fontSize="small"
-          sx={{ marginRight: 1 }}
-        />
-      ),
-      type: 'Unwrap + Burn',
-    }
+    return <UnauditedBurnRow burn={rowItem} />
   }
-  console.warn('wrap table item not registering as mint or burn:', rowItem)
+  // unaudited deposit
+  if ('deposit' in rowItem) {
+    return <UnauditedDepositRow deposit={rowItem} />
+  }
+  // unaudited withdrawal
+  if ('executionDate' in rowItem) {
+    return <UnauditedWithdrawalRow withdrawal={rowItem} />
+  }
+
+  console.warn('table row does not match expected format', rowItem)
   return null
 }
 
-export default function WrapTableRow({
-  rowItem,
-}: {
-  rowItem: TAuditedMint | TAuditedBurn
-}) {
-  const rowInfo = extractTableRowInfo(rowItem)
-
-  if (!rowInfo) {
-    return null
-  }
-
+function AuditedMintRow({ mint }: { mint: TAuditedMint }) {
   return (
     <StyledTableRow hover>
       <StyledTableCell sx={{ borderLeft: borderStyle }}>
-        <Box display="flex" alignItems="center">
-          {rowInfo.icon}
-          <Typography>{rowInfo.type}</Typography>
-        </Box>
+        <Typography>Wrap + Mint</Typography>
       </StyledTableCell>
-      <StyledTableCell sx={{ width: 180 }}>
-        <Box display="flex" alignItems="center">
-          {getIconFromContactAddress(rowInfo.tokenAddr)}
-          <Typography sx={{ marginLeft: 1, fontFamily: 'SohneMono-Buch' }}>
-            {formatEUSD(rowInfo.amount)}
-          </Typography>
-        </Box>
+      <StyledTableCell>
+        <Typography sx={{ fontFamily: 'SohneMono-Buch' }}>
+          {formatEUSD(mint.mint.amount)}
+        </Typography>
       </StyledTableCell>
+      <StyledTableCell>{mint.mint.blockTimestamp}</StyledTableCell>
       <StyledTableCell sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}>
         <Link
-          href={`${BLOCK_EXPLORER_URL}/blocks/${rowInfo.blockIndex}`}
+          href={`${BLOCK_EXPLORER_URL}/blocks/${mint.mint.blockIndex}`}
           target="_blank"
           rel="noreferrer"
         >
-          {rowInfo.blockIndex}
+          {mint.mint.blockIndex}
         </Link>
       </StyledTableCell>
       <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
         <Link
           target="_blank"
           rel="noreferrer"
-          href={`${ETHERSCAN_URL}/tx/${rowInfo.ethTxHash}`}
+          href={`${ETHERSCAN_URL}/tx/${mint.deposit.ethTxHash}`}
         >
-          {abbreviateHash(rowInfo.ethTxHash)}
+          {abbreviateHash(mint.deposit.ethTxHash)}
         </Link>
+      </StyledTableCell>
+      <StyledTableCell sx={{ borderRight: borderStyle }}>
+        Details
       </StyledTableCell>
     </StyledTableRow>
   )
 }
 
-export function UnAuditedMintTableRow({ mint }: { mint: TMint }) {
+function UnauditedMintRow({ mint }: { mint: TMint }) {
   return (
     <StyledTableRow hover>
-      <StyledTableCell sx={{ width: 180, borderLeft: borderStyle }}>
-        <Box display="flex" alignItems="center">
-          {getIconFromContactAddress(eUSDTokenAddress)}
-          <Typography sx={{ marginLeft: 1 }}>
-            {formatEUSD(mint.amount)}
-          </Typography>
-        </Box>
+      <StyledTableCell sx={{ borderLeft: borderStyle }}>
+        <Typography>Mint</Typography>
       </StyledTableCell>
-      <StyledTableCell sx={{ width: 180, borderRight: borderStyle }}>
+      <StyledTableCell>
+        <Typography sx={{ fontFamily: 'SohneMono-Buch' }}>
+          {formatEUSD(mint.amount)}
+        </Typography>
+      </StyledTableCell>
+      <StyledTableCell>{mint.blockTimestamp}</StyledTableCell>
+      <StyledTableCell sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}>
         <Link
           href={`${BLOCK_EXPLORER_URL}/blocks/${mint.blockIndex}`}
           target="_blank"
@@ -150,25 +129,100 @@ export function UnAuditedMintTableRow({ mint }: { mint: TMint }) {
           {mint.blockIndex}
         </Link>
       </StyledTableCell>
+      <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
+        --
+      </StyledTableCell>
+      <StyledTableCell sx={{ borderRight: borderStyle }}>
+        Details
+      </StyledTableCell>
     </StyledTableRow>
   )
 }
-export function UnauditedWithdrawalTableRow({
-  withdrawal,
-}: {
-  withdrawal: TWithdrawal
-}) {
+
+function AuditedBurnRow({ burn }: { burn: TAuditedBurn }) {
   return (
     <StyledTableRow hover>
-      <StyledTableCell sx={{ width: 180, borderLeft: borderStyle }}>
-        <Box display="flex" alignItems="center">
-          {getIconFromContactAddress(withdrawal.tokenAddr)}
-          <Typography sx={{ marginLeft: 1 }}>
-            {formatEUSD(withdrawal.amount)}
-          </Typography>
-        </Box>
+      <StyledTableCell sx={{ borderLeft: borderStyle }}>
+        <Typography>Unwrap + Burn</Typography>
       </StyledTableCell>
-      <StyledTableCell sx={{ width: 180, borderRight: borderStyle }}>
+      <StyledTableCell>
+        <Typography sx={{ fontFamily: 'SohneMono-Buch' }}>
+          {formatEUSD(burn.burn.amount)}
+        </Typography>
+      </StyledTableCell>
+      <StyledTableCell>{burn.burn.blockTimestamp}</StyledTableCell>
+      <StyledTableCell sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}>
+        <Link
+          href={`${BLOCK_EXPLORER_URL}/blocks/${burn.burn.blockIndex}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {burn.burn.blockIndex}
+        </Link>
+      </StyledTableCell>
+      <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
+        <Link
+          target="_blank"
+          rel="noreferrer"
+          href={`${ETHERSCAN_URL}/tx/${burn.withdrawal.ethTxHash}`}
+        >
+          {abbreviateHash(burn.withdrawal.ethTxHash)}
+        </Link>
+      </StyledTableCell>
+      <StyledTableCell sx={{ borderRight: borderStyle }}>
+        Details
+      </StyledTableCell>
+    </StyledTableRow>
+  )
+}
+
+function UnauditedBurnRow({ burn }: { burn: TUnauditedBurn }) {
+  return (
+    <StyledTableRow hover>
+      <StyledTableCell sx={{ borderLeft: borderStyle }}>
+        <Typography>Burn</Typography>
+      </StyledTableCell>
+      <StyledTableCell>
+        <Typography sx={{ fontFamily: 'SohneMono-Buch' }}>
+          {formatEUSD(burn.burn.amount)}
+        </Typography>
+      </StyledTableCell>
+      <StyledTableCell>{burn.burn.blockTimestamp}</StyledTableCell>
+      <StyledTableCell sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}>
+        <Link
+          href={`${BLOCK_EXPLORER_URL}/blocks/${burn.burn.blockIndex}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {burn.burn.blockIndex}
+        </Link>
+      </StyledTableCell>
+      <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
+        --
+      </StyledTableCell>
+      <StyledTableCell sx={{ borderRight: borderStyle }}>
+        Details
+      </StyledTableCell>
+    </StyledTableRow>
+  )
+}
+
+function UnauditedWithdrawalRow({ withdrawal }: { withdrawal: TWithdrawal }) {
+  return (
+    <StyledTableRow hover>
+      <StyledTableCell sx={{ borderLeft: borderStyle }}>
+        <Typography>Unwrap</Typography>
+      </StyledTableCell>
+      <StyledTableCell>
+        <Typography sx={{ fontFamily: 'SohneMono-Buch' }}>
+          {formatEUSD(withdrawal.amount)}
+        </Typography>
+      </StyledTableCell>
+      <StyledTableCell>{withdrawal.executionDate}</StyledTableCell>
+      <StyledTableCell sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}>
+        --
+      </StyledTableCell>
+      <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
         <Link
           target="_blank"
           rel="noreferrer"
@@ -177,6 +231,129 @@ export function UnauditedWithdrawalTableRow({
           {abbreviateHash(withdrawal.ethTxHash)}
         </Link>
       </StyledTableCell>
+      <StyledTableCell sx={{ borderRight: borderStyle }}>
+        Details
+      </StyledTableCell>
     </StyledTableRow>
   )
 }
+
+function UnauditedDepositRow({ deposit }: { deposit: TUnauditedSafeDeposit }) {
+  return (
+    <StyledTableRow hover>
+      <StyledTableCell sx={{ borderLeft: borderStyle }}>
+        <Typography>Unwrap</Typography>
+      </StyledTableCell>
+      <StyledTableCell>
+        <Typography sx={{ fontFamily: 'SohneMono-Buch' }}>
+          {formatEUSD(deposit.deposit.amount)}
+        </Typography>
+      </StyledTableCell>
+      <StyledTableCell>{deposit.deposit.executionDate}</StyledTableCell>
+      <StyledTableCell sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}>
+        --
+      </StyledTableCell>
+      <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
+        <Link
+          target="_blank"
+          rel="noreferrer"
+          href={`${ETHERSCAN_URL}/tx/${deposit.deposit.ethTxHash}`}
+        >
+          {abbreviateHash(deposit.deposit.ethTxHash)}
+        </Link>
+      </StyledTableCell>
+      <StyledTableCell sx={{ borderRight: borderStyle }}>
+        Details
+      </StyledTableCell>
+    </StyledTableRow>
+  )
+}
+
+//   return (
+//     <StyledTableRow hover>
+//       <StyledTableCell sx={{ borderLeft: borderStyle }}>
+//         <Box display="flex" alignItems="center">
+//           {rowInfo.icon}
+//           <Typography>{rowInfo.type}</Typography>
+//         </Box>
+//       </StyledTableCell>
+//       <StyledTableCell sx={{ width: 180 }}>
+//         <Box display="flex" alignItems="center">
+//           {getIconFromContactAddress(rowInfo.tokenAddr)}
+//           <Typography sx={{ marginLeft: 1, fontFamily: 'SohneMono-Buch' }}>
+//             {formatEUSD(rowInfo.amount)}
+//           </Typography>
+//         </Box>
+//       </StyledTableCell>
+//       <StyledTableCell sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}>
+//         <Link
+//           href={`${BLOCK_EXPLORER_URL}/blocks/${rowInfo.blockIndex}`}
+//           target="_blank"
+//           rel="noreferrer"
+//         >
+//           {rowInfo.blockIndex}
+//         </Link>
+//       </StyledTableCell>
+//       <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
+//         <Link
+//           target="_blank"
+//           rel="noreferrer"
+//           href={`${ETHERSCAN_URL}/tx/${rowInfo.ethTxHash}`}
+//         >
+//           {abbreviateHash(rowInfo.ethTxHash)}
+//         </Link>
+//       </StyledTableCell>
+//     </StyledTableRow>
+//   )
+// }
+
+// export function UnAuditedMintTableRow({ mint }: { mint: TMint }) {
+//   return (
+//     <StyledTableRow hover>
+//       <StyledTableCell sx={{ width: 180, borderLeft: borderStyle }}>
+//         <Box display="flex" alignItems="center">
+//           {getIconFromContactAddress(eUSDTokenAddress)}
+//           <Typography sx={{ marginLeft: 1 }}>
+//             {formatEUSD(mint.amount)}
+//           </Typography>
+//         </Box>
+//       </StyledTableCell>
+//       <StyledTableCell sx={{ width: 180, borderRight: borderStyle }}>
+//         <Link
+//           href={`${BLOCK_EXPLORER_URL}/blocks/${mint.blockIndex}`}
+//           target="_blank"
+//           rel="noreferrer"
+//         >
+//           {mint.blockIndex}
+//         </Link>
+//       </StyledTableCell>
+//     </StyledTableRow>
+//   )
+// }
+// export function UnauditedWithdrawalTableRow({
+//   withdrawal,
+// }: {
+//   withdrawal: TWithdrawal
+// }) {
+//   return (
+//     <StyledTableRow hover>
+//       <StyledTableCell sx={{ width: 180, borderLeft: borderStyle }}>
+//         <Box display="flex" alignItems="center">
+//           {getIconFromContactAddress(withdrawal.tokenAddr)}
+//           <Typography sx={{ marginLeft: 1 }}>
+//             {formatEUSD(withdrawal.amount)}
+//           </Typography>
+//         </Box>
+//       </StyledTableCell>
+//       <StyledTableCell sx={{ width: 180, borderRight: borderStyle }}>
+//         <Link
+//           target="_blank"
+//           rel="noreferrer"
+//           href={`${ETHERSCAN_URL}/tx/${withdrawal.ethTxHash}`}
+//         >
+//           {abbreviateHash(withdrawal.ethTxHash)}
+//         </Link>
+//       </StyledTableCell>
+//     </StyledTableRow>
+//   )
+// }

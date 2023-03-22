@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react'
-import { sortBy } from 'lodash'
+import { sortBy, sumBy } from 'lodash'
 
-import { TAuditedBurn, TAuditedMint, TMint, TWithdrawal } from '../../types'
+import {
+  TAuditedBurn,
+  TAuditedMint,
+  TBurn,
+  TMint,
+  TUnauditedSafeDeposit,
+  TWithdrawal,
+} from '../../types'
 import {
   getAuditedMints,
   getAuditedBurns,
@@ -10,6 +17,16 @@ import {
   getUnauditedWithdrawals,
   getUnauditedMints,
 } from '../apiHandler'
+import { TUnauditedBurn } from '../../types/burn'
+
+export type TTableData =
+  | TAuditedBurn
+  | TAuditedMint
+  | TBurn
+  | TMint
+  | TUnauditedBurn
+  | TUnauditedSafeDeposit
+  | TWithdrawal
 
 // Punting the pagination issue for now.
 // We want to show audited mints and burns in the same table,
@@ -18,25 +35,14 @@ import {
 // than a few hundred mints or burns any time soon, so I'm just gonna set a high
 // limit and we can deal with actual pagination when we need to.
 export default function useMintsAndBurns() {
-  const [auditedData, setAuditedData] = useState<
-    Array<TAuditedMint | TAuditedBurn>
-  >([])
-  const [unauditedMints, setUnauditedMints] = useState<TMint[]>([])
-  const [unauditedWithdrawals, setUnauditedWithdrawals] = useState<
-    TWithdrawal[]
-  >([])
+  const [sortedData, setSortedData] = useState<TTableData[]>([])
+  const [totalUnauditedDeposits, setTotalUnauditedDeposits] =
+    useState<number>(0)
+  const [totalUnauditedBurns, setTotalUnauditedBurns] = useState<number>(0)
 
-  // TODO: handle unaudited data
   useEffect(() => {
     const fetchData = async () => {
-      const [
-        auditedMints,
-        auditedBurns,
-        unauditedMints,
-        unauditedBurns,
-        unauditedWithdrawals,
-        unauditedSafeDeposits,
-      ] = await Promise.all([
+      const data = await Promise.all([
         getAuditedMints(),
         getAuditedBurns(),
         getUnauditedMints(),
@@ -44,36 +50,51 @@ export default function useMintsAndBurns() {
         getUnauditedWithdrawals(),
         getUnauditedSafeDeposits(),
       ])
-      console.log(
-        // unauditedMints
-        // unauditedBurns,
-        // unauditedSafeDeposits,
-        unauditedWithdrawals
+
+      const filteredUnauditedBurns = data[3].filter(
+        (burn) => burn.burn.tokenId === 1
       )
-      setAuditedData(processAuditedData(auditedMints, auditedBurns))
-      setUnauditedMints(unauditedMints)
-      setUnauditedWithdrawals(unauditedWithdrawals)
+      data[3] = filteredUnauditedBurns
+      setSortedData(sortData(data.flat()))
+      setTotalUnauditedDeposits(sumBy(data[5], (dep) => dep.deposit.amount))
+      setTotalUnauditedBurns(
+        sumBy(filteredUnauditedBurns, (burn) => burn.burn.amount)
+      )
     }
     fetchData()
   }, [])
   return {
-    auditedData,
-    unauditedMints,
-    unauditedWithdrawals,
+    sortedData,
+    totalUnauditedDeposits,
+    totalUnauditedBurns,
   }
 }
 
-function processAuditedData(
-  mints: TAuditedMint[],
-  burns: TAuditedBurn[]
-): Array<TAuditedMint | TAuditedBurn> {
-  const combined: Array<TAuditedMint | TAuditedBurn> = [...mints, ...burns]
-  return sortBy(combined, (mb) => {
-    if ('mint' in mb) {
-      return mb.mint.blockIndex
+function sortData(data: TTableData[]): TTableData[] {
+  return sortBy(data, (td) => {
+    // audited mint
+    if ('mint' in td && 'audited' in td) {
+      return new Date(td.deposit.executionDate)
     }
-    if ('burn' in mb) {
-      return mb.burn.blockIndex
+    // audited burn
+    if ('burn' in td && 'audited' in td) {
+      return new Date(td.burn.blockTimestamp)
+    }
+    // unudited mint
+    if ('mintConfigId' in td) {
+      return new Date(td.blockTimestamp)
+    }
+    // unaudited burn
+    if ('burn' in td) {
+      return new Date(td.burn.blockIndex)
+    }
+    // unaudited deposit
+    if ('deposit' in td) {
+      return new Date(td.deposit.executionDate)
+    }
+    // unaudited withdrawal
+    if ('executionDate' in td) {
+      return new Date(td.executionDate)
     }
   }).reverse()
 }

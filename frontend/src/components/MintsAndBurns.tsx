@@ -20,7 +20,7 @@ import WrapTableRow, {
 const PAGE_LENGTH = 15
 
 export default function MintsAndBurns() {
-  const { auditedData, unauditedMints, unauditedWithdrawals } =
+  const { sortedData, totalUnauditedBurns, totalUnauditedDeposits } =
     useMintsAndBurns()
   const [currentPage, setCurrentPage] = useState(1)
   const tableEl = useRef<HTMLTableElement>(null)
@@ -34,10 +34,9 @@ export default function MintsAndBurns() {
     if (!distanceBottom) {
       setDistanceBottom(Math.round(bottom * 0.6))
     }
-    console.log(auditedData.length)
     if (
       tableEl.current.scrollTop > bottom - distanceBottom &&
-      currentPage * PAGE_LENGTH < auditedData.length
+      currentPage * PAGE_LENGTH < sortedData.length
     ) {
       setCurrentPage(currentPage + 1)
     }
@@ -55,150 +54,37 @@ export default function MintsAndBurns() {
   }, [scrollListener])
 
   return (
-    <Grid container columnSpacing={2}>
-      <Grid item xs={12}>
-        <Box marginBottom={4}>
-          <Typography variant="h5" gutterBottom>
-            Wrapping and Unwrapping
-          </Typography>
-          <Box overflow="hidden">
-            <TableContainer
-              ref={tableEl}
-              // infinite scrolls depends on the relationship between this height value and the PAGE_LENGTH
-              sx={{ overflowY: 'scroll', maxHeight: 550 }}
-            >
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Type</TableCell>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Block Index</TableCell>
-                    <TableCell>Eth Tx</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {auditedData
-                    .slice(0, currentPage * PAGE_LENGTH)
-                    .map((mintOrBurn, index) => (
-                      <WrapTableRow
-                        rowItem={mintOrBurn}
-                        key={`mintOrBurnRow-${index}`}
-                      />
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Grid>
-      <Grid item sm={12} md={6}>
-        <Box marginBottom={4}>
-          <Typography variant="h5" gutterBottom>
-            Unpaired Mints
-          </Typography>
-          <Box>
-            <TableContainer>
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Block Index</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {unauditedMints.map((mint, index) => (
-                    <UnAuditedMintTableRow
-                      mint={mint}
-                      key={`unAuditedMint-${index}`}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Grid>
-      <Grid item sm={12} md={6}>
-        <Box marginBottom={4}>
-          <Typography variant="h5" gutterBottom>
-            Unpaired Unwraps
-          </Typography>
-          <Box>
-            <TableContainer>
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Eth Tx</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {unauditedWithdrawals.map((withdrawal, index) => (
-                    <UnauditedWithdrawalTableRow
-                      withdrawal={withdrawal}
-                      key={`unAuditedWithdrawal-${index}`}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Grid>
-      <Grid item sm={12} md={6}>
-        <Box marginBottom={4}>
-          <Typography variant="h5" gutterBottom>
-            Unpaired Burns
-          </Typography>
-          <Box>
-            <TableContainer>
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Block Index</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {unauditedMints.map((mint, index) => (
-                    <UnAuditedMintTableRow
-                      mint={mint}
-                      key={`unAuditedMint-${index}`}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Grid>
-      <Grid item sm={12} md={6}>
-        <Box marginBottom={4}>
-          <Typography variant="h5" gutterBottom>
-            Unpaired Wraps
-          </Typography>
-          <Box>
-            <TableContainer>
-              <Table stickyHeader size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Amount</TableCell>
-                    <TableCell>Eth Tx</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {[].map((withdrawal, index) => (
-                    <UnauditedWithdrawalTableRow
-                      withdrawal={withdrawal}
-                      key={`unAuditedWithdrawal-${index}`}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Box>
-      </Grid>
-    </Grid>
+    <Box marginBottom={4}>
+      <Typography variant="h5" gutterBottom>
+        Wrapping and Unwrapping
+      </Typography>
+      <Box overflow="hidden">
+        <TableContainer
+          ref={tableEl}
+          // infinite scrolls depends on the relationship between this height value and the PAGE_LENGTH
+          sx={{ overflowY: 'scroll', maxHeight: 550 }}
+        >
+          <Table stickyHeader size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Type</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Timestamp</TableCell>
+                <TableCell>Block Index</TableCell>
+                <TableCell>Eth Tx</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {sortedData
+                .slice(0, currentPage * PAGE_LENGTH)
+                .map((row, index) => (
+                  <WrapTableRow rowItem={row} key={`mintOrBurnRow-${index}`} />
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Box>
   )
 }

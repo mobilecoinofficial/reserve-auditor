@@ -11,6 +11,7 @@ export type TAuditedMint = {
 export type TMint = {
   id?: number
   blockIndex: number
+  blockTimestamp: string
   tokenId: number
   amount: number
   nonceHex: string
@@ -24,6 +25,7 @@ export type TDeposit = {
   id?: number
   ethTxHash: string
   ethBlockNumber: number
+  executionDate: string
   safeAddr: string
   tokenAddr: string
   fromAddr: string

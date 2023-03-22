@@ -60,7 +60,9 @@ export const getUnauditedBurns = async (): Promise<TUnauditedBurn[]> => {
 export const getUnauditedSafeDeposits = async (): Promise<
   TUnauditedSafeDeposit[]
 > => {
-  const response = await get<TAuditedMintResponse>(`/unaudited_gnosis_deposits`)
+  const response = await get<TUnauditedSafeDeposit>(
+    `/unaudited_gnosis_deposits`
+  )
   return camelCaseKeys(response) as TUnauditedSafeDeposit[]
 }
 
@@ -156,6 +158,7 @@ export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
       ethTxHash:
         '0xc29b4add3980f21dc8723ec2ee68afad4bbc6f99fe9416f9bdee874489a0ab06',
       ethTxValue: '510002000000000000000000',
+      executionDate: new Date().toString(),
       id: 1,
       mcTxOutPublicKeyHex:
         '1ce8b64b310574a2863cac63c0993eeeb421ba238ebe9c9efe513333e1b1af6e',
@@ -173,6 +176,7 @@ export const getUnauditedMints = async (): Promise<TMint[]> => {
       blockIndex: 885147,
       id: 3,
       mintConfigId: 2,
+      blockTimestamp: new Date().toString(),
       nonceHex:
         '0130d61e5330e52dfccdc74a10055b7cfe8e8ed3e035ebe0925ec51631909f470a00000000000000000000000000000000000000000000000000000000000000',
       protobuf: [

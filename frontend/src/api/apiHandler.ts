@@ -52,18 +52,60 @@ const camelCaseKeys = (
   })
 }
 
+// export const getUnauditedBurns = async (): Promise<TUnauditedBurn[]> => {
+//   const response = await get<TAuditedMintResponse>(`/unaudited_burn_tx_outs`)
+//   return camelCaseKeys(response) as TUnauditedBurn[]
+// }
 export const getUnauditedBurns = async (): Promise<TUnauditedBurn[]> => {
-  const response = await get<TAuditedMintResponse>(`/unaudited_burn_tx_outs`)
-  return camelCaseKeys(response) as TUnauditedBurn[]
+  return Promise.resolve([
+    {
+      burn: {
+        amount: 400000000,
+        blockIndex: 1303276,
+        blockTimestamp: '2023-02-22T22:06:03',
+        id: 3,
+        protobuf: [
+          10, 55, 10, 34, 10, 32, 30, 184, 222, 175, 106, 149, 193, 131, 176,
+          41, 227, 151, 35, 139, 62, 63,
+        ],
+        publicKeyHex:
+          'a05ad174819a535364d8f3e7b4c023843ebf989c06c21efc2b83a1af766ba949',
+        tokenId: 1,
+      },
+      decodedBurnMemoBytes: [1, 2, 3],
+    },
+  ])
 }
 
+// export const getUnauditedSafeDeposits = async (): Promise<
+//   TUnauditedSafeDeposit[]
+// > => {
+//   const response = await get<TUnauditedSafeDeposit>(
+//     `/unaudited_gnosis_deposits`
+//   )
+//   return camelCaseKeys(response) as TUnauditedSafeDeposit[]
+// }
 export const getUnauditedSafeDeposits = async (): Promise<
   TUnauditedSafeDeposit[]
 > => {
-  const response = await get<TUnauditedSafeDeposit>(
-    `/unaudited_gnosis_deposits`
-  )
-  return camelCaseKeys(response) as TUnauditedSafeDeposit[]
+  return Promise.resolve([
+    {
+      deposit: {
+        amount: 100000000000,
+        ethBlockNumber: 15749253,
+        ethTxHash:
+          '0x81f033b5f2a20a35923f898710a1f9a161b7f2dfbcd47a5a48b3c1fa471f3f9a',
+        ethTxValue: '100000000000000000000000',
+        executionDate: '2022-10-14T22:12:11',
+        expectedMcMintTxNonceHex:
+          '0181f033b5f2a20a35923f898710a1f9a161b7f2dfbcd47a5a48b3c1fa471f3f9a00000000000000000000000000000000000000000000000000000000000000',
+        fromAddr: '0x09555316725073eF0C219f741bE4918a98DEcB96',
+        id: 5,
+        safeAddr: '0x30DA4EB397215cF407C46854CA7188f4e60F3402',
+        tokenAddr: '0x196f4727526eA7FB1e17b2071B3d8eAA38486988',
+      },
+    },
+  ])
 }
 
 export const getAuditedMints = async (): Promise<TAuditedMint[]> => {
@@ -158,7 +200,7 @@ export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
       ethTxHash:
         '0xc29b4add3980f21dc8723ec2ee68afad4bbc6f99fe9416f9bdee874489a0ab06',
       ethTxValue: '510002000000000000000000',
-      executionDate: new Date().toString(),
+      executionDate: '2023-02-26T21:45:57',
       id: 1,
       mcTxOutPublicKeyHex:
         '1ce8b64b310574a2863cac63c0993eeeb421ba238ebe9c9efe513333e1b1af6e',
@@ -176,7 +218,7 @@ export const getUnauditedMints = async (): Promise<TMint[]> => {
       blockIndex: 885147,
       id: 3,
       mintConfigId: 2,
-      blockTimestamp: new Date().toString(),
+      blockTimestamp: '2023-02-26T22:44:57',
       nonceHex:
         '0130d61e5330e52dfccdc74a10055b7cfe8e8ed3e035ebe0925ec51631909f470a00000000000000000000000000000000000000000000000000000000000000',
       protobuf: [

@@ -32,5 +32,5 @@ export type TWithdrawal = {
 
 export type TUnauditedBurn = {
   burn: TBurn
-  decoded_burn_memo_bytes: number[]
+  decodedBurnMemoBytes: number[]
 }

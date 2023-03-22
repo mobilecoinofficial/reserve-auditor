@@ -14,7 +14,7 @@ export default function TopContent({
   totalUnauditedBurns,
 }: TopContentData) {
   return (
-    <Grid container columnSpacing={8} paddingY={2} marginBottom={2}>
+    <Grid container columnSpacing={10} paddingY={2} marginBottom={2}>
       <Grid item xs={12} md={6}>
         <BalanceSummary
           totalUnauditedDeposits={totalUnauditedDeposits}

@@ -7,6 +7,7 @@ import useSafeBalance from '../api/hooks/useSafeBalance'
 import isTestnet from '../utils/isTestnet'
 import { GnosisSafeContext } from '../contexts'
 import { TopContentData } from './TopContent'
+import { formatEUSD } from '../utils/mcNetworkTokens'
 
 export default function BalanceSummary({
   totalUnauditedDeposits,
@@ -27,7 +28,7 @@ export default function BalanceSummary({
       sx={{ paddingTop: 2, paddingBottom: 2 }}
     >
       <Box width="100%">
-        <Typography color="textSecondary">
+        <Typography color="textSecondary" variant="body2">
           eUSD in the{' '}
           <Link
             target="_blank"
@@ -37,10 +38,8 @@ export default function BalanceSummary({
             Reserve Safe
           </Link>
         </Typography>
-        <Box display="flex">
-          <Typography variant="h3" sx={{ marginBottom: 2 }}>
-            {mainBalance}
-          </Typography>
+        <Box display="flex" sx={{ marginBottom: 4 }}>
+          <Typography variant="h3">{mainBalance}</Typography>
           {hasOtherBalance && (
             <Tooltip title="The safe currently contains additional non-eUSD assets. Visit safe for more details">
               <ErrorIcon color="warning" />
@@ -53,10 +52,10 @@ export default function BalanceSummary({
           width="100%"
           marginBottom={1}
         >
-          <Typography color="textSecondary">
-            - eUSD on the MobileCoin network
+          <Typography color="textSecondary" variant="body2">
+            eUSD on the MobileCoin network
           </Typography>
-          <Typography>{ledgerBalance?.totalSupply}</Typography>
+          <Typography variant="body2">{ledgerBalance?.totalSupply}</Typography>
         </Box>
         <Box
           display="flex"
@@ -64,16 +63,20 @@ export default function BalanceSummary({
           width="100%"
           marginBottom={1}
         >
-          <Typography color="textSecondary">
-            - eUSD waiting to be minted
+          <Typography color="textSecondary" variant="body2">
+            eUSD waiting to be minted
           </Typography>
-          <Typography>{totalUnauditedDeposits}</Typography>
+          <Typography variant="body2">
+            {formatEUSD(totalUnauditedDeposits)}
+          </Typography>
         </Box>
         <Box display="flex" justifyContent={'space-between'} width="100%">
-          <Typography color="textSecondary">
-            - eUSD waiting to be unwrapped
+          <Typography color="textSecondary" variant="body2">
+            eUSD waiting to be unwrapped
           </Typography>
-          <Typography>{totalUnauditedBurns}</Typography>
+          <Typography variant="body2">
+            {formatEUSD(totalUnauditedBurns)}
+          </Typography>
         </Box>
       </Box>
     </Box>

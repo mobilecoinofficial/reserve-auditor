@@ -66,9 +66,9 @@ export default function MintsAndBurns({ data }: { data: TTableData[] }) {
             <TableHead>
               <TableRow>
                 <TableCell>Type</TableCell>
-                <TableCell>Amount</TableCell>
+                <TableCell align="right">Amount</TableCell>
                 <TableCell>Timestamp</TableCell>
-                <TableCell>Block Index</TableCell>
+                <TableCell align="right">Block Index</TableCell>
                 <TableCell>Eth Tx</TableCell>
                 <TableCell></TableCell>
               </TableRow>

@@ -86,7 +86,7 @@ function sortData(data: TTableData[]): TTableData[] {
     }
     // unaudited burn
     if ('burn' in td) {
-      return new Date(td.burn.blockIndex)
+      return new Date(td.burn.blockTimestamp)
     }
     // unaudited deposit
     if ('deposit' in td) {
@@ -96,5 +96,6 @@ function sortData(data: TTableData[]): TTableData[] {
     if ('executionDate' in td) {
       return new Date(td.executionDate)
     }
+    console.warn('No match found for table data sorting field:', td)
   }).reverse()
 }

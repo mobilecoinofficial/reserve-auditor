@@ -6,8 +6,12 @@ import useLedgerBalance from '../api/hooks/useLedgerBalance'
 import useSafeBalance from '../api/hooks/useSafeBalance'
 import isTestnet from '../utils/isTestnet'
 import { GnosisSafeContext } from '../contexts'
+import { TopContentData } from './TopContent'
 
-export default function BalanceSummary() {
+export default function BalanceSummary({
+  totalUnauditedDeposits,
+  totalUnauditedBurns,
+}: TopContentData) {
   const ledgerBalance = useLedgerBalance()
   const { mainBalance, hasOtherBalance } = useSafeBalance()
   const gnosisSafeConfig = useContext(GnosisSafeContext)
@@ -20,18 +24,9 @@ export default function BalanceSummary() {
       height="100%"
       width="100%"
       justifyContent="space-between"
-      alignItems="center"
       sx={{ paddingTop: 2, paddingBottom: 2 }}
     >
-      <Box>
-        <Typography variant="subtitle1" color="textSecondary">
-          eUSD on the MobileCoin Network
-        </Typography>
-        <Typography variant="h4" gutterBottom>
-          {ledgerBalance?.totalSupply}
-        </Typography>
-      </Box>
-      <Box>
+      <Box width="100%">
         <Typography color="textSecondary">
           eUSD in the{' '}
           <Link
@@ -43,7 +38,7 @@ export default function BalanceSummary() {
           </Link>
         </Typography>
         <Box display="flex">
-          <Typography variant="h4" sx={{ marginBottom: 2 }}>
+          <Typography variant="h3" sx={{ marginBottom: 2 }}>
             {mainBalance}
           </Typography>
           {hasOtherBalance && (
@@ -51,6 +46,34 @@ export default function BalanceSummary() {
               <ErrorIcon color="warning" />
             </Tooltip>
           )}
+        </Box>
+        <Box
+          display="flex"
+          justifyContent={'space-between'}
+          width="100%"
+          marginBottom={1}
+        >
+          <Typography color="textSecondary">
+            - eUSD on the MobileCoin network
+          </Typography>
+          <Typography>{ledgerBalance?.totalSupply}</Typography>
+        </Box>
+        <Box
+          display="flex"
+          justifyContent={'space-between'}
+          width="100%"
+          marginBottom={1}
+        >
+          <Typography color="textSecondary">
+            - eUSD waiting to be minted
+          </Typography>
+          <Typography>{totalUnauditedDeposits}</Typography>
+        </Box>
+        <Box display="flex" justifyContent={'space-between'} width="100%">
+          <Typography color="textSecondary">
+            - eUSD waiting to be unwrapped
+          </Typography>
+          <Typography>{totalUnauditedBurns}</Typography>
         </Box>
       </Box>
     </Box>

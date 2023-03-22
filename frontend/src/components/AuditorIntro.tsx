@@ -3,7 +3,13 @@ import { Box, Typography, Link } from '@mui/material'
 
 export default function AuditorInfo() {
   return (
-    <Box paddingY={2}>
+    <Box
+      paddingY={2}
+      height="100%"
+      display="flex"
+      flexDirection="column"
+      justifyContent="space-between"
+    >
       <Typography gutterBottom variant="h5" component="div">
         Auditor Info
       </Typography>

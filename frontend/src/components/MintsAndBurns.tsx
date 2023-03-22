@@ -11,7 +11,7 @@ import {
   TableBody,
 } from '@mui/material'
 
-import useMintsAndBurns from '../api/hooks/useMintsAndBurns'
+import useMintsAndBurns, { TTableData } from '../api/hooks/useMintsAndBurns'
 import WrapTableRow, {
   UnAuditedMintTableRow,
   UnauditedWithdrawalTableRow,
@@ -19,9 +19,7 @@ import WrapTableRow, {
 
 const PAGE_LENGTH = 15
 
-export default function MintsAndBurns() {
-  const { sortedData, totalUnauditedBurns, totalUnauditedDeposits } =
-    useMintsAndBurns()
+export default function MintsAndBurns({ data }: { data: TTableData[] }) {
   const [currentPage, setCurrentPage] = useState(1)
   const tableEl = useRef<HTMLTableElement>(null)
   const [distanceBottom, setDistanceBottom] = useState(0)
@@ -36,7 +34,7 @@ export default function MintsAndBurns() {
     }
     if (
       tableEl.current.scrollTop > bottom - distanceBottom &&
-      currentPage * PAGE_LENGTH < sortedData.length
+      currentPage * PAGE_LENGTH < data.length
     ) {
       setCurrentPage(currentPage + 1)
     }
@@ -76,11 +74,9 @@ export default function MintsAndBurns() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedData
-                .slice(0, currentPage * PAGE_LENGTH)
-                .map((row, index) => (
-                  <WrapTableRow rowItem={row} key={`mintOrBurnRow-${index}`} />
-                ))}
+              {data.slice(0, currentPage * PAGE_LENGTH).map((row, index) => (
+                <WrapTableRow rowItem={row} key={`mintOrBurnRow-${index}`} />
+              ))}
             </TableBody>
           </Table>
         </TableContainer>

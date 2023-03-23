@@ -327,6 +327,7 @@ mod tests {
         },
         BurnTxOut, GnosisSafeDeposit, GnosisSafeWithdrawal, MintTx,
     };
+    use chrono::Utc;
     use mc_account_keys::AccountKey;
     use mc_blockchain_types::{BlockContents, BlockVersion};
     use mc_common::{
@@ -369,7 +370,7 @@ mod tests {
             let block_data = ledger_db.get_block_data(block_index).unwrap();
 
             reserve_auditor_db
-                .sync_block(block_data.block(), block_data.contents())
+                .sync_block(block_data.block(), block_data.contents(), Some(Utc::now()))
                 .unwrap();
         }
 
@@ -655,10 +656,11 @@ mod tests {
         let token_id1 = TokenId::from(1);
         let (mint_config_tx1, signers1) = create_mint_config_tx_and_signers(token_id1, &mut rng);
         let config_tx_entity =
-            MintConfigTx::insert_from_core_mint_config_tx(5, &mint_config_tx1, &conn).unwrap();
+            MintConfigTx::insert_from_core_mint_config_tx(5, None, &mint_config_tx1, &conn)
+                .unwrap();
         let mint_tx1 = create_mint_tx(token_id1, &signers1, 100, &mut rng);
         let mint_tx1_entity =
-            MintTx::insert_from_core_mint_tx(5, Some(1), &mint_tx1, &conn).unwrap();
+            MintTx::insert_from_core_mint_tx(5, None, Some(1), &mint_tx1, &conn).unwrap();
 
         let mint_info = service.get_mint_info_by_block(5).unwrap();
         // check that mint tx has been found

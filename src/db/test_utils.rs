@@ -10,6 +10,7 @@ use crate::{
         EthTxValue, GnosisSafeConfig,
     },
 };
+use chrono::Utc;
 use mc_account_keys::burn_address;
 use mc_blockchain_types::{BlockContents, BlockIndex, BlockVersion};
 use mc_common::logger::Logger;
@@ -127,7 +128,7 @@ pub fn append_and_sync(
 
     let block = block_data.block();
     reserve_auditor_db
-        .sync_block(block, block_data.contents())
+        .sync_block(block, block_data.contents(), None)
         .map(|sync_block_data| (sync_block_data, block.index))
 }
 
@@ -157,6 +158,7 @@ pub fn create_gnosis_safe_deposit(
     GnosisSafeDeposit::new(
         None,
         EthTxHash::from_random(rng),
+        Utc::now(),
         EthTxValue::from_str(&format!("{}{}", amount, "000000000000")).unwrap(),
         1,
         EthAddr::from_str(SAFE_ADDR).unwrap(),
@@ -178,7 +180,7 @@ pub fn insert_mint_tx_from_deposit(
     let (_mint_config_tx, signers) = create_mint_config_tx_and_signers(token_id, rng);
     let mut mint_tx = create_mint_tx(token_id, &signers, deposit.amount(), rng);
     mint_tx.prefix.nonce = hex::decode(&deposit.expected_mc_mint_tx_nonce_hex()).unwrap();
-    MintTx::insert_from_core_mint_tx(0, None, &mint_tx, conn).unwrap()
+    MintTx::insert_from_core_mint_tx(0, Some(Utc::now()), None, &mint_tx, conn).unwrap()
 }
 
 /// Create a [BurnTxOut].
@@ -206,7 +208,7 @@ pub fn create_burn_tx_out(
         .add_output(Amount::new(amount, token_id), &burn_address(), rng)
         .unwrap();
 
-    BurnTxOut::from_core_tx_out(0, &tx_out_context.tx_out).unwrap()
+    BurnTxOut::from_core_tx_out(0, Some(Utc::now()), &tx_out_context.tx_out).unwrap()
 }
 
 /// Create and insert a [BurnTxOut].
@@ -232,6 +234,7 @@ pub fn create_gnosis_safe_withdrawal(
     GnosisSafeWithdrawal::new(
         None,
         EthTxHash::from_random(rng),
+        Utc::now(),
         EthTxValue::from_str(&format!("{}{}", amount, "000000000000")).unwrap(),
         1,
         EthAddr::from_str(SAFE_ADDR).unwrap(),
@@ -250,6 +253,7 @@ pub fn create_gnosis_safe_withdrawal_from_burn_tx_out(
     GnosisSafeWithdrawal::new(
         None,
         EthTxHash::from_random(rng),
+        Utc::now(),
         EthTxValue::from_str(&format!("{}{}", burn_tx_out.amount(), "000000000000")).unwrap(),
         1,
         EthAddr::from_str(SAFE_ADDR).unwrap(),

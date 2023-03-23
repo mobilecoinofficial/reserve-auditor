@@ -162,6 +162,7 @@ impl GnosisSync {
                     Ok(GnosisSafeDeposit::new(
                         None,
                         transfer.tx_hash,
+                        tx.execution_date,
                         transfer.value,
                         tx.eth_block_number,
                         transfer.to.clone(),
@@ -458,6 +459,7 @@ impl GnosisSync {
         Ok(GnosisSafeWithdrawal::new(
             None,
             multi_sig_tx.tx_hash,
+            multi_sig_tx.execution_date,
             eth_tx_value,
             multi_sig_tx.eth_block_number,
             multi_sig_tx.safe.clone(),
@@ -487,6 +489,7 @@ mod test {
             EthTxValue,
         },
     };
+    use chrono::{DateTime, Utc};
     use diesel::prelude::*;
     use mc_common::logger::{test_with_logger, Logger};
     use mc_transaction_core::TokenId;
@@ -544,6 +547,9 @@ mod test {
                     "0xa202a4c37f0670557ceeb33f796fba0c187f699f5dd4d8add0eba1c3154b2fa7",
                 )
                 .unwrap(),
+                DateTime::parse_from_rfc3339("2022-06-09T23:59:07Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 EthTxValue(1000000000000000000),
                 10824613,
                 EthAddr::from_str(SAFE_ADDR).unwrap(),
@@ -557,6 +563,9 @@ mod test {
                     "0x4f3124c61c48aa7c7892f8fe426e0c0d8afae100fc0a9aa8e290e530a7632849",
                 )
                 .unwrap(),
+                DateTime::parse_from_rfc3339("2022-06-10T00:11:23Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 EthTxValue(10000000000000000000),
                 10824662,
                 EthAddr::from_str(SAFE_ADDR).unwrap(),
@@ -575,6 +584,7 @@ mod test {
         let (_mint_config_tx, signers) = create_mint_config_tx_and_signers(token_id, &mut rng);
         let mint_tx3 = MintTx::insert_from_core_mint_tx(
             0,
+            None,
             None,
             &create_mint_tx(token_id, &signers, 100, &mut rng),
             &conn,
@@ -611,6 +621,9 @@ mod test {
                     "0x323b145662d2a64de0a55977089b7a89ed6003e341d5a68266a200dde83639d4",
                 )
                 .unwrap(),
+                DateTime::parse_from_rfc3339("2022-06-10T00:04:38Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 EthTxValue(500000000000000000),
                 10824635,
                 EthAddr::from_str(SAFE_ADDR).unwrap(),
@@ -625,6 +638,9 @@ mod test {
                     "0x2f55d7b7620876c1dfc25419937a7fd2538489c1dd3adf6b438396a958d88e28",
                 )
                 .unwrap(),
+                DateTime::parse_from_rfc3339("2022-06-10T00:15:23Z")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 EthTxValue(2000000000000000000),
                 10824678,
                 EthAddr::from_str(SAFE_ADDR).unwrap(),

@@ -132,6 +132,7 @@ impl ReserveAuditorApi for ReserveAuditorService {
 mod tests {
     use super::*;
     use crate::db::test_utils::{append_and_sync, TestDbContext};
+    use chrono::Utc;
     use grpcio::{ChannelBuilder, Environment, Server, ServerBuilder};
     use mc_account_keys::AccountKey;
     use mc_blockchain_types::{BlockContents, BlockVersion};
@@ -192,7 +193,7 @@ mod tests {
             let block_data = ledger_db.get_block_data(block_index).unwrap();
 
             reserve_auditor_db
-                .sync_block(block_data.block(), block_data.contents())
+                .sync_block(block_data.block(), block_data.contents(), Some(Utc::now()))
                 .unwrap();
         }
 

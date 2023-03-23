@@ -57,6 +57,43 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
         amount={rowItem.mint.amount}
         timestamp={rowItem.mint.blockTimestamp}
         blockIndex={rowItem.mint.blockIndex}
+        ethTxHash={rowItem.deposit.ethTxHash}
+        detailsComponent={
+          <Box>
+            <Box sx={{ marginBottom: 4 }}>
+              <Typography variant="body2" color="textSecondary">
+                Funds desposited into safe
+              </Typography>
+              <Typography gutterBottom>
+                {formatEUSD(rowItem.deposit.amount)}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Deposit block confirmation time
+              </Typography>
+              <Typography gutterBottom>
+                {moment(rowItem.deposit.executionDate).format(
+                  'MMM D, YYYY h:mm A'
+                )}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="body2" color="textSecondary">
+                eUSD Minted
+              </Typography>
+              <Typography gutterBottom>
+                {formatEUSD(rowItem.mint.amount)}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Mint block confirmation time
+              </Typography>
+              <Typography gutterBottom>
+                {moment(rowItem.mint.blockTimestamp).format(
+                  'MMM D, YYYY h:mm A'
+                )}
+              </Typography>
+            </Box>
+          </Box>
+        }
       />
     )
   }
@@ -69,6 +106,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
         amount={rowItem.burn.amount}
         timestamp={rowItem.burn.blockTimestamp}
         blockIndex={rowItem.burn.blockIndex}
+        ethTxHash={rowItem.withdrawal.ethTxHash}
       />
     )
   }
@@ -156,59 +194,68 @@ function TableRow({
 }: TableRowProps) {
   const [expanded, setExpanded] = useState(false)
   return (
-    <StyledTableRow hover>
-      <StyledTableCell sx={{ borderLeft: borderStyle }}>
-        <Box display="flex">
-          {icon}
-          <Typography marginLeft={1}>{type}</Typography>
-        </Box>
-      </StyledTableCell>
-      <StyledTableCell align="right">
-        <Typography sx={{ fontFamily: 'SohneMono-Buch' }}>
-          {formatEUSD(amount)}
-        </Typography>
-      </StyledTableCell>
-      <StyledTableCell>
-        {moment(timestamp).format('MMM D, YYYY h:mm A')}
-      </StyledTableCell>
-      <StyledTableCell
-        sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}
-        align="right"
-      >
-        {blockIndex ? (
-          <Link
-            href={`${BLOCK_EXPLORER_URL}/blocks/${blockIndex}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {blockIndex}
-          </Link>
-        ) : (
-          '--'
-        )}
-      </StyledTableCell>
-      <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
-        {ethTxHash ? (
-          <Link
-            target="_blank"
-            rel="noreferrer"
-            href={`${ETHERSCAN_URL}/tx/${ethTxHash}`}
-          >
-            {abbreviateHash(ethTxHash)}
-          </Link>
-        ) : (
-          '--'
-        )}
-      </StyledTableCell>
-      <StyledTableCell sx={{ borderRight: borderStyle }}>
-        <Button
-          onClick={() => setExpanded(!expanded)}
-          sx={{ textTransform: 'none', color: 'text.secondary' }}
+    <>
+      <StyledTableRow hover>
+        <StyledTableCell sx={{ borderLeft: borderStyle }}>
+          <Box display="flex">
+            {icon}
+            <Typography marginLeft={1}>{type}</Typography>
+          </Box>
+        </StyledTableCell>
+        <StyledTableCell align="right">
+          <Typography>{formatEUSD(amount)}</Typography>
+        </StyledTableCell>
+        <StyledTableCell>
+          <Typography>
+            {moment(timestamp).format('MMM D, YYYY h:mm A')}
+          </Typography>
+        </StyledTableCell>
+        <StyledTableCell
+          sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}
+          align="right"
         >
-          Details{' '}
-          {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-        </Button>
-      </StyledTableCell>
-    </StyledTableRow>
+          {blockIndex ? (
+            <Link
+              href={`${BLOCK_EXPLORER_URL}/blocks/${blockIndex}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {blockIndex}
+            </Link>
+          ) : (
+            '--'
+          )}
+        </StyledTableCell>
+        <StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
+          {ethTxHash ? (
+            <Link
+              target="_blank"
+              rel="noreferrer"
+              href={`${ETHERSCAN_URL}/tx/${ethTxHash}`}
+            >
+              {abbreviateHash(ethTxHash)}
+            </Link>
+          ) : (
+            '--'
+          )}
+        </StyledTableCell>
+        <StyledTableCell sx={{ borderRight: borderStyle }}>
+          <Button
+            onClick={() => setExpanded(!expanded)}
+            sx={{ textTransform: 'none', color: 'text.secondary' }}
+          >
+            Details{' '}
+            {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </Button>
+        </StyledTableCell>
+      </StyledTableRow>
+      <StyledTableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={expanded} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>{detailsComponent}</Box>
+          </Collapse>
+        </TableCell>
+      </StyledTableRow>
+    </>
   )
 }

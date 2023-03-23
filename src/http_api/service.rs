@@ -7,7 +7,8 @@ use mc_transaction_core::TokenId;
 use crate::{
     db::{
         AuditedBurn, AuditedMint, BlockAuditData, BlockBalance, BurnTxOut, Counters,
-        GnosisSafeDeposit, MintConfig, MintConfigTx, MintTx, ReserveAuditorDb, GnosisSafeWithdrawal,
+        GnosisSafeDeposit, GnosisSafeWithdrawal, MintConfig, MintConfigTx, MintTx,
+        ReserveAuditorDb,
     },
     gnosis::GnosisSafeConfig,
     http_api::api_types::{
@@ -303,14 +304,14 @@ impl ReserveAuditorHttpService {
         let conn = self.reserve_auditor_db.get_conn()?;
         let query_result = GnosisSafeWithdrawal::find_unaudited_withdrawals(&conn)?;
 
-        Ok(query_result)   
+        Ok(query_result)
     }
 
     pub fn get_unaudited_mints(&self) -> Result<Vec<MintTx>, Error> {
         let conn = self.reserve_auditor_db.get_conn()?;
         let query_result = MintTx::find_unaudited_mint_txs(&conn)?;
 
-        Ok(query_result)  
+        Ok(query_result)
     }
 }
 

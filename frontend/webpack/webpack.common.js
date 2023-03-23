@@ -42,6 +42,10 @@ module.exports = {
         test: /\.(woff(2)?|eot|ttf|otf|svg|)$/i,
         type: 'asset/inline',
       },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
     ],
   },
 
@@ -61,8 +65,8 @@ module.exports = {
     modules: ['node_modules'],
     extensions: ['.tsx', '.ts', '.js'],
     fallback: {
-      process: require.resolve("process/browser")
-    }
+      process: require.resolve('process/browser'),
+    },
   },
   stats: 'errors-only',
 }

@@ -1,2 +1,3 @@
 export { MCIcon } from './MCIcon'
-export { eUSDIcon } from './eUSDIcon'
+export { EUSDIcon } from './EUSDIcon'
+export { ReserveIcon } from './ReserveIcon'

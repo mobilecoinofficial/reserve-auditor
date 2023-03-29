@@ -22,7 +22,6 @@ import { TUnauditedBurn } from '../../types/burn'
 export type TTableData =
   | TAuditedBurn
   | TAuditedMint
-  | TBurn
   | TMint
   | TUnauditedBurn
   | TUnauditedSafeDeposit

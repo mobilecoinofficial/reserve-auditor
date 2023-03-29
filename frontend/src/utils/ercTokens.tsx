@@ -23,5 +23,9 @@ export function getSymbolFromContactAddress(contactAddress: string) {
 }
 
 export function getIconFromContactAddress(contactAddress: string) {
-  return contactAddress === rsvTokenAddress ? <ReserveIcon /> : <EUSDIcon />
+  return contactAddress === rsvTokenAddress ? (
+    <ReserveIcon />
+  ) : (
+    <EUSDIcon pxSize={17} />
+  )
 }

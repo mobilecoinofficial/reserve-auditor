@@ -70,12 +70,27 @@ export default function MintsAndBurns({ data }: { data: TTableData[] }) {
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Type</TableCell>
-                <TableCell align="right">Amount</TableCell>
-                <TableCell>Timestamp</TableCell>
-                <TableCell align="right">Block Index</TableCell>
-                <TableCell>Eth Tx</TableCell>
-                <TableCell></TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    Type
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    Amount
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    Date
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    Hash/Block
+                  </Typography>
+                </TableCell>
+                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>

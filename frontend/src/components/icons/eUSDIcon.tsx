@@ -2,7 +2,7 @@ import React from 'react'
 
 export const EUSDIcon = ({ pxSize }: { pxSize?: number }) => {
   if (!pxSize) {
-    pxSize = 24
+    pxSize = 16
   }
   return (
     <svg

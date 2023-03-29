@@ -34,7 +34,11 @@ import {
   TUnauditedSafeDeposit,
 } from '../types'
 import { formatEUSD } from '../utils/mcNetworkTokens'
-import { getIconFromContactAddress, eUSDTokenAddress } from '../utils/ercTokens'
+import {
+  getIconFromContactAddress,
+  eUSDTokenAddress,
+  getSymbolFromContactAddress,
+} from '../utils/ercTokens'
 import { GnosisSafeContext } from '../contexts'
 import { abbreviateHash } from '../utils/truncate'
 import { Mint } from './Mint'
@@ -54,36 +58,69 @@ const StyledTableRow = styled(MUITableRow)(() => ({
   backgroundColor: 'white',
 }))
 
-const SpacerRow = styled(MUITableRow)(({ theme }) => ({
-  backgroundColor: theme.palette.background.default,
-  border: 'none',
-}))
+const SpacerRow = () => (
+  <MUITableRow
+    sx={{ backgroundColor: 'theme.palette.background.default', border: 'none' }}
+  >
+    <TableCell colSpan={5}></TableCell>
+  </MUITableRow>
+)
 
 const dateFormat = 'MMM D, YYYY'
 const preciseDateFormat = 'MMM D, YYYY h:mm A'
+
+function EthLink({ hash }: { hash: string }) {
+  return (
+    <Link target="_blank" rel="noreferrer" href={`${ETHERSCAN_URL}/tx/${hash}`}>
+      <Typography>{abbreviateHash(hash)}</Typography>
+    </Link>
+  )
+}
+
+function MCLink({ blockIndex }: { blockIndex: number }) {
+  return (
+    <Link
+      href={`${BLOCK_EXPLORER_URL}/blocks/${blockIndex}`}
+      target="_blank"
+      rel="noreferrer"
+    >
+      <Typography>{blockIndex}</Typography>
+    </Link>
+  )
+}
 
 type DetailsProps = {
   time: string
   link: React.ReactNode
   amount: number
-  title: string
+  title?: string
+  header?: string
 }
 
-function DetailsSection({ time, link, amount, title }: DetailsProps) {
+function DetailsSection({ time, link, amount, title, header }: DetailsProps) {
   return (
-    <Box>
-      <Typography variant="body2" color="textSecondary">
-        {title}
-      </Typography>
-      <Typography gutterBottom>{formatEUSD(amount)}</Typography>
-      <Typography variant="body2" color="textSecondary">
-        Blockchain Link
-      </Typography>
-      <Typography gutterBottom>{link}</Typography>
-      <Typography variant="body2" color="textSecondary">
-        Block confirmation time
-      </Typography>
-      <Typography>{moment(time).format(preciseDateFormat)}</Typography>
+    <Box paddingTop={2} paddingBottom={1} paddingRight={6}>
+      <Typography variant="subtitle1">{header}</Typography>
+      <ul style={{ paddingLeft: '16px' }}>
+        <li>
+          <Typography variant="body2" color="textSecondary">
+            {title}
+          </Typography>
+          <Typography gutterBottom>{formatEUSD(amount)}</Typography>
+        </li>
+        <li>
+          <Typography variant="body2" color="textSecondary">
+            Blockchain Link
+          </Typography>
+          <Typography gutterBottom>{link}</Typography>
+        </li>
+        <li>
+          <Typography variant="body2" color="textSecondary">
+            Block confirmation time
+          </Typography>
+          <Typography>{moment(time).format(preciseDateFormat)}</Typography>
+        </li>
+      </ul>
     </Box>
   )
 }
@@ -97,44 +134,30 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           type="Wrap + Mint"
           icon={<LayersIcon color="success" />}
           amount={rowItem.mint.amount}
-          amountIcon={<EUSDIcon pxSize={17} />}
+          amountIcon={<EUSDIcon />}
           timestamp={rowItem.mint.blockTimestamp}
           detailsComponent={
-            <Box>
-              <Box sx={{ marginBottom: 4 }}>
-                <Typography variant="body2" color="textSecondary">
-                  Funds desposited into safe
-                </Typography>
-                <Typography gutterBottom>
-                  {formatEUSD(rowItem.deposit.amount)}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Deposit block confirmation time
-                </Typography>
-                <Typography gutterBottom>
-                  {moment(rowItem.deposit.executionDate).format(dateFormat)}
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="body2" color="textSecondary">
-                  eUSD Minted
-                </Typography>
-                <Typography gutterBottom>
-                  {formatEUSD(rowItem.mint.amount)}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Mint block confirmation time
-                </Typography>
-                <Typography gutterBottom>
-                  {moment(rowItem.mint.blockTimestamp).format(dateFormat)}
-                </Typography>
-              </Box>
+            <Box display="flex">
+              <DetailsSection
+                header="Wrap"
+                time={rowItem.deposit.executionDate}
+                amount={rowItem.deposit.amount}
+                title={`${getSymbolFromContactAddress(
+                  rowItem.deposit.tokenAddr
+                )} desposited into safe`}
+                link={<EthLink hash={rowItem.deposit.ethTxHash} />}
+              />
+              <DetailsSection
+                time={rowItem.mint.blockTimestamp}
+                amount={rowItem.mint.amount}
+                title="eUSD Minted"
+                header="Mint"
+                link={<MCLink blockIndex={rowItem.mint.blockIndex} />}
+              />
             </Box>
           }
         />
-        <SpacerRow>
-          <TableCell colSpan={5} sx={{ borderTop: borderStyle }}></TableCell>
-        </SpacerRow>
+        <SpacerRow />
       </>
     )
   }
@@ -146,12 +169,30 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           type="Unwrap + Burn"
           icon={<LocalFireDepartmentIcon color="error" />}
           amount={rowItem.burn.amount}
-          amountIcon={<EUSDIcon pxSize={17} />}
+          amountIcon={<EUSDIcon />}
           timestamp={rowItem.burn.blockTimestamp}
+          detailsComponent={
+            <Box display="flex">
+              <DetailsSection
+                header="Unwrap"
+                time={rowItem.withdrawal.executionDate}
+                amount={rowItem.withdrawal.amount}
+                title={`${getSymbolFromContactAddress(
+                  rowItem.withdrawal.tokenAddr
+                )} withdrawn from safe`}
+                link={<EthLink hash={rowItem.withdrawal.ethTxHash} />}
+              />
+              <DetailsSection
+                header="Burn"
+                time={rowItem.burn.blockTimestamp}
+                amount={rowItem.burn.amount}
+                title="eUSD Burned"
+                link={<MCLink blockIndex={rowItem.burn.blockIndex} />}
+              />
+            </Box>
+          }
         />
-        <SpacerRow>
-          <TableCell colSpan={5} sx={{ borderTop: borderStyle }}></TableCell>
-        </SpacerRow>
+        <SpacerRow />
       </>
     )
   }
@@ -169,42 +210,26 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               width={24}
               height={24}
             >
-              <EUSDIcon pxSize={17} />
+              <EUSDIcon />
             </Box>
           }
           amount={rowItem.amount}
-          amountIcon={<EUSDIcon pxSize={17} />}
+          amountIcon={<EUSDIcon />}
           timestamp={rowItem.blockTimestamp}
-          hash={
-            <Link
-              href={`${BLOCK_EXPLORER_URL}/blocks/${rowItem.blockIndex}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {rowItem.blockIndex}
-            </Link>
-          }
           detailsComponent={
             <DetailsSection
               time={rowItem.blockTimestamp}
-              link={
-                <Link
-                  href={`${BLOCK_EXPLORER_URL}/blocks/${rowItem.blockIndex}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {rowItem.blockIndex}
-                </Link>
-              }
+              link={<MCLink blockIndex={rowItem.blockIndex} />}
               amount={rowItem.amount}
               title="eUSD Minted"
             />
           }
         />
-        <TableRow type="Wrap" icon={<SwipeDownAltIcon color="info" />} />
-        <SpacerRow>
-          <TableCell colSpan={5} sx={{ borderTop: borderStyle }}></TableCell>
-        </SpacerRow>
+        <TableRow
+          type="Wrap"
+          icon={<SwipeDownAltIcon sx={{ color: 'warning.main' }} />}
+        />
+        <SpacerRow />
       </>
     )
   }
@@ -217,11 +242,21 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           icon={<DeleteForeverIcon />}
           amount={rowItem.burn.amount}
           timestamp={rowItem.burn.blockTimestamp}
-          amountIcon={<EUSDIcon pxSize={17} />}
+          amountIcon={<EUSDIcon />}
+          detailsComponent={
+            <DetailsSection
+              time={rowItem.burn.blockTimestamp}
+              link={<MCLink blockIndex={rowItem.burn.blockIndex} />}
+              amount={rowItem.burn.amount}
+              title="eUSD Burned"
+            />
+          }
         />
-        <SpacerRow>
-          <TableCell colSpan={5} sx={{ borderTop: borderStyle }}></TableCell>
-        </SpacerRow>
+        <TableRow
+          type="Unwrap"
+          icon={<SwipeUpAltIcon sx={{ color: 'warning.main' }} />}
+        />
+        <SpacerRow />
       </>
     )
   }
@@ -231,14 +266,24 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
       <>
         <TableRow
           type="Wrap"
-          icon={<SwipeDownAltIcon color="info" />}
+          icon={<SwipeDownAltIcon />}
           amount={rowItem.deposit.amount}
           amountIcon={getIconFromContactAddress(rowItem.deposit.tokenAddr)}
           timestamp={rowItem.deposit.executionDate}
+          detailsComponent={
+            <DetailsSection
+              time={rowItem.deposit.executionDate}
+              link={<EthLink hash={rowItem.deposit.ethTxHash} />}
+              amount={rowItem.deposit.amount}
+              title="eUSD Burned"
+            />
+          }
         />
-        <SpacerRow>
-          <TableCell colSpan={5} sx={{ borderTop: borderStyle }}></TableCell>
-        </SpacerRow>
+        <TableRow
+          type="Mint"
+          icon={<LayersIcon sx={{ color: 'warning.main' }} />}
+        />
+        <SpacerRow />
       </>
     )
   }
@@ -248,14 +293,24 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
       <>
         <TableRow
           type="Unwrap"
-          icon={<SwipeUpAltIcon color="info" />}
+          icon={<SwipeUpAltIcon />}
           amount={rowItem.amount}
           amountIcon={getIconFromContactAddress(rowItem.tokenAddr)}
           timestamp={rowItem.executionDate}
+          detailsComponent={
+            <DetailsSection
+              time={rowItem.executionDate}
+              link={<EthLink hash={rowItem.ethTxHash} />}
+              amount={rowItem.amount}
+              title="eUSD Withdrawn"
+            />
+          }
         />
-        <SpacerRow>
-          <TableCell colSpan={5} sx={{ borderTop: borderStyle }}></TableCell>
-        </SpacerRow>
+        <TableRow
+          type="Burn"
+          icon={<LocalFireDepartmentIcon sx={{ color: 'warning.main' }} />}
+        />
+        <SpacerRow />
       </>
     )
   }
@@ -269,7 +324,6 @@ type TableRowProps = {
   amount?: number
   amountIcon?: React.ReactNode
   timestamp?: string
-  hash?: React.ReactNode
   detailsComponent?: React.ReactNode
 }
 
@@ -279,18 +333,17 @@ function TableRow({
   amount,
   amountIcon,
   timestamp,
-  hash,
   detailsComponent,
 }: TableRowProps) {
   const [expanded, setExpanded] = useState(false)
   return (
     <>
       <StyledTableRow hover>
-        <StyledTableCell>
-          <Box display="flex">
+        <StyledTableCell sx={{ borderLeft: borderStyle }}>
+          <Stack direction="row" alignItems="center" gap={1}>
             {icon}
-            <Typography marginLeft={1}>{type}</Typography>
-          </Box>
+            <Typography>{type}</Typography>
+          </Stack>
         </StyledTableCell>
         <StyledTableCell>
           {amount ? (
@@ -306,26 +359,18 @@ function TableRow({
           {timestamp ? (
             <Typography>{moment(timestamp).format(dateFormat)}</Typography>
           ) : (
-            <Stack direction="row" alignItems="center" gap={1}>
-              <Typography display="inline" color="warning.main">
-                Pending...
-              </Typography>
-              <AccessTimeIcon
-                display="inline"
-                color="warning"
-                fontSize="small"
-              />
-            </Stack>
+            <Typography display="inline" color="warning.main">
+              Pending...
+            </Typography>
           )}
         </StyledTableCell>
-        <StyledTableCell>{hash ?? '--'}</StyledTableCell>
-        <StyledTableCell>
+        <StyledTableCell sx={{ borderRight: borderStyle }}>
           {detailsComponent ? (
             <Button
               onClick={() => setExpanded(!expanded)}
               sx={{ textTransform: 'none', color: 'text.secondary' }}
             >
-              Details{' '}
+              <Typography>Details </Typography>
               {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </Button>
           ) : (
@@ -334,7 +379,14 @@ function TableRow({
         </StyledTableCell>
       </StyledTableRow>
       <StyledTableRow>
-        <TableCell colSpan={6} sx={{ paddingY: 0 }}>
+        <TableCell
+          colSpan={6}
+          sx={{
+            paddingY: 0,
+            borderLeft: borderStyle,
+            borderRight: borderStyle,
+          }}
+        >
           <Collapse in={expanded} timeout="auto" unmountOnExit>
             {detailsComponent}
           </Collapse>

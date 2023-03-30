@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   TableRow as MUITableRow,
@@ -6,46 +6,26 @@ import {
   Typography,
   Link,
   Button,
-  Table,
-  IconButton,
   Collapse,
-  TableBody,
-  TableContainer,
   Stack,
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import AccessTimeIcon from '@mui/icons-material/AccessTime'
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
 import LayersIcon from '@mui/icons-material/Layers'
 import SwipeUpAltIcon from '@mui/icons-material/SwipeUpAlt'
 import SwipeDownAltIcon from '@mui/icons-material/SwipeDownAlt'
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import moment from 'moment'
 
-import {
-  TAuditedBurn,
-  TAuditedMint,
-  TMint,
-  TWithdrawal,
-  TUnauditedBurn,
-  TUnauditedSafeDeposit,
-} from '../types'
 import { formatEUSD } from '../utils/mcNetworkTokens'
 import {
   getIconFromContactAddress,
-  eUSDTokenAddress,
   getSymbolFromContactAddress,
 } from '../utils/ercTokens'
-import { GnosisSafeContext } from '../contexts'
 import { abbreviateHash } from '../utils/truncate'
-import { Mint } from './Mint'
-import CopyableField from './CopyableField'
 import { TTableData } from '../api/hooks/useMintsAndBurns'
 import { EUSDIcon } from './icons'
-import { Details } from '@mui/icons-material'
 
 const borderStyle = '1px solid #cecece'
 
@@ -239,7 +219,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
       <>
         <TableRow
           type="Burn"
-          icon={<DeleteForeverIcon />}
+          icon={<LocalFireDepartmentIcon />}
           amount={rowItem.burn.amount}
           timestamp={rowItem.burn.blockTimestamp}
           amountIcon={<EUSDIcon />}
@@ -342,14 +322,14 @@ function TableRow({
         <StyledTableCell sx={{ borderLeft: borderStyle }}>
           <Stack direction="row" alignItems="center" gap={1}>
             {icon}
-            <Typography>{type}</Typography>
+            {type}
           </Stack>
         </StyledTableCell>
         <StyledTableCell>
           {amount ? (
             <Stack direction="row" alignItems="center" gap={1}>
               {amountIcon}
-              <Typography>{formatEUSD(amount)}</Typography>
+              {formatEUSD(amount)}
             </Stack>
           ) : (
             '--'
@@ -357,11 +337,9 @@ function TableRow({
         </StyledTableCell>
         <StyledTableCell>
           {timestamp ? (
-            <Typography>{moment(timestamp).format(dateFormat)}</Typography>
+            moment(timestamp).format(dateFormat)
           ) : (
-            <Typography display="inline" color="warning.main">
-              Pending...
-            </Typography>
+            <Box color="warning.main">Pending...</Box>
           )}
         </StyledTableCell>
         <StyledTableCell sx={{ borderRight: borderStyle }}>
@@ -370,7 +348,7 @@ function TableRow({
               onClick={() => setExpanded(!expanded)}
               sx={{ textTransform: 'none', color: 'text.secondary' }}
             >
-              <Typography>Details </Typography>
+              Details
               {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </Button>
           ) : (
@@ -394,46 +372,4 @@ function TableRow({
       </StyledTableRow>
     </>
   )
-}
-
-{
-  /* <StyledTableRow>
-<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-  <Collapse in={expanded} timeout="auto" unmountOnExit>
-    <Box sx={{ margin: 1 }}>{detailsComponent}</Box>
-  </Collapse>
-</TableCell>
-</StyledTableRow> */
-}
-
-{
-  /* <StyledTableCell
-sx={{ width: 180, fontFamily: 'SohneMono-Buch' }}
-align="right"
->
-{blockIndex ? (
-  <Link
-    href={`${BLOCK_EXPLORER_URL}/blocks/${blockIndex}`}
-    target="_blank"
-    rel="noreferrer"
-  >
-    {blockIndex}
-  </Link>
-) : (
-  '--'
-)}
-</StyledTableCell>
-<StyledTableCell sx={{ fontFamily: 'SohneMono-Buch' }}>
-{ethTxHash ? (
-  <Link
-    target="_blank"
-    rel="noreferrer"
-    href={`${ETHERSCAN_URL}/tx/${ethTxHash}`}
-  >
-    {abbreviateHash(ethTxHash)}
-  </Link>
-) : (
-  '--'
-)}
-</StyledTableCell> */
 }

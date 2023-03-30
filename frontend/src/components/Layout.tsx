@@ -1,10 +1,9 @@
 import React from 'react'
 import { Container, Toolbar, Grid } from '@mui/material'
 
-import Header from '../components/Header'
-import TopContent from '../components/TopContent'
-import MintsAndBurns from '../components/MintsAndBurns'
-import BottomContent from '../components/BottomContent'
+import Header from './Header'
+import TopContent from './TopContent'
+import MintsAndBurns from './MintsAndBurns'
 import useMintsAndBurns from '../api/hooks/useMintsAndBurns'
 
 export default function Layout() {

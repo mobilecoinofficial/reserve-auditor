@@ -1,7 +1,6 @@
 import React, { useState, useRef, useLayoutEffect } from 'react'
 import {
   Box,
-  Grid,
   Typography,
   TableContainer,
   Table,
@@ -11,11 +10,8 @@ import {
   TableBody,
 } from '@mui/material'
 
-import useMintsAndBurns, { TTableData } from '../api/hooks/useMintsAndBurns'
-import WrapTableRow, {
-  UnAuditedMintTableRow,
-  UnauditedWithdrawalTableRow,
-} from './WrapTableRow'
+import { TTableData } from '../api/hooks/useMintsAndBurns'
+import WrapTableRow from './WrapTableRow'
 
 const PAGE_LENGTH = 15
 const TOP_CONTENT_HEIGHT = 264

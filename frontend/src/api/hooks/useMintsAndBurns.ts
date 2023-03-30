@@ -4,7 +4,6 @@ import { sortBy, sumBy } from 'lodash'
 import {
   TAuditedBurn,
   TAuditedMint,
-  TBurn,
   TMint,
   TUnauditedSafeDeposit,
   TWithdrawal,

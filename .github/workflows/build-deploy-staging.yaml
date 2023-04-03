@@ -1,5 +1,4 @@
----
-name: shared-cd
+name: build and deploy staging
 
 env:
   DOCKERHUB_ORG: mobilecoin
@@ -10,50 +9,83 @@ env:
 
 on:
   push:
-    branches:
-      - release/*
+    tags:
+    - 'v*.*.*'
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        versions: 
-          - {mobilecoind: v4.0.2-test, prefix: testnet}
-          - {mobilecoind: v4.0.2, prefix: mainnet}
-
-    name: Build
+  frontend:
+    name: build-frontend
     runs-on: [self-hosted, Linux, large]
-    outputs:
-      version: ${{ steps.version_output.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - name: Extract version
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        id: version_output
-        with:
-          action: generate-metadata
-
       - name: Setup Docker Buildx
         id: buildx
-        if: "! contains(github.event.head_commit.message, '[skip docker]')"
         uses: docker/setup-buildx-action@v2
         with:
           install: true
 
       - name: Login to DockerHub
-        if: "! contains(github.event.head_commit.message, '[skip docker]')"
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Publish frontend to DockerHub
+        uses: docker/build-push-action@v3
+        id: docker-push-frontend
+        with:
+          context: .
+          file: .internal-ci/docker/Dockerfile.frontend
+          tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ github.ref_name }}
+          push: true
+
+  backend:
+    strategy:
+      matrix:
+        versions: 
+          - {mobilecoind: v4.0.2-test, prefix: testnet}
+          - {mobilecoind: v4.0.2, prefix: mainnet}
+
+    name: Build-backend
+    runs-on: [self-hosted, Linux, large]
+    outputs:
+      version: ${{ steps.docker_meta.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          install: true
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Generate Docker Tags
+        id: docker_meta
+        uses: docker/metadata-action@v4
+        with:
+          flavor: latest=true
+          images: mobilecoin/reserve-auditor
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern=v{{version}}
+            type=sha
+
+
       - name: Publish backend to DockerHub
         uses: docker/build-push-action@v3
-        if: "! contains(github.event.head_commit.message, '[skip docker]')"
         id: docker-push-backend
         with:
           context: .
@@ -61,23 +93,18 @@ jobs:
             MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
+          tags: ${{ steps.docker_meta.outputs.tags }}-${{ matrix.versions.prefix }}
           push: true
-          cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
-          cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}:buildcache-${{ steps.version_output.outputs.version }}
 
-      - name: Publish frontend to DockerHub
-        uses: docker/build-push-action@v3
-        if: "! contains(github.event.head_commit.message, '[skip docker]')"
-        id: docker-push-frontend
+  harbor:
+    needs: backend
+    name: Publish to Harbor
+    runs-on: [self-hosted, Linux, small]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          context: .
-          file: .internal-ci/docker/Dockerfile.frontend
-          labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ steps.version_output.outputs.version }}
-          push: true
-          cache-from: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
-          cache-to: type=registry,ref=${{ env.DOCKERHUB_ORG }}/${{ env.REPO_NAME }}-frontend:buildcache-${{ steps.version_output.outputs.version }}
+          submodules: recursive
 
       - name: Package and publish chart
         uses: mobilecoinofficial/gha-k8s-toolbox@v1
@@ -86,14 +113,14 @@ jobs:
           chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
           chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
           chart_repo: ${{ env.CHART_REPO }}
-          chart_app_version: ${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
-          chart_version: ${{ steps.version_output.outputs.version }}-${{ matrix.versions.prefix }}
+          chart_app_version: ${{ needs.backend.outputs.version }}
+          chart_version: ${{ needs.backend.outputs.version }}
           chart_path: ${{ env.CHART_PATH }}
 
   deploy:
     name: Deploy
     runs-on: [self-hosted, Linux]
-    needs: build
+    needs: [backend,harbor]
     strategy:
       matrix:
         target: [mainnet, testnet]
@@ -105,7 +132,7 @@ jobs:
         uses: mobilecoinofficial/gha-k8s-toolbox@v1
         with:
           action: namespace-create
-          namespace: ${{ matrix.target }}-reserve-auditor
+          namespace: reserve-auditor-staging
           rancher_cluster: ${{ env.TARGET_CLUSTER }}
           rancher_url: ${{ secrets.RANCHER_B_URL }}
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
@@ -115,13 +142,14 @@ jobs:
         with:
           action: helm-deploy
           rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          namespace: ${{ matrix.target }}-reserve-auditor
+          namespace: reserve-auditor-staging
           release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
           rancher_url: ${{ secrets.RANCHER_B_URL }}
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
           chart_repo: ${{ env.CHART_REPO }}
           chart_name: ${{ env.REPO_NAME}}
-          chart_version: ${{ needs.build.outputs.version }}-${{ matrix.target }}
+          chart_version: ${{ needs.backend.outputs.version }}
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
           chart_set: |
-            --set=frontend.image.tag=${{ needs.build.outputs.version }}
+            --set=frontend.image.tag=${{ needs.backend.outputs.version }}
+            --set=ingress.host=auditor.stage.${{ matrix.target }}.mobilecoin.com

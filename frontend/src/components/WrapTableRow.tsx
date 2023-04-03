@@ -14,8 +14,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
 import LayersIcon from '@mui/icons-material/Layers'
-import SwipeUpAltIcon from '@mui/icons-material/SwipeUpAlt'
-import SwipeDownAltIcon from '@mui/icons-material/SwipeDownAlt'
+import DataUsageIcon from '@mui/icons-material/DataUsage'
 import moment from 'moment'
 
 import { formatEUSD } from '../utils/mcNetworkTokens'
@@ -28,6 +27,8 @@ import { TTableData } from '../api/hooks/useMintsAndBurns'
 import { EUSDIcon } from './icons'
 
 const borderStyle = '1px solid #cecece'
+
+const COLUMN_ONE_WIDTH = 215
 
 const StyledTableCell = styled(TableCell)(() => ({
   backgroundColor: 'inherit',
@@ -52,7 +53,7 @@ const preciseDateFormat = 'MMM D, YYYY h:mm A'
 function EthLink({ hash }: { hash: string }) {
   return (
     <Link target="_blank" rel="noreferrer" href={`${ETHERSCAN_URL}/tx/${hash}`}>
-      <Typography>{abbreviateHash(hash)}</Typography>
+      {abbreviateHash(hash)}
     </Link>
   )
 }
@@ -64,7 +65,7 @@ function MCLink({ blockIndex }: { blockIndex: number }) {
       target="_blank"
       rel="noreferrer"
     >
-      <Typography>{blockIndex}</Typography>
+      {blockIndex}
     </Link>
   )
 }
@@ -72,14 +73,22 @@ function MCLink({ blockIndex }: { blockIndex: number }) {
 type DetailsProps = {
   time: string
   link: React.ReactNode
+  linkTitle: string
   amount: number
-  title?: string
+  title: string
   header?: string
 }
 
-function DetailsSection({ time, link, amount, title, header }: DetailsProps) {
+function DetailsSection({
+  time,
+  link,
+  amount,
+  title,
+  header,
+  linkTitle,
+}: DetailsProps) {
   return (
-    <Box paddingTop={2} paddingBottom={1} paddingRight={6}>
+    <Box paddingTop={2} paddingBottom={1} width={COLUMN_ONE_WIDTH}>
       <Typography variant="subtitle1">{header}</Typography>
       <ul style={{ paddingLeft: '16px' }}>
         <li>
@@ -90,7 +99,7 @@ function DetailsSection({ time, link, amount, title, header }: DetailsProps) {
         </li>
         <li>
           <Typography variant="body2" color="textSecondary">
-            Blockchain Link
+            {linkTitle}
           </Typography>
           <Typography gutterBottom>{link}</Typography>
         </li>
@@ -116,6 +125,11 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           amount={rowItem.mint.amount}
           amountIcon={<EUSDIcon />}
           timestamp={rowItem.mint.blockTimestamp}
+          link={
+            <Typography variant="body2" color="text.secondary">
+              Completed
+            </Typography>
+          }
           detailsComponent={
             <Box display="flex">
               <DetailsSection
@@ -126,6 +140,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                   rowItem.deposit.tokenAddr
                 )} desposited into safe`}
                 link={<EthLink hash={rowItem.deposit.ethTxHash} />}
+                linkTitle="Eth Tx Hash"
               />
               <DetailsSection
                 time={rowItem.mint.blockTimestamp}
@@ -133,6 +148,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                 title="eUSD Minted"
                 header="Mint"
                 link={<MCLink blockIndex={rowItem.mint.blockIndex} />}
+                linkTitle="MobileCoin Block Index"
               />
             </Box>
           }
@@ -146,13 +162,26 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
     return (
       <>
         <TableRow
-          type="Unwrap + Burn"
-          icon={<LocalFireDepartmentIcon color="error" />}
+          type="Burn + Unwrap"
+          icon={<LocalFireDepartmentIcon color="success" />}
           amount={rowItem.burn.amount}
           amountIcon={<EUSDIcon />}
           timestamp={rowItem.burn.blockTimestamp}
+          link={
+            <Typography variant="body2" color="text.secondary">
+              Completed
+            </Typography>
+          }
           detailsComponent={
             <Box display="flex">
+              <DetailsSection
+                header="Burn"
+                time={rowItem.burn.blockTimestamp}
+                amount={rowItem.burn.amount}
+                title="eUSD Burned"
+                link={<MCLink blockIndex={rowItem.burn.blockIndex} />}
+                linkTitle="MobileCoin Block Index"
+              />
               <DetailsSection
                 header="Unwrap"
                 time={rowItem.withdrawal.executionDate}
@@ -161,13 +190,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                   rowItem.withdrawal.tokenAddr
                 )} withdrawn from safe`}
                 link={<EthLink hash={rowItem.withdrawal.ethTxHash} />}
-              />
-              <DetailsSection
-                header="Burn"
-                time={rowItem.burn.blockTimestamp}
-                amount={rowItem.burn.amount}
-                title="eUSD Burned"
-                link={<MCLink blockIndex={rowItem.burn.blockIndex} />}
+                linkTitle="Eth Tx Hash"
               />
             </Box>
           }
@@ -180,6 +203,11 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
   if ('mintConfigId' in rowItem) {
     return (
       <>
+        <TableRow
+          type="Wrap"
+          error
+          icon={<DataUsageIcon sx={{ color: 'error.main' }} />}
+        />
         <TableRow
           type="Mint"
           icon={
@@ -196,18 +224,16 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           amount={rowItem.amount}
           amountIcon={<EUSDIcon />}
           timestamp={rowItem.blockTimestamp}
+          link={<MCLink blockIndex={rowItem.blockIndex} />}
           detailsComponent={
             <DetailsSection
               time={rowItem.blockTimestamp}
               link={<MCLink blockIndex={rowItem.blockIndex} />}
               amount={rowItem.amount}
               title="eUSD Minted"
+              linkTitle="MobileCoin Block Index"
             />
           }
-        />
-        <TableRow
-          type="Wrap"
-          icon={<SwipeDownAltIcon sx={{ color: 'warning.main' }} />}
         />
         <SpacerRow />
       </>
@@ -222,6 +248,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           icon={<LocalFireDepartmentIcon />}
           amount={rowItem.burn.amount}
           timestamp={rowItem.burn.blockTimestamp}
+          link={<MCLink blockIndex={rowItem.burn.blockIndex} />}
           amountIcon={<EUSDIcon />}
           detailsComponent={
             <DetailsSection
@@ -229,12 +256,13 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               link={<MCLink blockIndex={rowItem.burn.blockIndex} />}
               amount={rowItem.burn.amount}
               title="eUSD Burned"
+              linkTitle="MobileCoin Block Index"
             />
           }
         />
         <TableRow
           type="Unwrap"
-          icon={<SwipeUpAltIcon sx={{ color: 'warning.main' }} />}
+          icon={<DataUsageIcon sx={{ color: 'warning.main' }} />}
         />
         <SpacerRow />
       </>
@@ -246,16 +274,18 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
       <>
         <TableRow
           type="Wrap"
-          icon={<SwipeDownAltIcon />}
+          icon={<DataUsageIcon />}
           amount={rowItem.deposit.amount}
           amountIcon={getIconFromContactAddress(rowItem.deposit.tokenAddr)}
           timestamp={rowItem.deposit.executionDate}
+          link={<EthLink hash={rowItem.deposit.ethTxHash} />}
           detailsComponent={
             <DetailsSection
               time={rowItem.deposit.executionDate}
               link={<EthLink hash={rowItem.deposit.ethTxHash} />}
               amount={rowItem.deposit.amount}
               title="eUSD Burned"
+              linkTitle="Eth Tx Hash"
             />
           }
         />
@@ -272,23 +302,26 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
     return (
       <>
         <TableRow
+          type="Burn"
+          error
+          icon={<LocalFireDepartmentIcon sx={{ color: 'error.main' }} />}
+        />
+        <TableRow
           type="Unwrap"
-          icon={<SwipeUpAltIcon />}
+          icon={<DataUsageIcon />}
           amount={rowItem.amount}
           amountIcon={getIconFromContactAddress(rowItem.tokenAddr)}
           timestamp={rowItem.executionDate}
+          link={<EthLink hash={rowItem.ethTxHash} />}
           detailsComponent={
             <DetailsSection
               time={rowItem.executionDate}
               link={<EthLink hash={rowItem.ethTxHash} />}
               amount={rowItem.amount}
               title="eUSD Withdrawn"
+              linkTitle="Eth Tx Hash"
             />
           }
-        />
-        <TableRow
-          type="Burn"
-          icon={<LocalFireDepartmentIcon sx={{ color: 'warning.main' }} />}
         />
         <SpacerRow />
       </>
@@ -305,6 +338,8 @@ type TableRowProps = {
   amountIcon?: React.ReactNode
   timestamp?: string
   detailsComponent?: React.ReactNode
+  link?: React.ReactNode
+  error?: boolean
 }
 
 function TableRow({
@@ -314,12 +349,20 @@ function TableRow({
   amountIcon,
   timestamp,
   detailsComponent,
+  error,
+  link,
 }: TableRowProps) {
   const [expanded, setExpanded] = useState(false)
   return (
     <>
       <StyledTableRow hover>
-        <StyledTableCell sx={{ borderLeft: borderStyle }}>
+        <StyledTableCell
+          sx={{
+            borderLeft: borderStyle,
+            minWidth: COLUMN_ONE_WIDTH,
+            width: COLUMN_ONE_WIDTH,
+          }}
+        >
           <Stack direction="row" alignItems="center" gap={1}>
             {icon}
             {type}
@@ -338,10 +381,13 @@ function TableRow({
         <StyledTableCell>
           {timestamp ? (
             moment(timestamp).format(dateFormat)
+          ) : error ? (
+            <Box color="error.main">Missing...</Box>
           ) : (
             <Box color="warning.main">Pending...</Box>
           )}
         </StyledTableCell>
+        <StyledTableCell>{link ?? '--'}</StyledTableCell>
         <StyledTableCell sx={{ borderRight: borderStyle }}>
           {detailsComponent ? (
             <Button

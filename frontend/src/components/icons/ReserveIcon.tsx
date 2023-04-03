@@ -3,8 +3,8 @@ import React from 'react'
 export const ReserveIcon = ({ pxSize }: { pxSize?: number }) => {
   return (
     <svg
-      width={pxSize ?? 16}
-      height={pxSize ?? 16}
+      width={pxSize ?? 20}
+      height={pxSize ?? 20}
       viewBox="0 0 3500 3500"
       xmlns="http://www.w3.org/2000/svg"
     >

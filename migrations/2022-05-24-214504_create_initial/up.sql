@@ -32,7 +32,9 @@ CREATE TABLE mint_config_txs (
     id INTEGER PRIMARY KEY,
     -- The block index at which this mint config tx appreared.
     block_index BIGINT NOT NULL,
-    -- The token id this mint config tx is for.
+    -- The block timestamp.
+    block_timestamp TIMESTAMP,
+     -- The token id this mint config tx is for.
     token_id BIGINT NOT NULL,
     -- The nonce, as hex-encoded bytes.
     nonce_hex VARCHAR(128) NOT NULL UNIQUE,
@@ -66,6 +68,8 @@ CREATE TABLE mint_txs (
     id INTEGER PRIMARY KEY,
     -- The block index at which this mint tx appreared.
     block_index BIGINT NOT NULL,
+    -- The block timestamp.
+    block_timestamp TIMESTAMP,
      -- The token id this mint tx is for.
     token_id BIGINT NOT NULL,
     -- The amount that was minted.
@@ -91,7 +95,9 @@ CREATE TABLE burn_tx_outs (
     id INTEGER PRIMARY KEY,
     -- The block index at which this TxOut appeared.
     block_index BIGINT NOT NULL,
-     -- The token id this tx out is for.
+    -- The block timestamp.
+    block_timestamp TIMESTAMP,
+    -- The token id this tx out is for.
     token_id BIGINT NOT NULL,
     -- The amount that was burned.
     amount BIGINT NOT NULL,
@@ -113,6 +119,7 @@ CREATE TABLE gnosis_safe_txs (
 CREATE TABLE gnosis_safe_deposits (
     id INTEGER PRIMARY KEY,
     eth_tx_hash VARCHAR(66) NOT NULL UNIQUE,
+    execution_date TIMESTAMP NOT NULL,
     -- This represents the ethereum-chain transaction value, and is expected to exceed u64::MAX, as eth tokens
     -- often have a precision of 18 decimal places.
     eth_tx_value VARCHAR(80) NOT NULL,
@@ -136,6 +143,7 @@ CREATE INDEX idx__gnosis_safe_deposits__expected_mc_mint_tx_nonce_hex ON gnosis_
 CREATE TABLE gnosis_safe_withdrawals (
     id INTEGER PRIMARY KEY,
     eth_tx_hash VARCHAR(66) NOT NULL UNIQUE,
+    execution_date TIMESTAMP NOT NULL,
     -- This represents the ethereum-chain transaction value, and is expected to exceed u64::MAX, as eth tokens
     -- often have a precision of 18 decimal places.
     eth_tx_value VARCHAR(80) NOT NULL,

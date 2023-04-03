@@ -12,6 +12,8 @@ on:
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  IAS_MODE: DEV
+  SGX_MODE: SW
 
 permissions:
   contents: read
@@ -20,7 +22,7 @@ permissions:
 jobs:
   test-rust-build:
     runs-on: [self-hosted, Linux, large]
-    container: mobilecoin/builder-install:v0.0.21
+    container: mobilecoin/builder-install:v0.0.17
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -37,7 +39,7 @@ jobs:
         uses: ./.github/actions/check-dirty-git
   lint-rust:
     runs-on: [self-hosted, Linux, large]
-    container: mobilecoin/builder-install:v0.0.21
+    container: mobilecoin/builder-install:v0.0.17
 
     steps:
       - name: Check out code
@@ -54,7 +56,7 @@ jobs:
         uses: ./.github/actions/check-dirty-git
   test:
     runs-on: [self-hosted, Linux, large]
-    container: mobilecoin/builder-install:v0.0.21
+    container: mobilecoin/builder-install:v0.0.17
     steps:
       - name: Check out code
         uses: actions/checkout@v3

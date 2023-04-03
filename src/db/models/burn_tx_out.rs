@@ -10,6 +10,7 @@ use crate::{
     },
     Error,
 };
+use chrono::{DateTime, NaiveDateTime, Utc};
 use diesel::{
     dsl::{exists, not},
     prelude::*,
@@ -35,6 +36,9 @@ pub struct BurnTxOut {
     /// The block index at which this burn tx appreared.
     block_index: i64,
 
+    /// The block timestamp.
+    block_timestamp: Option<NaiveDateTime>,
+
     /// The token id this burn tx is for.
     token_id: i64,
 
@@ -59,6 +63,11 @@ impl BurnTxOut {
         self.block_index as u64
     }
 
+    /// Get block timestamp.
+    pub fn block_timestamp(&self) -> Option<DateTime<Utc>> {
+        self.block_timestamp.map(|ts| DateTime::from_utc(ts, Utc))
+    }
+
     /// Get token id.
     pub fn token_id(&self) -> TokenId {
         TokenId::from(self.token_id as u64)
@@ -81,12 +90,17 @@ impl BurnTxOut {
 
     /// Create an instance of this object from a
     /// [mc_transaction_core::tx::TxOut] and some extra information.
-    pub fn from_core_tx_out(block_index: BlockIndex, tx_out: &TxOut) -> Result<Self, Error> {
+    pub fn from_core_tx_out(
+        block_index: BlockIndex,
+        block_timestamp: Option<DateTime<Utc>>,
+        tx_out: &TxOut,
+    ) -> Result<Self, Error> {
         let (amount, _) = tx_out.view_key_match(&burn_address_view_private())?;
 
         Ok(Self {
             id: None,
             block_index: block_index as i64,
+            block_timestamp: block_timestamp.map(|ts| ts.naive_utc()),
             token_id: *amount.token_id as i64,
             amount: amount.value as i64,
             public_key_hex: tx_out.public_key.as_bytes().encode_hex(),
@@ -115,10 +129,11 @@ impl BurnTxOut {
     /// extra information.
     pub fn insert_from_core_tx_out(
         block_index: BlockIndex,
+        block_timestamp: Option<DateTime<Utc>>,
         tx_out: &TxOut,
         conn: &Conn,
     ) -> Result<Self, Error> {
-        let mut burn_tx_out = Self::from_core_tx_out(block_index, tx_out)?;
+        let mut burn_tx_out = Self::from_core_tx_out(block_index, block_timestamp, tx_out)?;
         burn_tx_out.insert(conn)?;
         Ok(burn_tx_out)
     }

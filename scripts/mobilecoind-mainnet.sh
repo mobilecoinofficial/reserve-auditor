@@ -11,5 +11,5 @@ MC_LOG=debug,rustls=warn,hyper=warn,tokio_reactor=warn,mio=warn,want=warn,rusoto
         --tx-source-url https://ledger.mobilecoinww.com/node1.prod.mobilecoinww.com/ \
         --tx-source-url https://ledger.mobilecoinww.com/node2.prod.mobilecoinww.com/ \
         --listen-uri insecure-mobilecoind://127.0.0.1:4444/ \
-        --chain-id Main
+        --chain-id main
 cd ../scripts

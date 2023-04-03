@@ -437,7 +437,7 @@ mod tests {
 
         // Insert the MintTx to the database, and check that the mismatch is
         // detected.
-        MintTx::insert_from_core_mint_tx(0, None, &mint_tx, &conn).unwrap();
+        MintTx::insert_from_core_mint_tx(0, None, None, &mint_tx, &conn).unwrap();
         assert!(matches!(
             AuditedMint::try_match_deposit_with_mint(&deposit, config, &conn),
             Err(Error::DepositAndMintMismatch(_))
@@ -657,7 +657,7 @@ mod tests {
 
         mint_tx.prefix.nonce = hex::decode(&deposit.expected_mc_mint_tx_nonce_hex()).unwrap();
 
-        let sql_mint_tx = MintTx::insert_from_core_mint_tx(0, None, &mint_tx, &conn).unwrap();
+        let sql_mint_tx = MintTx::insert_from_core_mint_tx(0, None, None, &mint_tx, &conn).unwrap();
 
         // Check that the mismatch is detected.
         assert!(matches!(
@@ -688,7 +688,7 @@ mod tests {
 
         let (_mint_config_tx, signers) = create_mint_config_tx_and_signers(token_id1, &mut rng);
         let mint_tx = create_mint_tx(token_id1, &signers, 100, &mut rng);
-        let sql_mint_tx = MintTx::from_core_mint_tx(0, None, &mint_tx).unwrap();
+        let sql_mint_tx = MintTx::from_core_mint_tx(0, None, None, &mint_tx).unwrap();
 
         assert!(matches!(
             AuditedMint::try_match_mint_with_deposit(&sql_mint_tx, &config, &conn),

@@ -3,6 +3,7 @@
 // MUST BE KEPT IN SYNC WITH RUST CODE!
 
 // Reserve auditor client data types and service descriptors.
+// TODO: Looks like this barely does anything, can we remove it?
 
 syntax = "proto3";
 import "google/protobuf/empty.proto";
@@ -84,6 +85,9 @@ message BurnTxOut {
 
     /// The protobuf-serialized BurnTxOut.
     repeated uint32 protobuf = 6;
+
+    /// Block timestamp, as a unix timestamp (in nanoseconds).
+    uint64 block_timestamp = 7;
 }
 
 /// Statistics to keep track of
@@ -171,6 +175,9 @@ message GnosisSafeDeposit {
     /// The hex-encoded MintTx nonce we expect to see on the MobileCoin
     /// blockchain
     string expected_mc_mint_tx_nonce_hex = 9;
+
+    /// Execution date, as a unix timestamp (in nanoseconds).
+    uint64 execution_date = 10;
 }
 
 /// A Gnosis Safe transaction.
@@ -210,6 +217,9 @@ message GnosisSafeWithdrawal {
 
     /// Associated mobilecoin transaction public key (hex-encoded).
     external.CompressedRistretto mc_tx_out_pub_key = 9;
+
+    /// Execution date, as a unix timestamp (in nanoseconds).
+    uint64 execution_date = 10;
 }
 
 /// Mint Configuration transaction details
@@ -235,6 +245,9 @@ message MintConfigTx {
 
     /// The protobuf-serialized MintConfigTx.
     repeated uint32 protobuf = 7;
+
+    /// Block timestamp, as a unix timestamp (in nanoseconds).
+    uint64 block_timestamp = 8;
 }
 
 /// Mint configuration details
@@ -281,6 +294,9 @@ message MintTx {
 
     /// The mint config id, when we are able to match it with one.
     uint32 mint_config_id = 9;
+
+    /// Block timestamp, as a unix timestamp (in nanoseconds).
+    uint64 block_timestamp = 10;
 }
 
 message GetBlockAuditDataRequest {

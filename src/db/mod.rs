@@ -22,6 +22,7 @@ pub use self::{
 };
 
 use crate::Error;
+use chrono::{DateTime, Utc};
 use diesel::{
     r2d2::{ConnectionManager, Pool},
     SqliteConnection,
@@ -109,9 +110,10 @@ impl ReserveAuditorDb {
         &self,
         block: &Block,
         block_contents: &BlockContents,
+        block_timestamp: Option<DateTime<Utc>>,
     ) -> Result<SyncBlockData, Error> {
         let conn = self.get_conn()?;
-        self.sync_block_with_conn(&conn, block, block_contents)
+        self.sync_block_with_conn(&conn, block, block_contents, block_timestamp)
     }
 
     /// Sync reserve audit data of a single block using a pre-existing connection.
@@ -120,6 +122,7 @@ impl ReserveAuditorDb {
         conn: &Conn,
         block: &Block,
         block_contents: &BlockContents,
+        block_timestamp: Option<DateTime<Utc>>,
     ) -> Result<SyncBlockData, Error> {
         transaction(conn, |conn| {
             let block_index = block.index;
@@ -136,6 +139,7 @@ impl ReserveAuditorDb {
             for validated_mint_config_tx in &block_contents.validated_mint_config_txs {
                 MintConfigTx::insert_from_core_mint_config_tx(
                     block_index,
+                    block_timestamp,
                     &validated_mint_config_tx.mint_config_tx,
                     conn,
                 )?;
@@ -189,6 +193,7 @@ impl ReserveAuditorDb {
                 // Store the mint tx.
                 mint_txs.push(MintTx::insert_from_core_mint_tx(
                     block_index,
+                    block_timestamp,
                     mint_config.and_then(|config| config.id()),
                     mint_tx,
                     conn,
@@ -201,7 +206,9 @@ impl ReserveAuditorDb {
             let mut burn_tx_outs: Vec<_> = block_contents
                 .outputs
                 .par_iter()
-                .filter_map(|tx_out| BurnTxOut::from_core_tx_out(block_index, tx_out).ok())
+                .filter_map(|tx_out| {
+                    BurnTxOut::from_core_tx_out(block_index, block_timestamp, tx_out).ok()
+                })
                 .collect();
 
             for burn_tx_out in burn_tx_outs.iter_mut() {
@@ -375,7 +382,7 @@ mod tests {
             let block_data = ledger_db.get_block_data(block_index).unwrap();
 
             let sync_block_data = reserve_auditor_db
-                .sync_block(block_data.block(), block_data.contents())
+                .sync_block(block_data.block(), block_data.contents(), Some(Utc::now()))
                 .unwrap();
 
             assert_eq!(
@@ -505,8 +512,8 @@ mod tests {
                 balance_map: HashMap::from_iter([(token_id1, 41), (token_id2, 2)]),
                 mint_txs: MintTx::get_mint_txs_by_block_index(block_index, &conn).unwrap(),
                 burn_tx_outs: vec![
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out1).unwrap(),
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out2).unwrap()
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out1).unwrap(),
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out2).unwrap()
                 ],
             }
         );
@@ -568,8 +575,8 @@ mod tests {
                 ]),
                 mint_txs: MintTx::get_mint_txs_by_block_index(block_index, &conn).unwrap(),
                 burn_tx_outs: vec![
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out1).unwrap(),
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out2).unwrap()
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out1).unwrap(),
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out2).unwrap()
                 ],
             }
         );
@@ -602,13 +609,17 @@ mod tests {
         // Sync the first block, this should succeed.
         let block_data = ledger_db.get_block_data(0).unwrap();
         reserve_auditor_db
-            .sync_block(block_data.block(), block_data.contents())
+            .sync_block(block_data.block(), block_data.contents(), Some(Utc::now()))
             .unwrap();
 
         // Syncing the third block should fail since we haven't synced the second block.
         let block_data = ledger_db.get_block_data(2).unwrap();
         assert!(matches!(
-            reserve_auditor_db.sync_block(block_data.block(), block_data.contents()),
+            reserve_auditor_db.sync_block(
+                block_data.block(),
+                block_data.contents(),
+                Some(Utc::now())
+            ),
             Err(Error::UnexpectedBlockIndex(2, 1))
         ));
     }
@@ -634,12 +645,16 @@ mod tests {
         // Sync the first block, this should succeed.
         let block_data = ledger_db.get_block_data(0).unwrap();
         reserve_auditor_db
-            .sync_block(block_data.block(), block_data.contents())
+            .sync_block(block_data.block(), block_data.contents(), Some(Utc::now()))
             .unwrap();
 
         // Syncing it again should fail.
         assert!(matches!(
-            reserve_auditor_db.sync_block(block_data.block(), block_data.contents()),
+            reserve_auditor_db.sync_block(
+                block_data.block(),
+                block_data.contents(),
+                Some(Utc::now())
+            ),
             Err(Error::UnexpectedBlockIndex(0, 1))
         ));
     }
@@ -667,13 +682,17 @@ mod tests {
             let block_data = ledger_db.get_block_data(block_index).unwrap();
 
             reserve_auditor_db
-                .sync_block(block_data.block(), block_data.contents())
+                .sync_block(block_data.block(), block_data.contents(), Some(Utc::now()))
                 .unwrap();
         }
         // Syncing the first block should fail since we already synced it.
         let block_data = ledger_db.get_block_data(0).unwrap();
         assert!(matches!(
-            reserve_auditor_db.sync_block(block_data.block(), block_data.contents()),
+            reserve_auditor_db.sync_block(
+                block_data.block(),
+                block_data.contents(),
+                Some(Utc::now())
+            ),
             Err(Error::UnexpectedBlockIndex(0, 3))
         ));
     }
@@ -706,7 +725,7 @@ mod tests {
             let block_data = ledger_db.get_block_data(block_index).unwrap();
 
             reserve_auditor_db
-                .sync_block(block_data.block(), block_data.contents())
+                .sync_block(block_data.block(), block_data.contents(), Some(Utc::now()))
                 .unwrap();
         }
 
@@ -817,8 +836,8 @@ mod tests {
                 balance_map: HashMap::from_iter([(token_id1, 0), (token_id2, 0)]),
                 mint_txs: MintTx::get_mint_txs_by_block_index(block_index, &conn).unwrap(),
                 burn_tx_outs: vec![
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out1).unwrap(),
-                    BurnTxOut::from_core_tx_out(block_index, &tx_out2).unwrap()
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out1).unwrap(),
+                    BurnTxOut::from_core_tx_out(block_index, None, &tx_out2).unwrap()
                 ],
             }
         );
@@ -897,7 +916,7 @@ mod tests {
             let block_data = ledger_db.get_block_data(block_index).unwrap();
 
             reserve_auditor_db
-                .sync_block(block_data.block(), block_data.contents())
+                .sync_block(block_data.block(), block_data.contents(), Some(Utc::now()))
                 .unwrap();
         }
 
@@ -950,7 +969,7 @@ mod tests {
 
             let _ = transaction(&conn, |conn| -> Result<(), Error> {
                 reserve_auditor_db
-                    .sync_block_with_conn(conn, &block, &block_contents)
+                    .sync_block_with_conn(conn, &block, &block_contents, Some(Utc::now()))
                     .unwrap();
 
                 let counters = Counters::get(conn).unwrap();
@@ -1003,7 +1022,7 @@ mod tests {
 
             let _ = transaction(&conn, |conn| -> Result<(), Error> {
                 reserve_auditor_db
-                    .sync_block_with_conn(conn, &block, &block_contents)
+                    .sync_block_with_conn(conn, &block, &block_contents, Some(Utc::now()))
                     .unwrap();
 
                 let counters = Counters::get(conn).unwrap();
@@ -1068,7 +1087,7 @@ mod tests {
             let block_data = ledger_db.get_block_data(block_index).unwrap();
 
             reserve_auditor_db
-                .sync_block(block_data.block(), block_data.contents())
+                .sync_block(block_data.block(), block_data.contents(), Some(Utc::now()))
                 .unwrap();
         }
 
@@ -1145,7 +1164,7 @@ mod tests {
         );
 
         reserve_auditor_db
-            .sync_block(&block, &block_contents)
+            .sync_block(&block, &block_contents, Some(Utc::now()))
             .unwrap();
 
         let counters = Counters::get(&conn).unwrap();

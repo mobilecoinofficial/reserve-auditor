@@ -331,6 +331,7 @@ mod tests {
         },
         gnosis::{EthAddr, EthTxHash, EthTxValue},
     };
+    use chrono::Utc;
     use mc_common::logger::{test_with_logger, Logger};
     use mc_transaction_core::TokenId;
     use mc_util_from_random::FromRandom;
@@ -428,6 +429,7 @@ mod tests {
         let mut withdrawal = GnosisSafeWithdrawal::new(
             None,
             EthTxHash::from_random(&mut rng),
+            Utc::now(),
             EthTxValue((burn_tx_out.amount() as u128 + 1) * 1000000000000_u128),
             1,
             EthAddr::from_str(SAFE_ADDR).unwrap(),
@@ -662,6 +664,7 @@ mod tests {
         let mut withdrawal = GnosisSafeWithdrawal::new(
             None,
             EthTxHash::from_random(&mut rng),
+            Utc::now(),
             EthTxValue((burn_tx_out.amount() as u128 + 1) * 1000000000000_u128),
             1,
             EthAddr::from_str(SAFE_ADDR).unwrap(),

@@ -2,6 +2,7 @@
 
 //! A utility for keeping track of token minting and burning.
 
+use chrono::{TimeZone, Utc};
 use clap::{Parser, Subcommand};
 use grpcio::{EnvBuilder, ServerBuilder};
 use mc_common::logger::{log, o, Logger};
@@ -19,6 +20,7 @@ use mc_reserve_auditor_api::ReserveAuditorUri;
 use mc_util_grpc::{AdminServer, BuildInfoService, ConnectionUriGrpcioServer, HealthService};
 use mc_util_parse::parse_duration_in_seconds;
 use mc_util_uri::AdminUri;
+use mc_watcher::watcher_db::WatcherDB;
 use serde_json::json;
 use std::{cmp::Ordering, path::PathBuf, sync::Arc, thread::sleep, time::Duration};
 
@@ -36,6 +38,10 @@ pub enum Command {
         /// mobilecoind.
         #[clap(long, parse(from_os_str), env = "MC_LEDGER_DB")]
         ledger_db: PathBuf,
+
+        /// Path to watcher db (lmdb). When provided, will be used to obtain block timestamps.
+        #[clap(long, parse(from_os_str), env = "MC_WATCHER_DB")]
+        watcher_db: Option<PathBuf>,
 
         /// Path to reserve auditor db.
         #[clap(long, parse(from_os_str), env = "MC_RESERVE_AUDITOR_DB")]
@@ -115,6 +121,7 @@ async fn main() {
     match config.command {
         Command::ScanLedger {
             ledger_db,
+            watcher_db,
             reserve_auditor_db,
             poll_interval,
             listen_uri,
@@ -122,6 +129,7 @@ async fn main() {
             gnosis_safe_config,
         } => cmd_scan_ledger(
             ledger_db,
+            watcher_db,
             reserve_auditor_db,
             poll_interval,
             listen_uri,
@@ -157,8 +165,10 @@ async fn main() {
 }
 
 /// Implementation of the ScanLedger CLI command.
+#[allow(clippy::too_many_arguments)]
 fn cmd_scan_ledger(
     ledger_db_path: PathBuf,
+    watcher_db_path: Option<PathBuf>,
     reserve_auditor_db_path: PathBuf,
     poll_interval: Duration,
     listen_uri: Option<ReserveAuditorUri>,
@@ -167,6 +177,11 @@ fn cmd_scan_ledger(
     logger: Logger,
 ) {
     let ledger_db = LedgerDB::open(&ledger_db_path).expect("Could not open ledger DB");
+
+    let watcher_db = watcher_db_path.map(|watcher_db_path| {
+        WatcherDB::open_ro(&watcher_db_path, logger.clone()).expect("Could not open watcher DB")
+    });
+
     let reserve_auditor_db = ReserveAuditorDb::new_from_path(
         &reserve_auditor_db_path
             .into_os_string()
@@ -239,6 +254,7 @@ fn cmd_scan_ledger(
             &reserve_auditor_db,
             gnosis_safe_config.as_ref(),
             &ledger_db,
+            &watcher_db,
             &logger,
         )
         .expect("sync_loop failed");
@@ -324,6 +340,7 @@ fn sync_loop(
     reserve_auditor_db: &ReserveAuditorDb,
     gnosis_safe_config: Option<&GnosisSafeConfig>,
     ledger_db: &LedgerDB,
+    watcher_db: &Option<WatcherDB>,
     logger: &Logger,
 ) -> Result<(), Error> {
     loop {
@@ -334,7 +351,6 @@ fn sync_loop(
         let num_blocks_synced = last_synced_block_index
             .map(|block_index| block_index + 1)
             .unwrap_or(0);
-
         match num_blocks_synced.cmp(&num_blocks_in_ledger) {
             Ordering::Equal => {
                 // Nothing more to sync.
@@ -349,6 +365,14 @@ fn sync_loop(
                 // Sync the next block.
                 let block_data = ledger_db.get_block_data(num_blocks_synced)?;
 
+                // Get block timestamp if we are running with a watcher. Note that poll_block_timestamp blocks until a timestamp can be obtained,
+                // the timeout only controls when a warning log message is printed.
+                let block_timestamp = watcher_db.as_ref().map(|db| {
+                    let timestamp =
+                        db.poll_block_timestamp(block_data.block().index, Duration::from_secs(30));
+                    Utc.timestamp(timestamp as i64, 0)
+                });
+
                 // SQLite3 does not like concurrent writes. Since we are going to be writing to
                 // the database, ensure we are the only writers.
                 conn.exclusive_transaction(|| -> Result<(), Error> {
@@ -356,6 +380,7 @@ fn sync_loop(
                         &conn,
                         block_data.block(),
                         block_data.contents(),
+                        block_timestamp,
                     )?;
 
                     // If we were configured to audit Gnosis safes, attempt to do that with

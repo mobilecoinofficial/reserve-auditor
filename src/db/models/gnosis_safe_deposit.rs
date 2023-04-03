@@ -11,6 +11,7 @@ use crate::{
     gnosis::{EthAddr, EthTxHash, EthTxValue},
     MintTxNonce,
 };
+use chrono::{DateTime, NaiveDateTime, Utc};
 use diesel::{
     dsl::{exists, not},
     prelude::*,
@@ -28,6 +29,9 @@ pub struct GnosisSafeDeposit {
 
     /// Ethereum transaction hash.
     eth_tx_hash: SqlEthTxHash,
+
+    /// Execution date.
+    execution_date: NaiveDateTime,
 
     /// Ethereum transaction value
     eth_tx_value: SqlEthTxValue,
@@ -58,6 +62,7 @@ impl GnosisSafeDeposit {
     pub fn new(
         id: Option<i32>,
         eth_tx_hash: EthTxHash,
+        execution_date: DateTime<Utc>,
         eth_tx_value: EthTxValue,
         eth_block_number: u64,
         safe_addr: EthAddr,
@@ -70,6 +75,7 @@ impl GnosisSafeDeposit {
         Self {
             id,
             eth_tx_hash: eth_tx_hash.into(),
+            execution_date: execution_date.naive_utc(),
             eth_tx_value: eth_tx_value.into(),
             eth_block_number: eth_block_number as i64,
             safe_addr: safe_addr.into(),
@@ -88,6 +94,11 @@ impl GnosisSafeDeposit {
     /// Get Ethereum transaction hash.
     pub fn eth_tx_hash(&self) -> &EthTxHash {
         &self.eth_tx_hash
+    }
+
+    /// Get execution date.
+    pub fn execution_date(&self) -> DateTime<Utc> {
+        DateTime::from_utc(self.execution_date, Utc)
     }
 
     /// Get ethereum transaction value.
@@ -216,8 +227,10 @@ mod tests {
         mint_tx1.prefix.nonce = hex::decode(&nonce1).unwrap();
         mint_tx2.prefix.nonce = hex::decode(&nonce2).unwrap();
 
-        let sql_mint_tx1 = MintTx::insert_from_core_mint_tx(0, None, &mint_tx1, &conn).unwrap();
-        let sql_mint_tx2 = MintTx::insert_from_core_mint_tx(0, None, &mint_tx2, &conn).unwrap();
+        let sql_mint_tx1 =
+            MintTx::insert_from_core_mint_tx(0, None, None, &mint_tx1, &conn).unwrap();
+        let sql_mint_tx2 =
+            MintTx::insert_from_core_mint_tx(0, None, None, &mint_tx2, &conn).unwrap();
 
         // Since they haven't been inserted yet, they should not be found.
         assert!(

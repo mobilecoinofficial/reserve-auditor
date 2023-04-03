@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect } from 'react'
+import React, { useState, useRef, useLayoutEffect, useMemo } from 'react'
 import {
   Box,
   Typography,
@@ -12,45 +12,78 @@ import {
 
 import { TTableData } from '../api/hooks/useMintsAndBurns'
 import WrapTableRow from './WrapTableRow'
+import useThrottle from '../utils/useThrottle'
 
 const PAGE_LENGTH = 15
-const TOP_CONTENT_HEIGHT = 264
 
-export default function MintsAndBurns({ data }: { data: TTableData[] }) {
+export const getTableHeightToSubtract = (renderTopContents = false) => {
+  // This is a little brittle a needs to be adjusted if we modify the top of this page.
+  // We want the table to be as tall as possible, but we need to provide a fixed height
+  // in order for the infinite scroll to work
+  const headerHeight = 64
+  const headerPadding = 48
+  const topContentsHeight = 250
+  const tableBottomPadding = 64
+  let tableHeightToSubtract =
+    headerHeight + headerPadding + topContentsHeight + tableBottomPadding
+  if (!renderTopContents) {
+    tableHeightToSubtract -= topContentsHeight
+  }
+  return tableHeightToSubtract
+}
+
+export default function MintsAndBurns({
+  data,
+  renderTopContent,
+  setRenderTopContent,
+}: {
+  data: TTableData[]
+  renderTopContent: boolean
+  setRenderTopContent: (render: boolean) => void
+}) {
   const ddata = [...data, ...data, ...data, ...data, ...data, ...data, ...data]
-  const [currentPage, setCurrentPage] = useState(1)
   const tableEl = useRef<HTMLTableElement>(null)
-  const [distanceBottom, setDistanceBottom] = useState(0)
+  // state used for dynamically rendering top content on scroll
+  const scrollHeight = useRef(0)
 
-  const scrollListener = () => {
+  const throttledContentListener = useThrottle(() => {
     if (!tableEl.current) {
       return
     }
-    const bottom = tableEl.current.scrollHeight - tableEl.current.clientHeight
-    if (!distanceBottom) {
-      setDistanceBottom(Math.round(bottom * 0.6))
+    // ignore sideways scrolling
+    if (scrollHeight.current - tableEl?.current.scrollTop === 0) {
+      return
     }
-    if (
-      tableEl.current.scrollTop > bottom - distanceBottom &&
-      currentPage * PAGE_LENGTH < ddata.length
-    ) {
-      setCurrentPage(currentPage + 1)
+    // anytime we're scrolling down, hide the top content.
+    // any time we're scrolling up, show the top content.
+    const scrollDirection =
+      scrollHeight.current - tableEl?.current.scrollTop > 0 ? 'up' : 'down'
+    if (scrollDirection === 'up' && !renderTopContent) {
+      setRenderTopContent(true)
+    } else if (scrollDirection === 'down' && renderTopContent) {
+      setRenderTopContent(false)
     }
-  }
+    scrollHeight.current = tableEl?.current.scrollTop
+  }, 500)
 
   useLayoutEffect(() => {
     const tableRef = tableEl?.current
     if (!tableRef) {
       return
     }
-    tableRef.addEventListener('scroll', scrollListener)
+    tableRef.addEventListener('scroll', throttledContentListener)
     return () => {
-      tableRef.removeEventListener('scroll', scrollListener)
+      tableRef.addEventListener('scroll', throttledContentListener)
     }
-  }, [scrollListener])
+  }, [throttledContentListener])
+
+  const tableHeightToSubtract = useMemo(
+    () => getTableHeightToSubtract(renderTopContent),
+    [renderTopContent]
+  )
 
   return (
-    <Box marginBottom={4}>
+    <Box marginBottom={4} paddingTop={2}>
       <Typography variant="h5" gutterBottom>
         Wrapping and Unwrapping
       </Typography>
@@ -60,7 +93,7 @@ export default function MintsAndBurns({ data }: { data: TTableData[] }) {
           // infinite scrolls depends on the relationship between this height value and the PAGE_LENGTH
           sx={{
             overflowY: 'scroll',
-            maxHeight: `calc(100vh - ${400}px)`,
+            maxHeight: `calc(100vh - ${tableHeightToSubtract}px)`,
           }}
         >
           <Table stickyHeader size="small">
@@ -90,7 +123,7 @@ export default function MintsAndBurns({ data }: { data: TTableData[] }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {ddata.slice(0, currentPage * PAGE_LENGTH).map((row, index) => (
+              {ddata.map((row, index) => (
                 <WrapTableRow rowItem={row} key={`mintOrBurnRow-${index}`} />
               ))}
             </TableBody>

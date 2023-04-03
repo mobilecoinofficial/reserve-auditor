@@ -1,0 +1,12 @@
+@font-face {
+  font-family: 'Sohne-Buch';
+  src: url('../assets/fonts/Sohne-Buch.otf') format('opentype');
+}
+@font-face {
+  font-family: 'SohneMono-Buch';
+  src: url('../assets/fonts/SohneMono-Buch.otf') format('opentype');
+}
+
+body {
+  overscroll-behavior-y: none;
+}

@@ -81,6 +81,11 @@ export default function MintsAndBurns({ data }: { data: TTableData[] }) {
                     Date
                   </Typography>
                 </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    Block Index/Tx Hash
+                  </Typography>
+                </TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>

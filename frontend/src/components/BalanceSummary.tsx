@@ -8,6 +8,7 @@ import isTestnet from '../utils/isTestnet'
 import { GnosisSafeContext } from '../contexts'
 import { TopContentData } from './TopContent'
 import { formatEUSD } from '../utils/mcNetworkTokens'
+import { EUSDIcon } from './icons'
 
 export default function BalanceSummary({
   totalUnauditedDeposits,
@@ -29,54 +30,71 @@ export default function BalanceSummary({
     >
       <Box width="100%">
         <Typography color="textSecondary" variant="body2">
-          eUSD in the{' '}
           <Link
             target="_blank"
             rel="noreferrer"
             href={`https://app.safe.global/${safeAddressNet}:${gnosisSafeConfig?.safeAddr}/balances`}
           >
-            Reserve Safe
+            Assets in Custody
           </Link>
         </Typography>
-        <Box display="flex" sx={{ marginBottom: 4 }}>
-          <Typography variant="h3">{mainBalance}</Typography>
+        <Box display="flex" sx={{ marginBottom: 4 }} alignItems="center">
+          <EUSDIcon pxSize={36} />
+          <Typography variant="h3" sx={{ marginLeft: '20px' }}>
+            {mainBalance}
+          </Typography>
           {hasOtherBalance && (
             <Tooltip title="The safe currently contains additional non-eUSD assets. Visit safe for more details">
               <ErrorIcon color="warning" />
             </Tooltip>
           )}
         </Box>
-        <Box
-          display="flex"
-          justifyContent={'space-between'}
-          width="100%"
-          marginBottom={1}
-        >
-          <Typography color="textSecondary" variant="body2">
-            eUSD on the MobileCoin network
-          </Typography>
-          <Typography variant="body2">{ledgerBalance?.totalSupply}</Typography>
-        </Box>
-        <Box
-          display="flex"
-          justifyContent={'space-between'}
-          width="100%"
-          marginBottom={1}
-        >
-          <Typography color="textSecondary" variant="body2">
-            eUSD waiting to be minted
-          </Typography>
-          <Typography variant="body2">
-            {formatEUSD(totalUnauditedDeposits)}
-          </Typography>
-        </Box>
-        <Box display="flex" justifyContent={'space-between'} width="100%">
-          <Typography color="textSecondary" variant="body2">
-            eUSD waiting to be unwrapped
-          </Typography>
-          <Typography variant="body2">
-            {formatEUSD(totalUnauditedBurns)}
-          </Typography>
+        <Box width="100%" display="flex">
+          <Box marginRight={2} display="flex" alignItems="flex-start">
+            <Typography
+              color="textSecondary"
+              variant="body2"
+              sx={{ marginLeft: 1 }}
+            >
+              eUSD
+            </Typography>
+          </Box>
+          <Box width="100%">
+            <Box
+              display="flex"
+              justifyContent={'space-between'}
+              width="100%"
+              marginBottom={1}
+            >
+              <Typography color="textSecondary" variant="body2">
+                on the MobileCoin network
+              </Typography>
+              <Typography variant="body2">
+                {ledgerBalance?.totalSupply}
+              </Typography>
+            </Box>
+            <Box
+              display="flex"
+              justifyContent={'space-between'}
+              width="100%"
+              marginBottom={1}
+            >
+              <Typography color="textSecondary" variant="body2">
+                waiting to be minted
+              </Typography>
+              <Typography variant="body2">
+                {formatEUSD(totalUnauditedDeposits)}
+              </Typography>
+            </Box>
+            <Box display="flex" justifyContent={'space-between'} width="100%">
+              <Typography color="textSecondary" variant="body2">
+                waiting to be unwrapped
+              </Typography>
+              <Typography variant="body2">
+                {formatEUSD(totalUnauditedBurns)}
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </Box>
     </Box>

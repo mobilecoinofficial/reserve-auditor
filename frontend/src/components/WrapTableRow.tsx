@@ -21,7 +21,7 @@ import {
   getIconFromContactAddress,
   getSymbolFromContactAddress,
 } from '../utils/ercTokens'
-import { TTableData } from '../api/hooks/useMintsAndBurns'
+import { TTableData } from '../api/hooks/useTableData'
 import { EUSDIcon } from './icons'
 import CopyableField from './CopyableField'
 

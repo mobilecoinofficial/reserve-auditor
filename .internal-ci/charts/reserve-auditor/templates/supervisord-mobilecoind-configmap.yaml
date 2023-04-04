@@ -23,6 +23,7 @@ data:
         {{- end -}}
         {{- include "reserve-auditor.quorumItem" (last .peers) }}]}'
       --ledger-db /data/ledger/ledger.db
+      --watcher-db /data/watcher/watcher-db
       --mobilecoind-db /data/mobilecoind/mobilecoind.db
       --listen-uri {{ .listenURI }}
     {{- end }}

@@ -131,7 +131,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
       <>
         <TableRow
           type="Wrap + Mint"
-          icon={<LayersIcon color="success" />}
+          icon={<LayersIcon sx={{ color: 'success.light' }} />}
           amount={rowItem.mint.amount}
           amountIcon={<EUSDIcon />}
           timestamp={rowItem.mint.blockTimestamp}

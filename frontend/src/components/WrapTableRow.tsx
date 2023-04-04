@@ -4,7 +4,6 @@ import {
   TableRow as MUITableRow,
   TableCell,
   Typography,
-  Link,
   Button,
   Collapse,
   Stack,
@@ -310,7 +309,9 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               time={rowItem.deposit.executionDate}
               link={<EthLink hash={rowItem.deposit.ethTxHash} />}
               amount={rowItem.deposit.amount}
-              title="eUSD Burned"
+              title={`${getSymbolFromContactAddress(
+                rowItem.deposit.tokenAddr
+              )} Deposited`}
               linkTitle="Eth Tx Hash"
             />
           }
@@ -344,7 +345,9 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               time={rowItem.executionDate}
               link={<EthLink hash={rowItem.ethTxHash} />}
               amount={rowItem.amount}
-              title="eUSD Withdrawn"
+              title={`${getSymbolFromContactAddress(
+                rowItem.tokenAddr
+              )} Widthdrawn`}
               linkTitle="Eth Tx Hash"
             />
           }

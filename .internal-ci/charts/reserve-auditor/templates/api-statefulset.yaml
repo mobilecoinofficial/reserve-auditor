@@ -102,6 +102,7 @@ spec:
             sleep 3
             echo 'waiting for auditor db'
           done
+          SGX_MODE=HW IAS_MODE=PROD CONSENSUS_ENCLAVE_CSS=$(pwd)/../mobilecoin/consensus-enclave.css \
           /usr/local/bin/mc-reserve-auditor \
             start-http-server \
             --host 0.0.0.0 \

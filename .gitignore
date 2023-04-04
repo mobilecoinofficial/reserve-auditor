@@ -83,7 +83,7 @@ env/
 tools/fog-local-network/*_pb2*.py
 
 # css files (should not be committed)
-*.css
+*-enclave.css
 
 # libmobilecoin/rust-bitcode build
 libmobilecoin/rust-bitcode/*

@@ -1,4 +1,4 @@
-ARG MOBILECOIND_BASE_TAG=v4.0.2-test
+ARG MOBILECOIND_BASE_TAG=v4.1.0-test
 FROM mobilecoin/mobilecoind:${MOBILECOIND_BASE_TAG} AS mobilecoind
 
 FROM mobilecoin/builder-install:v0.0.19 AS builder
@@ -11,7 +11,7 @@ WORKDIR /build
 COPY . .
 RUN cargo build -p mc-reserve-auditor --release
 
-FROM mobilecoin/runtime-base:sha-6f1c083
+FROM mobilecoin/runtime-base:sha-09062b2
 COPY --from=builder /build/target/release/mc-reserve-auditor /usr/local/bin/mc-reserve-auditor
 COPY --from=mobilecoind /usr/bin/mobilecoind /usr/bin/mobilecoind
 

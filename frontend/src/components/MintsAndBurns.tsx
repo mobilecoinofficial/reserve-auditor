@@ -58,9 +58,18 @@ export default function MintsAndBurns({
     // any time we're scrolling up, show the top content.
     const scrollDirection =
       scrollHeight.current - tableEl?.current.scrollTop > 0 ? 'up' : 'down'
-    if (scrollDirection === 'up' && !renderTopContent) {
+    const scrolledUpEnough =
+      scrollHeight.current - tableEl?.current.scrollTop > 800 ||
+      tableEl?.current.scrollTop === 0
+    const scrolledDownEnough =
+      scrollHeight.current - tableEl?.current.scrollTop < -400
+    if (scrollDirection === 'up' && !renderTopContent && scrolledUpEnough) {
       setRenderTopContent(true)
-    } else if (scrollDirection === 'down' && renderTopContent) {
+    } else if (
+      scrollDirection === 'down' &&
+      renderTopContent &&
+      scrolledDownEnough
+    ) {
       setRenderTopContent(false)
     }
     scrollHeight.current = tableEl?.current.scrollTop

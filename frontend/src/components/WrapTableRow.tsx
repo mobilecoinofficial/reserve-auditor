@@ -22,9 +22,9 @@ import {
   getIconFromContactAddress,
   getSymbolFromContactAddress,
 } from '../utils/ercTokens'
-import { abbreviateHash } from '../utils/truncate'
 import { TTableData } from '../api/hooks/useMintsAndBurns'
 import { EUSDIcon } from './icons'
+import CopyableField from './CopyableField'
 
 const borderStyle = '1px solid #cecece'
 
@@ -51,22 +51,32 @@ const dateFormat = 'MMM D, YYYY'
 const preciseDateFormat = 'MMM D, YYYY h:mm A'
 
 function EthLink({ hash }: { hash: string }) {
-  return (
-    <Link target="_blank" rel="noreferrer" href={`${ETHERSCAN_URL}/tx/${hash}`}>
-      {abbreviateHash(hash)}
-    </Link>
-  )
+  return <CopyableField text={hash} link={`${ETHERSCAN_URL}/tx/${hash}`} />
 }
 
 function MCLink({ blockIndex }: { blockIndex: number }) {
   return (
-    <Link
-      href={`${BLOCK_EXPLORER_URL}/blocks/${blockIndex}`}
-      target="_blank"
-      rel="noreferrer"
-    >
-      {blockIndex}
-    </Link>
+    <CopyableField
+      text={`${blockIndex}`}
+      abbreviate={false}
+      copy={false}
+      link={`${BLOCK_EXPLORER_URL}/blocks/${blockIndex}`}
+    />
+  )
+}
+
+function MCBurnLink({
+  blockIndex,
+  burnTxo,
+}: {
+  blockIndex: number
+  burnTxo: string
+}) {
+  return (
+    <CopyableField
+      text={burnTxo}
+      link={`${BLOCK_EXPLORER_URL}/blocks/${blockIndex}`}
+    />
   )
 }
 
@@ -88,7 +98,7 @@ function DetailsSection({
   linkTitle,
 }: DetailsProps) {
   return (
-    <Box paddingTop={2} paddingBottom={1} width={COLUMN_ONE_WIDTH}>
+    <Box paddingTop={2} paddingBottom={1} width={COLUMN_ONE_WIDTH * 2}>
       <Typography variant="subtitle1">{header}</Typography>
       <ul style={{ paddingLeft: '16px' }}>
         <li>
@@ -101,11 +111,12 @@ function DetailsSection({
           <Typography variant="body2" color="textSecondary">
             {linkTitle}
           </Typography>
-          <Typography gutterBottom>{link}</Typography>
+          {link}
+          <Typography gutterBottom></Typography>
         </li>
         <li>
           <Typography variant="body2" color="textSecondary">
-            Block confirmation time
+            Confirmed at
           </Typography>
           <Typography>{moment(time).format(preciseDateFormat)}</Typography>
         </li>
@@ -179,8 +190,13 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                 time={rowItem.burn.blockTimestamp}
                 amount={rowItem.burn.amount}
                 title="eUSD Burned"
-                link={<MCLink blockIndex={rowItem.burn.blockIndex} />}
-                linkTitle="MobileCoin Block Index"
+                link={
+                  <MCBurnLink
+                    blockIndex={rowItem.burn.blockIndex}
+                    burnTxo={rowItem.burn.publicKeyHex}
+                  />
+                }
+                linkTitle="Burn Public Key"
               />
               <DetailsSection
                 header="Unwrap"
@@ -248,15 +264,25 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           icon={<LocalFireDepartmentIcon />}
           amount={rowItem.burn.amount}
           timestamp={rowItem.burn.blockTimestamp}
-          link={<MCLink blockIndex={rowItem.burn.blockIndex} />}
+          link={
+            <MCBurnLink
+              blockIndex={rowItem.burn.blockIndex}
+              burnTxo={rowItem.burn.publicKeyHex}
+            />
+          }
           amountIcon={<EUSDIcon />}
           detailsComponent={
             <DetailsSection
               time={rowItem.burn.blockTimestamp}
-              link={<MCLink blockIndex={rowItem.burn.blockIndex} />}
+              link={
+                <MCBurnLink
+                  blockIndex={rowItem.burn.blockIndex}
+                  burnTxo={rowItem.burn.publicKeyHex}
+                />
+              }
               amount={rowItem.burn.amount}
               title="eUSD Burned"
-              linkTitle="MobileCoin Block Index"
+              linkTitle="Burn Public Key"
             />
           }
         />
@@ -355,7 +381,7 @@ function TableRow({
   const [expanded, setExpanded] = useState(false)
   return (
     <>
-      <StyledTableRow hover>
+      <StyledTableRow hover onClick={() => setExpanded(!expanded)}>
         <StyledTableCell
           sx={{
             borderLeft: borderStyle,
@@ -368,7 +394,12 @@ function TableRow({
             {type}
           </Stack>
         </StyledTableCell>
-        <StyledTableCell>
+        <StyledTableCell
+          sx={{
+            minWidth: COLUMN_ONE_WIDTH,
+            width: COLUMN_ONE_WIDTH,
+          }}
+        >
           {amount ? (
             <Stack direction="row" alignItems="center" gap={1}>
               {amountIcon}
@@ -390,10 +421,7 @@ function TableRow({
         <StyledTableCell>{link ?? '--'}</StyledTableCell>
         <StyledTableCell sx={{ borderRight: borderStyle }}>
           {detailsComponent ? (
-            <Button
-              onClick={() => setExpanded(!expanded)}
-              sx={{ textTransform: 'none', color: 'text.secondary' }}
-            >
+            <Button sx={{ textTransform: 'none', color: 'text.secondary' }}>
               Details
               {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </Button>

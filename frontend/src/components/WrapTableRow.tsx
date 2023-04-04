@@ -14,6 +14,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
 import LayersIcon from '@mui/icons-material/Layers'
 import DataUsageIcon from '@mui/icons-material/DataUsage'
+import DoneIcon from '@mui/icons-material/Done'
 import moment from 'moment'
 
 import { formatEUSD } from '../utils/mcNetworkTokens'
@@ -50,7 +51,13 @@ const dateFormat = 'MMM D, YYYY'
 const preciseDateFormat = 'MMM D, YYYY h:mm A'
 
 function EthLink({ hash }: { hash: string }) {
-  return <CopyableField text={hash} link={`${ETHERSCAN_URL}/tx/${hash}`} />
+  return (
+    <CopyableField
+      text={hash}
+      showFullValueTip
+      link={`${ETHERSCAN_URL}/tx/${hash}`}
+    />
+  )
 }
 
 function MCLink({ blockIndex }: { blockIndex: number }) {
@@ -75,7 +82,17 @@ function MCBurnLink({
     <CopyableField
       text={burnTxo}
       link={`${BLOCK_EXPLORER_URL}/blocks/${blockIndex}`}
+      showFullValueTip
     />
+  )
+}
+
+function CompletedField() {
+  return (
+    <Stack direction="row" alignItems="center" gap={1}>
+      <DoneIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+      <Typography color="textSecondary">Completed</Typography>
+    </Stack>
   )
 }
 
@@ -135,11 +152,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           amount={rowItem.mint.amount}
           amountIcon={<EUSDIcon />}
           timestamp={rowItem.mint.blockTimestamp}
-          link={
-            <Typography variant="body2" color="text.secondary">
-              Completed
-            </Typography>
-          }
+          link={<CompletedField />}
           detailsComponent={
             <Box display="flex">
               <DetailsSection
@@ -177,11 +190,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           amount={rowItem.burn.amount}
           amountIcon={<EUSDIcon />}
           timestamp={rowItem.burn.blockTimestamp}
-          link={
-            <Typography variant="body2" color="text.secondary">
-              Completed
-            </Typography>
-          }
+          link={<CompletedField />}
           detailsComponent={
             <Box display="flex">
               <DetailsSection
@@ -394,7 +403,7 @@ function TableRow({
         >
           <Stack direction="row" alignItems="center" gap={1}>
             {icon}
-            {type}
+            <Typography>{type}</Typography>
           </Stack>
         </StyledTableCell>
         <StyledTableCell
@@ -406,7 +415,7 @@ function TableRow({
           {amount ? (
             <Stack direction="row" alignItems="center" gap={1}>
               {amountIcon}
-              {formatEUSD(amount)}
+              <Typography>{formatEUSD(amount)}</Typography>
             </Stack>
           ) : (
             '--'
@@ -414,18 +423,18 @@ function TableRow({
         </StyledTableCell>
         <StyledTableCell>
           {timestamp ? (
-            moment(timestamp).format(dateFormat)
+            <Typography>{moment(timestamp).format(dateFormat)}</Typography>
           ) : error ? (
-            <Box color="error.main">Missing...</Box>
+            <Typography color="error.main">Missing...</Typography>
           ) : (
-            <Box color="warning.main">Pending...</Box>
+            <Typography color="warning.main">Pending...</Typography>
           )}
         </StyledTableCell>
         <StyledTableCell>{link ?? '--'}</StyledTableCell>
         <StyledTableCell sx={{ borderRight: borderStyle }}>
           {detailsComponent ? (
             <Button sx={{ textTransform: 'none', color: 'text.secondary' }}>
-              Details
+              <Typography>Details</Typography>
               {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </Button>
           ) : (

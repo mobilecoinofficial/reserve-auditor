@@ -14,11 +14,13 @@ export default function AuditorInfo() {
         Auditor Info
       </Typography>
       <Typography variant="body2" color="textSecondary" gutterBottom>
-        The proof of reserve is on-chain, which shows the 1:1 between minted
-        WBTC tokens and eUSD stored by the custodian multisig. When eUSD LP’s
-        redeem their tokens for eUSD, the tokens are burned. The minting and
-        burning of tokens is in turn tracked and verifiable on the relevant
-        blockchain.
+        This proof of reserve is on-chain and shows the 1:1 relationship between
+        wrapped eUSD tokens on the MobileCoin blockchain and eUSD ERC20 tokens
+        stored in the custodian multisig. When eUSD LPs redeem their wrapped
+        eUSD for eUSD ERC20 tokens, the wrapped eUSD is burned. Minting and
+        burning of wrapped eUSD is tracked and verifiable on the MobileCoin
+        blockchain, while in turn deposits and withdrawals from the custodian
+        multisig are tracked and verifiable on the Ethereum blockchain.
       </Typography>
       <Box display="flex" justifyContent="space-between" width="100%">
         <Typography variant="body2">

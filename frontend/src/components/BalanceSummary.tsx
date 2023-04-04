@@ -9,6 +9,7 @@ import { GnosisSafeContext } from '../contexts'
 import { TopContentData } from './TopContent'
 import { formatEUSD } from '../utils/mcNetworkTokens'
 import { EUSDIcon } from './icons'
+import CopyableField from './CopyableField'
 
 export default function BalanceSummary({
   totalUnauditedDeposits,
@@ -29,16 +30,13 @@ export default function BalanceSummary({
       sx={{ paddingTop: 2, paddingBottom: 2 }}
     >
       <Box width="100%">
-        <Typography color="textSecondary" variant="body2">
-          <Link
-            target="_blank"
-            rel="noreferrer"
-            href={`https://app.safe.global/${safeAddressNet}:${gnosisSafeConfig?.safeAddr}/balances`}
-          >
-            Assets in Custody
-          </Link>
-        </Typography>
-        <Box display="flex" sx={{ marginBottom: 4 }} alignItems="center">
+        <CopyableField
+          copy
+          abbreviate={false}
+          text="Assets in custody"
+          link={`https://app.safe.global/${safeAddressNet}:${gnosisSafeConfig?.safeAddr}/balances`}
+        />
+        <Box display="flex" sx={{ marginBottom: 6 }} alignItems="center">
           <EUSDIcon pxSize={36} />
           <Typography variant="h3" sx={{ marginLeft: '20px' }}>
             {mainBalance}

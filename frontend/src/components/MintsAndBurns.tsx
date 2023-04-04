@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect, useMemo } from 'react'
+import React, { useRef, useLayoutEffect, useMemo } from 'react'
 import {
   Box,
   Typography,
@@ -13,8 +13,6 @@ import {
 import { TTableData } from '../api/hooks/useMintsAndBurns'
 import WrapTableRow from './WrapTableRow'
 import useThrottle from '../utils/useThrottle'
-
-const PAGE_LENGTH = 15
 
 export const getTableHeightToSubtract = (renderTopContents = false) => {
   // This is a little brittle a needs to be adjusted if we modify the top of this page.
@@ -41,7 +39,6 @@ export default function MintsAndBurns({
   renderTopContent: boolean
   setRenderTopContent: (render: boolean) => void
 }) {
-  const ddata = [...data, ...data, ...data, ...data, ...data, ...data, ...data]
   const tableEl = useRef<HTMLTableElement>(null)
   // state used for dynamically rendering top content on scroll
   const scrollHeight = useRef(0)
@@ -62,7 +59,7 @@ export default function MintsAndBurns({
       scrollHeight.current - tableEl?.current.scrollTop > 800 ||
       tableEl?.current.scrollTop === 0
     const scrolledDownEnough =
-      scrollHeight.current - tableEl?.current.scrollTop < -400
+      scrollHeight.current - tableEl?.current.scrollTop < -200
     if (scrollDirection === 'up' && !renderTopContent && scrolledUpEnough) {
       setRenderTopContent(true)
     } else if (
@@ -132,7 +129,7 @@ export default function MintsAndBurns({
               </TableRow>
             </TableHead>
             <TableBody>
-              {ddata.map((row, index) => (
+              {data.map((row, index) => (
                 <WrapTableRow rowItem={row} key={`mintOrBurnRow-${index}`} />
               ))}
             </TableBody>

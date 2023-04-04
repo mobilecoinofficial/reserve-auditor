@@ -120,11 +120,7 @@ export default function AuditDataTable({
                     Date
                   </Typography>
                 </TableCell>
-                <TableCell>
-                  <Typography variant="body2" color="text.secondary">
-                    Block Index/Tx Hash
-                  </Typography>
-                </TableCell>
+                <TableCell />
                 <TableCell />
               </TableRow>
             </TableHead>

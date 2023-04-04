@@ -10,11 +10,13 @@ export default function CopyableField({
   abbreviate = true,
   link,
   copy = true,
+  showFullValueTip = false,
 }: {
   text: string
   abbreviate?: boolean
   link: string
   copy?: boolean
+  showFullValueTip?: boolean
 }) {
   function copyToClipboard(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation()
@@ -25,9 +27,14 @@ export default function CopyableField({
 
   return (
     <Box display="flex" alignItems="center">
-      <Typography sx={{ fontSize: 14, marginRight: 1 }}>
-        {renderedText}
-      </Typography>
+      {showFullValueTip ? (
+        <Tooltip title={text}>
+          <Typography sx={{ marginRight: 1 }}>{renderedText}</Typography>
+        </Tooltip>
+      ) : (
+        <Typography sx={{ marginRight: 1 }}>{renderedText}</Typography>
+      )}
+
       {copy && (
         <Tooltip title="Copy to clipboard">
           <IconButton onClick={copyToClipboard} edge="start" size="small">
@@ -42,8 +49,9 @@ export default function CopyableField({
           </IconButton>
         </Tooltip>
       )}
+
       {link && (
-        <Tooltip title="Go to blockchain">
+        <Tooltip title="View in new tab">
           <Link href={link} target="_blank" rel="noreferrer">
             <IconButton
               onClick={(e) => e.stopPropagation()}

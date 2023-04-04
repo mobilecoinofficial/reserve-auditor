@@ -10,7 +10,7 @@ import {
   TableBody,
 } from '@mui/material'
 
-import { TTableData } from '../api/hooks/useMintsAndBurns'
+import { TTableData } from '../api/hooks/useTableData'
 import WrapTableRow from './WrapTableRow'
 import useThrottle from '../utils/useThrottle'
 
@@ -20,8 +20,8 @@ export const getTableHeightToSubtract = (renderTopContents = false) => {
   // in order for the infinite scroll to work
   const headerHeight = 64
   const headerPadding = 48
-  const topContentsHeight = 250
   const tableBottomPadding = 64
+  const topContentsHeight = 250
   let tableHeightToSubtract =
     headerHeight + headerPadding + topContentsHeight + tableBottomPadding
   if (!renderTopContents) {
@@ -30,7 +30,7 @@ export const getTableHeightToSubtract = (renderTopContents = false) => {
   return tableHeightToSubtract
 }
 
-export default function MintsAndBurns({
+export default function AuditDataTable({
   data,
   renderTopContent,
   setRenderTopContent,

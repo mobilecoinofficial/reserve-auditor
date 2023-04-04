@@ -26,13 +26,19 @@ export type TTableData =
   | TUnauditedSafeDeposit
   | TWithdrawal
 
+export type UseTableDataResult = {
+  sortedData: TTableData[]
+  totalUnauditedDeposits: number
+  totalUnauditedBurns: number
+}
+
 // Punting the pagination issue for now.
 // We want to show audited mints and burns in the same table,
 // but they have separate endpoints, each with their own pagination,
 // and combined pagination would be messy. We're not expecting to have more
 // than a few hundred mints or burns any time soon, so I'm just gonna set a high
 // limit and we can deal with actual pagination when we need to.
-export default function useMintsAndBurns() {
+export default function useTableData(): UseTableDataResult {
   const [sortedData, setSortedData] = useState<TTableData[]>([])
   const [totalUnauditedDeposits, setTotalUnauditedDeposits] =
     useState<number>(0)
@@ -49,6 +55,7 @@ export default function useMintsAndBurns() {
         getUnauditedSafeDeposits(),
       ])
 
+      // remove MOB burns (only care about eUSD)
       const filteredUnauditedBurns = data[3].filter(
         (burn) => burn.burn.tokenId === 1
       )

@@ -3,11 +3,11 @@ import { Container, Toolbar, Collapse } from '@mui/material'
 
 import Header from './Header'
 import TopContent from './TopContent'
-import MintsAndBurns from './MintsAndBurns'
-import useMintsAndBurns from '../api/hooks/useMintsAndBurns'
+import AuditDataTable from './AuditDataTable'
+import useTableData from '../api/hooks/useTableData'
 
 export default function Layout() {
-  const { sortedData, ...rest } = useMintsAndBurns()
+  const { sortedData, ...rest } = useTableData()
   const [renderTopContent, setRenderTopContent] = useState(true)
 
   return (
@@ -17,7 +17,7 @@ export default function Layout() {
       <Collapse in={renderTopContent} timeout={1000}>
         <TopContent {...rest} />
       </Collapse>
-      <MintsAndBurns
+      <AuditDataTable
         data={sortedData}
         renderTopContent={renderTopContent}
         setRenderTopContent={setRenderTopContent}

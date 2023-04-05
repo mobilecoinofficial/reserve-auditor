@@ -1,7 +1,7 @@
 ARG MOBILECOIND_BASE_TAG=v4.1.0-test
 FROM mobilecoin/mobilecoind:${MOBILECOIND_BASE_TAG} AS mobilecoind
 
-FROM mobilecoin/builder-install:v0.0.19 AS builder
+FROM mobilecoin/builder-install:v0.0.25 AS builder
 
 ARG \
 	RUST_BACKTRACE=1 \

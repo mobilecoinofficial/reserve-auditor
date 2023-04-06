@@ -20,14 +20,9 @@ export default function CopyableField({
   copyText?: string
   showFullValueTip?: boolean
 }) {
-
-  if (!copyText) {
-    copyText = text
-  }
-
   function copyToClipboard(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation()
-    navigator.clipboard.writeText(copyText)
+    navigator.clipboard.writeText(copyText ?? text)
   }
 
   const renderedText = abbreviate ? abbreviateHash(text) : text

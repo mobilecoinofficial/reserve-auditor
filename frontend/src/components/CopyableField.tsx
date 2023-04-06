@@ -10,17 +10,24 @@ export default function CopyableField({
   abbreviate = true,
   link,
   copy = true,
+  copyText,
   showFullValueTip = false,
 }: {
   text: string
   abbreviate?: boolean
   link: string
   copy?: boolean
+  copyText?: string
   showFullValueTip?: boolean
 }) {
+
+  if (!copyText) {
+    copyText = text
+  }
+
   function copyToClipboard(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation()
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(copyText)
   }
 
   const renderedText = abbreviate ? abbreviateHash(text) : text

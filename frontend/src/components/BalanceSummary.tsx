@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { Box, Typography, Link, Tooltip } from '@mui/material'
+import { Box, Typography, Tooltip } from '@mui/material'
 import ErrorIcon from '@mui/icons-material/Error'
 
 import useLedgerBalance from '../api/hooks/useLedgerBalance'

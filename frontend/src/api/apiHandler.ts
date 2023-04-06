@@ -252,8 +252,9 @@ export const getUnauditedSafeDeposits = async (): Promise<
         fromAddr: '0x09555316725073eF0C219f741bE4918a98DEcB96',
         id: 5,
         safeAddr: '0x30DA4EB397215cF407C46854CA7188f4e60F3402',
-        tokenAddr: '0x196f4727526eA7FB1e17b2071B3d8eAA38486988',
-      },
+        // tokenAddr: '0x196f4727526eA7FB1e17b2071B3d8eAA38486988',
+        tokenAddr: '0xA0d69E286B938e21CBf7E51D71F6A4c8918f482F',
+    },
     },
   ])
 }
@@ -357,6 +358,7 @@ export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
       safeAddr: '0x30DA4EB397215cF407C46854CA7188f4e60F3402',
       toAddr: '0xf9c2cA545e343d93fc9E7980B789757c961B1c56',
       tokenAddr: '0x196f4727526eA7FB1e17b2071B3d8eAA38486988',
+      // tokenAddr: '0xA0d69E286B938e21CBf7E51D71F6A4c8918f482F',
     },
   ])
 }

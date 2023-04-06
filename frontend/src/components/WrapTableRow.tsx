@@ -23,9 +23,7 @@ import {
   getSymbolFromContactAddress,
 } from '../utils/ercTokens'
 import { TTableData } from '../api/hooks/useTableData'
-import { EUSDIcon } from './icons'
-import { EUSDWrapIcon } from './icons'
-import { WrapMintIcon } from './icons'
+import { EUSDIcon, EUSDWrapIcon, WrapMintIcon } from './icons'
 import CopyableField from './CopyableField'
 
 const borderStyle = '1px solid #cecece'
@@ -49,22 +47,12 @@ const SpacerRow = () => (
   </MUITableRow>
 )
 
-const BurnIcon = ({ color }: { color?: string }) => {
-  if (!color) {
-    color = '#CD5B5B'
-  }
-  return (
-    <LocalFireDepartmentIcon sx={{ color: {color} }} />
-  )
+const BurnIcon = ({ color = '#CD5B5B' }: { color?: string }) => {
+  return <LocalFireDepartmentIcon sx={{ color }} />
 }
 
-const AlertIcon = ({ color }: { color?: string }) => {
-  if (!color) {
-    color = 'grey'
-  }
-  return (
-    <ErrorOutlineIcon sx={{ color: {color} }} />
-  )
+const AlertIcon = ({ color = 'grey' }: { color?: string }) => {
+  return <ErrorOutlineIcon sx={{ color }} />
 }
 
 const dateFormat = 'MMM D, YYYY'
@@ -309,10 +297,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
             />
           }
         />
-        <TableRow
-          type="Unwrap"
-          icon={<PendingIcon sx={{ color: "grey" }} />}
-        />
+        <TableRow type="Unwrap" icon={<PendingIcon sx={{ color: 'grey' }} />} />
         <SpacerRow />
       </>
     )
@@ -323,7 +308,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
     return (
       <>
         <TableRow
-          type={ `Wrapped ${ercSymbol}`}
+          type={`Wrapped ${ercSymbol}`}
           icon={<EUSDWrapIcon pxSize={24} />}
           amount={rowItem.deposit.amount}
           amountIcon={getIconFromContactAddress(rowItem.deposit.tokenAddr)}
@@ -339,10 +324,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
             />
           }
         />
-        <TableRow
-          type="Mint"
-          icon={<PendingIcon sx={{ color: "grey" }} />}
-        />
+        <TableRow type="Mint" icon={<PendingIcon sx={{ color: 'grey' }} />} />
         <SpacerRow />
       </>
     )

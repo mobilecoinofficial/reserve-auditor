@@ -31,7 +31,7 @@ export default function BalanceSummary({
     >
       <Box width="100%">
         <CopyableField
-          copy
+          copy={false}
           abbreviate={false}
           text="Assets in custody"
           link={`https://app.safe.global/${safeAddressNet}:${gnosisSafeConfig?.safeAddr}/balances`}

@@ -12,9 +12,9 @@ import { styled } from '@mui/material/styles'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
-import LayersIcon from '@mui/icons-material/Layers'
-import DataUsageIcon from '@mui/icons-material/DataUsage'
+import PendingIcon from '@mui/icons-material/Pending'
 import DoneIcon from '@mui/icons-material/Done'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import moment from 'moment'
 
 import { formatEUSD } from '../utils/mcNetworkTokens'
@@ -24,6 +24,8 @@ import {
 } from '../utils/ercTokens'
 import { TTableData } from '../api/hooks/useTableData'
 import { EUSDIcon } from './icons'
+import { EUSDWrapIcon } from './icons'
+import { WrapMintIcon } from './icons'
 import CopyableField from './CopyableField'
 
 const borderStyle = '1px solid #cecece'
@@ -46,6 +48,24 @@ const SpacerRow = () => (
     <TableCell colSpan={5}></TableCell>
   </MUITableRow>
 )
+
+const BurnIcon = ({ color }: { color?: string }) => {
+  if (!color) {
+    color = '#CD5B5B'
+  }
+  return (
+    <LocalFireDepartmentIcon sx={{ color: {color} }} />
+  )
+}
+
+const AlertIcon = ({ color }: { color?: string }) => {
+  if (!color) {
+    color = 'grey'
+  }
+  return (
+    <ErrorOutlineIcon sx={{ color: {color} }} />
+  )
+}
 
 const dateFormat = 'MMM D, YYYY'
 const preciseDateFormat = 'MMM D, YYYY h:mm A'
@@ -148,7 +168,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
       <>
         <TableRow
           type="Wrap + Mint"
-          icon={<LayersIcon sx={{ color: 'success.light' }} />}
+          icon={<WrapMintIcon sx={{ color: 'success.light' }} />}
           amount={rowItem.mint.amount}
           amountIcon={<EUSDIcon />}
           timestamp={rowItem.mint.blockTimestamp}
@@ -161,14 +181,14 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                 amount={rowItem.deposit.amount}
                 title={`${getSymbolFromContactAddress(
                   rowItem.deposit.tokenAddr
-                )} desposited into safe`}
+                )} received by custodian multisig`}
                 link={<EthLink hash={rowItem.deposit.ethTxHash} />}
                 linkTitle="Eth Tx Hash"
               />
               <DetailsSection
                 time={rowItem.mint.blockTimestamp}
                 amount={rowItem.mint.amount}
-                title="eUSD Minted"
+                title="eUSD minted"
                 header="Mint"
                 link={<MCLink blockIndex={rowItem.mint.blockIndex} />}
                 linkTitle="MobileCoin Block Index"
@@ -186,7 +206,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
       <>
         <TableRow
           type="Burn + Unwrap"
-          icon={<LocalFireDepartmentIcon color="success" />}
+          icon={<BurnIcon />}
           amount={rowItem.burn.amount}
           amountIcon={<EUSDIcon />}
           timestamp={rowItem.burn.blockTimestamp}
@@ -197,7 +217,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                 header="Burn"
                 time={rowItem.burn.blockTimestamp}
                 amount={rowItem.burn.amount}
-                title="eUSD Burned"
+                title="eUSD burned"
                 link={
                   <MCBurnLink
                     blockIndex={rowItem.burn.blockIndex}
@@ -212,7 +232,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                 amount={rowItem.withdrawal.amount}
                 title={`${getSymbolFromContactAddress(
                   rowItem.withdrawal.tokenAddr
-                )} withdrawn from safe`}
+                )} sent from custodian multisig`}
                 link={<EthLink hash={rowItem.withdrawal.ethTxHash} />}
                 linkTitle="Eth Tx Hash"
               />
@@ -223,17 +243,12 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
       </>
     )
   }
-  // unudited mint
+  // unaudited mint
   if ('mintConfigId' in rowItem) {
     return (
       <>
         <TableRow
-          type="Wrap"
-          error
-          icon={<DataUsageIcon sx={{ color: 'error.main' }} />}
-        />
-        <TableRow
-          type="Mint"
+          type="Minted eUSD"
           icon={
             <Box
               display="flex"
@@ -242,7 +257,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               width={24}
               height={24}
             >
-              <EUSDIcon />
+              <AlertIcon />
             </Box>
           }
           amount={rowItem.amount}
@@ -268,8 +283,8 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
     return (
       <>
         <TableRow
-          type="Burn"
-          icon={<LocalFireDepartmentIcon />}
+          type="Burned eUSD"
+          icon={<BurnIcon />}
           amount={rowItem.burn.amount}
           timestamp={rowItem.burn.blockTimestamp}
           link={
@@ -289,14 +304,14 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                 />
               }
               amount={rowItem.burn.amount}
-              title="eUSD Burned"
+              title="Burned eUSD"
               linkTitle="Burn Public Key"
             />
           }
         />
         <TableRow
           type="Unwrap"
-          icon={<DataUsageIcon sx={{ color: 'warning.main' }} />}
+          icon={<PendingIcon sx={{ color: "grey" }} />}
         />
         <SpacerRow />
       </>
@@ -304,11 +319,12 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
   }
   // unaudited deposit
   if ('deposit' in rowItem) {
+    const ercSymbol = getSymbolFromContactAddress(rowItem.deposit.tokenAddr)
     return (
       <>
         <TableRow
-          type="Wrap"
-          icon={<DataUsageIcon />}
+          type={ `Wrapped ${ercSymbol}`}
+          icon={<EUSDWrapIcon pxSize={24} />}
           amount={rowItem.deposit.amount}
           amountIcon={getIconFromContactAddress(rowItem.deposit.tokenAddr)}
           timestamp={rowItem.deposit.executionDate}
@@ -318,16 +334,14 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               time={rowItem.deposit.executionDate}
               link={<EthLink hash={rowItem.deposit.ethTxHash} />}
               amount={rowItem.deposit.amount}
-              title={`${getSymbolFromContactAddress(
-                rowItem.deposit.tokenAddr
-              )} Deposited`}
+              title={`${ercSymbol} received by custodian multisig`}
               linkTitle="Eth Tx Hash"
             />
           }
         />
         <TableRow
           type="Mint"
-          icon={<LayersIcon sx={{ color: 'warning.main' }} />}
+          icon={<PendingIcon sx={{ color: "grey" }} />}
         />
         <SpacerRow />
       </>
@@ -335,16 +349,22 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
   }
   // unaudited withdrawal
   if ('executionDate' in rowItem) {
+    const ercSymbol = getSymbolFromContactAddress(rowItem.tokenAddr)
     return (
       <>
         <TableRow
-          type="Burn"
-          error
-          icon={<LocalFireDepartmentIcon sx={{ color: 'error.main' }} />}
-        />
-        <TableRow
-          type="Unwrap"
-          icon={<DataUsageIcon />}
+          type={`Unwrapped ${ercSymbol}`}
+          icon={
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              width={24}
+              height={24}
+            >
+              <AlertIcon />
+            </Box>
+          }
           amount={rowItem.amount}
           amountIcon={getIconFromContactAddress(rowItem.tokenAddr)}
           timestamp={rowItem.executionDate}
@@ -354,9 +374,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               time={rowItem.executionDate}
               link={<EthLink hash={rowItem.ethTxHash} />}
               amount={rowItem.amount}
-              title={`${getSymbolFromContactAddress(
-                rowItem.tokenAddr
-              )} Widthdrawn`}
+              title={`${ercSymbol} sent from custodian multisig`}
               linkTitle="Eth Tx Hash"
             />
           }

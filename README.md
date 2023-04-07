@@ -1,5 +1,10 @@
 ## reserve-auditor
 
+- Production Mainnet: [auditor.mobilecoin.foundation](https://auditor.mobilecoin.foundation)
+- Production Testnet: [auditor.test.mobilecoin.com](https://auditor.test.mobilecoin.com)
+- Staging Mainnet: [auditor.stage.main.mobilecoin.com](https://auditor.stage.main.mobilecoin.com)
+- Staging Testnet: [auditor.stage.test.mobilecoin.com](https://auditor.stage.test.mobilecoin.com)
+
 This is a service which provides a gRPC API for auditing mints and burns on the MobileCoin blockchain, and optionally correlating them with deposits and withdrawals on a [Gnosis Safe](https://gnosis-safe.io/).
 
 The reserve auditor stores its audit information in a SQLite database, and provides a gRPC for querying this database.

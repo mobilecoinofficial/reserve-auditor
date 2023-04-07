@@ -15,6 +15,7 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
 import PendingIcon from '@mui/icons-material/Pending'
 import DoneIcon from '@mui/icons-material/Done'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import moment from 'moment'
 
 import { formatEUSD } from '../utils/mcNetworkTokens'
@@ -73,7 +74,6 @@ function MCLink({ blockIndex }: { blockIndex: number }) {
     <CopyableField
       text={`${blockIndex}`}
       abbreviate={false}
-      copy={false}
       link={`${BLOCK_EXPLORER_URL}/blocks/${blockIndex}`}
     />
   )
@@ -143,6 +143,36 @@ function DetailsSection({
             Confirmed at
           </Typography>
           <Typography>{moment(time).format(preciseDateFormat)}</Typography>
+        </li>
+      </ul>
+    </Box>
+  )
+}
+
+type InfoProps = {
+  icon?: string,
+  header?: string,
+  text: string,
+}
+
+function InfoSection({
+  icon,
+  header,
+  text,
+}: InfoProps) {
+  return (
+    <Box paddingTop={2} paddingBottom={1} width={COLUMN_ONE_WIDTH * 2}>
+      <Typography variant="subtitle1">
+        <Stack direction="row" alignItems="center" gap={1}>
+          { icon }
+          { header }
+        </Stack>
+      </Typography>
+      <ul style={{ paddingLeft: '4px' }}>
+        <li style={{ listStyleType: 'none' }}>
+          <Typography variant="body2" color="textSecondary">
+                {text}
+          </Typography>
         </li>
       </ul>
     </Box>
@@ -253,13 +283,21 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           timestamp={rowItem.blockTimestamp}
           link={<MCLink blockIndex={rowItem.blockIndex} />}
           detailsComponent={
-            <DetailsSection
-              time={rowItem.blockTimestamp}
-              link={<MCLink blockIndex={rowItem.blockIndex} />}
-              amount={rowItem.amount}
-              title="eUSD Minted"
-              linkTitle="MobileCoin Block Index"
-            />
+            <Box display="flex">
+              <DetailsSection
+                header="Mint"
+                time={rowItem.blockTimestamp}
+                link={<MCLink blockIndex={rowItem.blockIndex} />}
+                amount={rowItem.amount}
+                title="eUSD Minted"
+                linkTitle="MobileCoin Block Index"
+              />
+              <InfoSection
+                icon={ <AlertIcon /> }
+                header="Alert"
+                text="A corresponding deposit of funds to the custodian multisig was not identified."
+              />
+            </Box>
           }
         />
         <SpacerRow />
@@ -283,7 +321,9 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           }
           amountIcon={<EUSDIcon />}
           detailsComponent={
+            <Box display="flex" >
             <DetailsSection
+              header="Burn"
               time={rowItem.burn.blockTimestamp}
               link={
                 <MCBurnLink
@@ -295,9 +335,15 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               title="Burned eUSD"
               linkTitle="Burn Public Key"
             />
+            <InfoSection
+              icon={ <InfoOutlinedIcon sx={{ color: "grey" }} /> }
+              header="Info"
+              text="An unwrap can to take up to 3 business days from burn to completion."
+            />
+          </Box>
           }
         />
-        <TableRow type="Unwrap" icon={<PendingIcon sx={{ color: 'grey' }} />} />
+        <TableRow type="Unwrap" icon={ <PendingIcon sx={{ color: 'grey' }} /> } />
         <SpacerRow />
       </>
     )
@@ -315,13 +361,21 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           timestamp={rowItem.deposit.executionDate}
           link={<EthLink hash={rowItem.deposit.ethTxHash} />}
           detailsComponent={
+            <Box display="flex">
             <DetailsSection
+              header='Wrap'
               time={rowItem.deposit.executionDate}
               link={<EthLink hash={rowItem.deposit.ethTxHash} />}
               amount={rowItem.deposit.amount}
               title={`${ercSymbol} received by custodian multisig`}
               linkTitle="Eth Tx Hash"
             />
+            <InfoSection
+              icon={ <InfoOutlinedIcon sx={{ color: "grey" }}/> }
+              header="Info"
+              text="A wrap can to take up to 3 business days to complete."
+            />
+          </Box>
           }
         />
         <TableRow type="Mint" icon={<PendingIcon sx={{ color: 'grey' }} />} />
@@ -352,13 +406,21 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           timestamp={rowItem.executionDate}
           link={<EthLink hash={rowItem.ethTxHash} />}
           detailsComponent={
-            <DetailsSection
-              time={rowItem.executionDate}
-              link={<EthLink hash={rowItem.ethTxHash} />}
-              amount={rowItem.amount}
-              title={`${ercSymbol} sent from custodian multisig`}
-              linkTitle="Eth Tx Hash"
-            />
+            <Box display='flex'>
+              <DetailsSection
+                header="Unwrap"
+                time={rowItem.executionDate}
+                link={<EthLink hash={rowItem.ethTxHash} />}
+                amount={rowItem.amount}
+                title={`${ercSymbol} sent from custodian multisig`}
+                linkTitle="Eth Tx Hash"
+              />
+              <InfoSection
+                icon={ <AlertIcon /> }
+                header="Alert"
+                text="A corresponding burn of wrapped eUSD was not identified."
+              />
+            </ Box>
           }
         />
         <SpacerRow />

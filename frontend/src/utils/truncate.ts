@@ -3,7 +3,11 @@ export function truncate(str: string, n: number) {
 }
 
 export function abbreviateHash(hash: string) {
-  const start = hash.slice(0, 9)
-  const end = hash.slice(hash.length - 4, hash.length)
+  let leftLen = 7, rightLen = leftLen
+  if (hash.startsWith('0x')) {
+    leftLen += 2
+  }
+  const start = hash.slice(0, leftLen)
+  const end = hash.slice(hash.length - rightLen, hash.length)
   return start + '...' + end
 }

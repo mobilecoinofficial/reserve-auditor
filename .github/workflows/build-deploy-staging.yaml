@@ -47,8 +47,8 @@ jobs:
     strategy:
       matrix:
         versions: 
-          - {mobilecoind: v4.0.2-test, prefix: testnet}
-          - {mobilecoind: v4.0.2, prefix: mainnet}
+          - {mobilecoind: v4.1.0-test, prefix: testnet}
+          - {mobilecoind: v4.1.0, prefix: mainnet}
 
     name: Build-backend
     runs-on: [self-hosted, Linux, large]

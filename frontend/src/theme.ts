@@ -14,9 +14,13 @@ const theme = createTheme({
     background: {
       default: '#faf8f6',
     },
+    icon: {
+      burnTx: '#CD5B5B',
+    }
   },
   typography: {
     fontFamily: 'Sohne-Buch',
   },
 })
+
 export default theme

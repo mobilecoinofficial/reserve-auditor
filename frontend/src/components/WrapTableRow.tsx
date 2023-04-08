@@ -48,11 +48,11 @@ const SpacerRow = () => (
   </MUITableRow>
 )
 
-const BurnIcon = ({ color = '#CD5B5B' }: { color?: string }) => {
+const BurnIcon = ({ color = 'icon.burnTx' }: { color?: string }) => {
   return <LocalFireDepartmentIcon sx={{ color }} />
 }
 
-const AlertIcon = ({ color = 'grey' }: { color?: string }) => {
+const AlertIcon = ({ color = 'primary.light' }: { color?: string }) => {
   return <ErrorOutlineIcon sx={{ color }} />
 }
 
@@ -336,14 +336,14 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               linkTitle="Burn Public Key"
             />
             <InfoSection
-              icon={ <InfoOutlinedIcon sx={{ color: "grey" }} /> }
+              icon={ <InfoOutlinedIcon sx={{ color: "primary.light" }} /> }
               header="Info"
               text="An unwrap can to take up to 3 business days from burn to completion."
             />
           </Box>
           }
         />
-        <TableRow type="Unwrap" icon={ <PendingIcon sx={{ color: 'grey' }} /> } />
+        <TableRow type="Unwrap" icon={ <PendingIcon sx={{ color: 'primary.light' }} /> } />
         <SpacerRow />
       </>
     )
@@ -371,14 +371,14 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
               linkTitle="Eth Tx Hash"
             />
             <InfoSection
-              icon={ <InfoOutlinedIcon sx={{ color: "grey" }}/> }
+              icon={ <InfoOutlinedIcon sx={{ color: "primary.light" }}/> }
               header="Info"
               text="A wrap can to take up to 3 business days to complete."
             />
           </Box>
           }
         />
-        <TableRow type="Mint" icon={<PendingIcon sx={{ color: 'grey' }} />} />
+        <TableRow type="Mint" icon={<PendingIcon sx={{ color: 'primary.light' }} />} />
         <SpacerRow />
       </>
     )

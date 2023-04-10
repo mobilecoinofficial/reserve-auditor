@@ -11,10 +11,10 @@ ARG CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mo
 RUN curl -O https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_SIGSTRUCT_URI}
 
 ARG \
-	RUST_BACKTRACE=1 \
-	SGX_MODE=HW \
-	IAS_MODE=DEV \
-	CONSENSUS_ENCLAVE_CSS=$(pwd)/consensus-enclave.css
+  RUST_BACKTRACE=1 \
+  SGX_MODE=HW \
+  IAS_MODE=DEV \
+  CONSENSUS_ENCLAVE_CSS=consensus-enclave.css
 
 COPY . .
 RUN cargo build -p mc-reserve-auditor --release

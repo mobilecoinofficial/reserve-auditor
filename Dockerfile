@@ -8,7 +8,7 @@ WORKDIR /build
 ARG NETWORK=test
 ARG CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mobilecoin.com/production-v4.0.0.json | jq .consensus.sigstruct | tr -d \" )
 
-RUN curl -O https://enclave-distribution.${NETWORK}.mobilecoin.com/$CONSENSUS_SIGSTRUCT_URI
+RUN curl -O "https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_SIGSTRUCT_URI}"
 
 
 ARG \

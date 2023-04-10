@@ -89,7 +89,7 @@ jobs:
         id: docker-push-backend
         with:
           context: .
-          build-args:
+          build-args: |
             MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
             IAS_MODE=${{ matrix.versions.ias }}
             NETWORK=${{ matrix.versions.network }}

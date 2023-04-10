@@ -14,7 +14,7 @@ ARG \
 	RUST_BACKTRACE=1 \
 	SGX_MODE=HW \
 	IAS_MODE=DEV \
-	CONSENSUS_ENCLAVE_CSS="/build/consensus-enclave.css"
+	CONSENSUS_ENCLAVE_CSS=$(pwd)/consensus-enclave.css
 
 COPY . .
 RUN cargo build -p mc-reserve-auditor --release

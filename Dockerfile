@@ -14,8 +14,7 @@ RUN curl -O https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_S
 ARG \
   RUST_BACKTRACE=1 \
   SGX_MODE=HW \
-  IAS_MODE=DEV \
-  CONSENSUS_ENCLAVE_CSS=consensus-enclave.css
+  IAS_MODE=DEV 
 
 RUN pwd
 RUN echo "ias = $IAS_MODE"

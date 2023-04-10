@@ -8,17 +8,15 @@ WORKDIR /build
 ARG NETWORK=test
 ARG CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mobilecoin.com/production-v4.0.0.json | jq .consensus.sigstruct | tr -d \" )
 
-RUN curl -O https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_SIGSTRUCT_URI}
+RUN curl -O https://enclave-distribution.${NETWORK}.mobilecoin.com/$CONSENSUS_SIGSTRUCT_URI
 
 
 ARG \
   RUST_BACKTRACE=1 \
   SGX_MODE=HW \
-  IAS_MODE=DEV 
+  IAS_MODE=DEV \
+  CONSENSUS_ENCLAVE_CSS=/build/consensus-enclave.css
 
-RUN pwd
-RUN echo "ias = $IAS_MODE"
-RUN echo "consensus_enclave_css = $CONSENSUS_ENCLAVE_CSS"
 
 COPY . .
 RUN cargo build -p mc-reserve-auditor --release

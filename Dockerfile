@@ -10,17 +10,23 @@ ARG CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mo
 
 RUN curl -O https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_SIGSTRUCT_URI}
 
+
 ARG \
   RUST_BACKTRACE=1 \
   SGX_MODE=HW \
   IAS_MODE=DEV \
   CONSENSUS_ENCLAVE_CSS=consensus-enclave.css
 
+RUN pwd
+RUN echo "ias = $IAS_MODE"
+RUN echo "consensus_enclave_css = $CONSENSUS_ENCLAVE_CSS"
+
 COPY . .
 RUN cargo build -p mc-reserve-auditor --release
 
 FROM mobilecoin/runtime-base:sha-09062b2
 COPY --from=builder /build/target/release/mc-reserve-auditor /usr/local/bin/mc-reserve-auditor
+COPY --from=builder /build/consensus-enclave.css /measurement/consensus-enclave.css
 COPY --from=mobilecoind /usr/bin/mobilecoind /usr/bin/mobilecoind
 
 CMD ["/usr/bin/supervisord", "-n"]

@@ -3,11 +3,20 @@ FROM mobilecoin/mobilecoind:${MOBILECOIND_BASE_TAG} AS mobilecoind
 
 FROM mobilecoin/builder-install:v0.0.17 AS builder
 
+WORKDIR /build
+
+NETWORK=test
+
+CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mobilecoin.com/production.json | grep consensus-enclave.css | awk '{print $2}' | tr -d \" | tr -d ,)
+
+curl -O https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_SIGSTRUCT_URI}
+
 ARG \
 	RUST_BACKTRACE=1 \
 	SGX_MODE=HW \
-	IAS_MODE=DEV
-WORKDIR /build
+	IAS_MODE=DEV \
+	CONSENSUS_ENCLAVE_CSS="/build/consensus-enclave.css"
+
 COPY . .
 RUN cargo build -p mc-reserve-auditor --release
 

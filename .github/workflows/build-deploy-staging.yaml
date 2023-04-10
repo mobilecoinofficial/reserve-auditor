@@ -47,8 +47,8 @@ jobs:
     strategy:
       matrix:
         versions: 
-          - {mobilecoind: v4.1.0-test, prefix: testnet}
-          - {mobilecoind: v4.1.0, prefix: mainnet}
+          - {mobilecoind: v4.1.0-test, prefix: testnet, network: test, ias: DEV}
+          - {mobilecoind: v4.1.0, prefix: mainnet, network: prod, ias: PROD}
 
     name: Build-backend
     runs-on: [self-hosted, Linux, large]
@@ -91,6 +91,8 @@ jobs:
           context: .
           build-args:
             MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
+            IAS_MODE=${{ matrix.versions.ias }}
+            NETWORK=${{ matrix.versions.network }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
           tags: ${{ steps.docker_meta.outputs.tags }}-${{ matrix.versions.prefix }}

@@ -19,6 +19,9 @@ COPY . .
 RUN cargo build -p mc-reserve-auditor --release
 
 FROM mobilecoin/runtime-base:sha-09062b2
+
+ENV CONSENSUS_ENCLAVE_CSS=/measurement/consensus-enclave.css
+
 COPY --from=builder /build/target/release/mc-reserve-auditor /usr/local/bin/mc-reserve-auditor
 COPY --from=builder /build/consensus-enclave.css /measurement/consensus-enclave.css
 COPY --from=mobilecoind /usr/bin/mobilecoind /usr/bin/mobilecoind

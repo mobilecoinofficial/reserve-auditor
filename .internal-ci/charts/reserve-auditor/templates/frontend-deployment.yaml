@@ -33,7 +33,7 @@ spec:
           protocol: TCP
         env:
         - name: "MC_NETWORK"
-          value: {{ quote .Values.mobilecoind.chainID }}
+          value: {{ quote .Values.frontend.network }}
         resources:
           {{- toYaml .Values.frontend.resources | nindent 12 }}
       nodeSelector:

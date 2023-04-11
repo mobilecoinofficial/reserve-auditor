@@ -47,3 +47,6 @@ gnosisConfig:
 
 ingress: 
   host: auditor.test.mobilecoin.com
+
+frontend:
+  network: test

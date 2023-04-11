@@ -125,7 +125,9 @@ jobs:
     needs: [backend,harbor]
     strategy:
       matrix:
-        target: [mainnet, testnet]
+        target: 
+          - {chain: mainnet, network: main-stage}
+          - {chain: testnet, network: test-stage}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -139,19 +141,20 @@ jobs:
           rancher_url: ${{ secrets.RANCHER_B_URL }}
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
 
-      - name: Deploys ${{ matrix.target }} release
+      - name: Deploys ${{ matrix.target.chain }} release
         uses: mobilecoinofficial/gha-k8s-toolbox@v1
         with:
           action: helm-deploy
           rancher_cluster: ${{ env.TARGET_CLUSTER }}
           namespace: reserve-auditor-staging
-          release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
+          release_name: ${{ matrix.target.chain }}-${{ env.REPO_NAME }}
           rancher_url: ${{ secrets.RANCHER_B_URL }}
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
           chart_repo: ${{ env.CHART_REPO }}
           chart_name: ${{ env.REPO_NAME}}
           chart_version: ${{ needs.backend.outputs.version }}
-          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
+          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target.chain }}-values.yaml
           chart_set: |
             --set=frontend.image.tag=${{ needs.backend.outputs.version }}
-            --set=ingress.host=auditor.stage.${{ matrix.target }}.mobilecoin.com
+            --set=ingress.host=auditor.stage.${{ matrix.target.chain }}.mobilecoin.com
+            --set=frontend.network=${{ matrix.target.network }}

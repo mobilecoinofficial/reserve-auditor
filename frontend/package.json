@@ -60,9 +60,13 @@
     "start-local": "webpack serve --config webpack/webpack.config.js --env env=local --mode development",
     "start-testnet": "webpack serve --config webpack/webpack.config.js --env env=testnet --mode development",
     "start-mainnet": "webpack serve --config webpack/webpack.config.js --env env=mainnet --mode development",
+    "start-staging-main": "webpack serve --config webpack/webpack.config.js --env env=staging-main --mode development",
+    "start-staging-test": "webpack serve --config webpack/webpack.config.js --env env=staging-test --mode development",
     "build-local": "webpack --config webpack/webpack.config.js --env env=local --mode production",
     "build-testnet": "webpack --config webpack/webpack.config.js --env env=testnet --mode production",
+    "build-staging-test": "webpack --config webpack/webpack.config.js --env env=staging-test --mode production",
     "build-mainnet": "webpack --config webpack/webpack.config.js --env env=mainnet --mode production",
+    "build-staging-main": "webpack --config webpack/webpack.config.js --env env=staging-main --mode production",
     "lint": "eslint --fix \"./src/**/*.{js,jsx,ts,tsx,json}\"",
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },

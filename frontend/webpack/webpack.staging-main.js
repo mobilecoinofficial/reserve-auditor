@@ -5,7 +5,7 @@ module.exports = {
   plugins: [
     new DefinePlugin({
       AUDITOR_URL: JSON.stringify(
-        'https://auditor.stage.main.mobilecoin.com/api'
+        'https://auditor.stage.main.mobilecoin.com/api/'
       ),
       GNOSIS_SAFE_API_URL: JSON.stringify(
         'https://safe-transaction-mainnet.safe.global'

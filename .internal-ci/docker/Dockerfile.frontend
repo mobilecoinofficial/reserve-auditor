@@ -16,6 +16,9 @@ COPY --from=deps /app/node_modules ./node_modules
 RUN yarn build-mainnet -o mainnet
 RUN yarn build-testnet -o testnet
 
+RUN yarn build-staging-main -o main-stage
+RUN yarn build-staging-test -o test-stage
+
 FROM nginxinc/nginx-unprivileged AS runner
 WORKDIR /app
 
@@ -24,6 +27,8 @@ ENV NODE_ENV production
 # Copy app files
 COPY --from=builder /app/mainnet /app/mainnet
 COPY --from=builder /app/testnet /app/testnet
+COPY --from=builder /app/main-stage /app/main-stage
+COPY --from=builder /app/test-stage /app/test-stage
 
 # Copy nginx configs
 COPY .internal-ci/docker/support/frontend /etc/nginx

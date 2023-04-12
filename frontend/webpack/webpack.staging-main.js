@@ -7,6 +7,9 @@ module.exports = {
       AUDITOR_URL: JSON.stringify(
         'https://auditor.stage.main.mobilecoin.com/api/'
       ),
+      BLOCK_EXPLORER_URL: JSON.stringify(
+        'https://block-explorer.mobilecoin.foundation'
+      ),
       GNOSIS_SAFE_API_URL: JSON.stringify(
         'https://safe-transaction-mainnet.safe.global'
       ),

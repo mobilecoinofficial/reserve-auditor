@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 
 import { TTableData } from '../api/hooks/useTableData'
-import WrapTableRow from './WrapTableRow'
+import DataTableRow from './DataTableRow'
 import useThrottle from '../utils/useThrottle'
 
 export const getTableHeightToSubtract = (renderTopContents = false) => {
@@ -126,7 +126,7 @@ export default function AuditDataTable({
             </TableHead>
             <TableBody>
               {data.map((row, index) => (
-                <WrapTableRow rowItem={row} key={`mintOrBurnRow-${index}`} />
+                <DataTableRow rowItem={row} key={`mintOrBurnRow-${index}`} />
               ))}
             </TableBody>
           </Table>

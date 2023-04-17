@@ -59,7 +59,12 @@ export default function useTableData(): UseTableDataResult {
       const filteredUnauditedBurns = data[3].filter(
         (burn) => burn.burn.tokenId === 1
       )
+      // remove non-EUSD unaudited mints
+      const filteredUnauditedMints = data[2].filter(
+        (mint) => mint.tokenId === 1
+      )
       data[3] = filteredUnauditedBurns
+      data[2] = filteredUnauditedMints
       setSortedData(sortData(data.flat()))
       setTotalUnauditedDeposits(sumBy(data[5], (dep) => dep.deposit.amount))
       setTotalUnauditedBurns(

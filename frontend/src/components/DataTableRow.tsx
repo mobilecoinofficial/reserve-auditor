@@ -150,28 +150,24 @@ function DetailsSection({
 }
 
 type InfoProps = {
-  icon?: string,
-  header?: string,
-  text: string,
+  icon?: React.ReactNode
+  header?: string
+  text: string
 }
 
-function InfoSection({
-  icon,
-  header,
-  text,
-}: InfoProps) {
+function InfoSection({ icon, header, text }: InfoProps) {
   return (
     <Box paddingTop={2} paddingBottom={1} width={COLUMN_ONE_WIDTH * 2}>
       <Typography variant="subtitle1">
         <Stack direction="row" alignItems="center" gap={1}>
-          { icon }
-          { header }
+          {icon}
+          {header}
         </Stack>
       </Typography>
       <ul style={{ paddingLeft: '4px' }}>
         <li style={{ listStyleType: 'none' }}>
           <Typography variant="body2" color="textSecondary">
-                {text}
+            {text}
           </Typography>
         </li>
       </ul>
@@ -179,14 +175,14 @@ function InfoSection({
   )
 }
 
-export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
+export default function DataTableRow({ rowItem }: { rowItem: TTableData }) {
   // audited mint
   if ('mint' in rowItem && 'audited' in rowItem) {
     return (
       <>
         <TableRow
           type="Wrap + Mint"
-          icon={<WrapMintIcon sx={{ color: 'success.light' }} />}
+          icon={<WrapMintIcon />}
           amount={rowItem.mint.amount}
           amountIcon={<EUSDIcon />}
           timestamp={rowItem.mint.blockTimestamp}
@@ -293,7 +289,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                 linkTitle="MobileCoin Block Index"
               />
               <InfoSection
-                icon={ <AlertIcon /> }
+                icon={<AlertIcon />}
                 header="Alert"
                 text="A corresponding deposit of funds to the custodian multisig was not identified."
               />
@@ -306,6 +302,14 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
   }
   // unaudited burn
   if ('burn' in rowItem) {
+    const isBurnOld =
+      moment(rowItem.burn.blockTimestamp).diff(moment(), 'days') < -7
+    const baseInfoText =
+      'An unwrap can to take up to 3 business days from burn to completion.'
+    const infoText = isBurnOld
+      ? baseInfoText +
+        ' This burn is more than 7 days old and no corresponding unwrap exists. It is most likely a test burn'
+      : baseInfoText
     return (
       <>
         <TableRow
@@ -321,29 +325,35 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           }
           amountIcon={<EUSDIcon />}
           detailsComponent={
-            <Box display="flex" >
-            <DetailsSection
-              header="Burn"
-              time={rowItem.burn.blockTimestamp}
-              link={
-                <MCBurnLink
-                  blockIndex={rowItem.burn.blockIndex}
-                  burnTxo={rowItem.burn.publicKeyHex}
-                />
-              }
-              amount={rowItem.burn.amount}
-              title="Burned eUSD"
-              linkTitle="Burn Public Key"
-            />
-            <InfoSection
-              icon={ <InfoOutlinedIcon sx={{ color: "primary.light" }} /> }
-              header="Info"
-              text="An unwrap can to take up to 3 business days from burn to completion."
-            />
-          </Box>
+            <Box display="flex">
+              <DetailsSection
+                header="Burn"
+                time={rowItem.burn.blockTimestamp}
+                link={
+                  <MCBurnLink
+                    blockIndex={rowItem.burn.blockIndex}
+                    burnTxo={rowItem.burn.publicKeyHex}
+                  />
+                }
+                amount={rowItem.burn.amount}
+                title="Burned eUSD"
+                linkTitle="Burn Public Key"
+              />
+              <InfoSection
+                icon={<InfoOutlinedIcon sx={{ color: 'primary.light' }} />}
+                header="Info"
+                text={infoText}
+              />
+            </Box>
           }
         />
-        <TableRow type="Unwrap" icon={ <PendingIcon sx={{ color: 'primary.light' }} /> } />
+        {!isBurnOld && (
+          <TableRow
+            type="Unwrap"
+            icon={<PendingIcon sx={{ color: 'primary.light' }} />}
+          />
+        )}
+
         <SpacerRow />
       </>
     )
@@ -362,23 +372,26 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           link={<EthLink hash={rowItem.deposit.ethTxHash} />}
           detailsComponent={
             <Box display="flex">
-            <DetailsSection
-              header='Wrap'
-              time={rowItem.deposit.executionDate}
-              link={<EthLink hash={rowItem.deposit.ethTxHash} />}
-              amount={rowItem.deposit.amount}
-              title={`${ercSymbol} received by custodian multisig`}
-              linkTitle="Eth Tx Hash"
-            />
-            <InfoSection
-              icon={ <InfoOutlinedIcon sx={{ color: "primary.light" }}/> }
-              header="Info"
-              text="A wrap can to take up to 3 business days to complete."
-            />
-          </Box>
+              <DetailsSection
+                header="Wrap"
+                time={rowItem.deposit.executionDate}
+                link={<EthLink hash={rowItem.deposit.ethTxHash} />}
+                amount={rowItem.deposit.amount}
+                title={`${ercSymbol} received by custodian multisig`}
+                linkTitle="Eth Tx Hash"
+              />
+              <InfoSection
+                icon={<InfoOutlinedIcon sx={{ color: 'primary.light' }} />}
+                header="Info"
+                text="A wrap can to take up to 3 business days to complete."
+              />
+            </Box>
           }
         />
-        <TableRow type="Mint" icon={<PendingIcon sx={{ color: 'primary.light' }} />} />
+        <TableRow
+          type="Mint"
+          icon={<PendingIcon sx={{ color: 'primary.light' }} />}
+        />
         <SpacerRow />
       </>
     )
@@ -406,7 +419,7 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
           timestamp={rowItem.executionDate}
           link={<EthLink hash={rowItem.ethTxHash} />}
           detailsComponent={
-            <Box display='flex'>
+            <Box display="flex">
               <DetailsSection
                 header="Unwrap"
                 time={rowItem.executionDate}
@@ -416,11 +429,11 @@ export default function WrapTableRow({ rowItem }: { rowItem: TTableData }) {
                 linkTitle="Eth Tx Hash"
               />
               <InfoSection
-                icon={ <AlertIcon /> }
+                icon={<AlertIcon />}
                 header="Alert"
                 text="A corresponding burn of wrapped eUSD was not identified."
               />
-            </ Box>
+            </Box>
           }
         />
         <SpacerRow />

@@ -2700,6 +2700,7 @@ dependencies = [
  "mc-crypto-multisig",
  "mc-ledger-db",
  "mc-reserve-auditor-api",
+ "mc-transaction-builder",
  "mc-transaction-core",
  "mc-transaction-core-test-utils",
  "mc-transaction-extra",

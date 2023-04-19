@@ -17,7 +17,7 @@ use mc_reserve_auditor::{
     Error, ReserveAuditorService,
 };
 use mc_reserve_auditor_api::ReserveAuditorUri;
-use mc_util_grpc::{AdminServer, BuildInfoService, HealthService, ConnectionUriGrpcioServer};
+use mc_util_grpc::{AdminServer, BuildInfoService, ConnectionUriGrpcioServer, HealthService};
 use mc_util_parse::parse_duration_in_seconds;
 use mc_util_uri::AdminUri;
 use mc_watcher::watcher_db::WatcherDB;
@@ -209,7 +209,9 @@ fn cmd_scan_ledger(
             .register_service(reserve_auditor_service)
             .set_default_channel_args(env);
 
-        let mut server = server_builder.build_using_uri(&listen_uri, logger.clone()).unwrap();
+        let mut server = server_builder
+            .build_using_uri(&listen_uri, logger.clone())
+            .unwrap();
         server.start();
 
         server

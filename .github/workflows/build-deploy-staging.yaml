@@ -80,7 +80,7 @@ jobs:
           images: mobilecoin/reserve-auditor
           tags: |
             type=ref,event=branch
-            type=semver,pattern=v{{version}}
+            type=semver,pattern=v{{version}},suffix=-${{ matrix.versions.prefix}}
             type=sha
 
 
@@ -91,7 +91,6 @@ jobs:
           context: .
           build-args: |
             MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
-            IAS_MODE=${{ matrix.versions.ias }}
             NETWORK=${{ matrix.versions.network }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
@@ -155,6 +154,6 @@ jobs:
           chart_version: ${{ needs.backend.outputs.version }}
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target.chain }}-values.yaml
           chart_set: |
-            --set=frontend.image.tag=${{ needs.backend.outputs.version }}
+            --set=frontend.image.tag=${{ needs.backend.outputs.version }}-${{ matrix.target.chain }}
             --set=ingress.host=auditor.stage.${{ matrix.target.chain }}.mobilecoin.com
             --set=frontend.network=${{ matrix.target.network }}

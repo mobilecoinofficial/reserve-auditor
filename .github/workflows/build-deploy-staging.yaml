@@ -154,7 +154,7 @@ jobs:
           chart_version: ${{ needs.backend.outputs.version }}
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target.chain }}-values.yaml
           chart_set: |
-            --set=mobilecoind.image.tag=${{ needs.backend.outputs.version }}
+            --set=mobilecoind.image.tag=${{ github.ref_name }}-${{ matrix.target.chain }}
             --set=frontend.image.tag=${{ github.ref_name }}
             --set=ingress.host=auditor.stage.${{ matrix.target.chain }}.mobilecoin.com
             --set=frontend.network=${{ matrix.target.network }}

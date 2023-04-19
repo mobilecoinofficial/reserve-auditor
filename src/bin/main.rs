@@ -278,7 +278,7 @@ fn cmd_get_block_audit_data(
             .into_string()
             .unwrap(),
         DB_POOL_SIZE,
-        logger.clone(),
+        logger,
     )
     .expect("Could not open reserve auditor DB");
 
@@ -303,12 +303,12 @@ fn cmd_get_block_audit_data(
             println!(
                 "{}",
                 serde_json::to_string(&obj)
-                    .map_err(|err| Error::Other(format!("failed serializing json: {}", err)))?
+                    .map_err(|err| Error::Other(format!("failed serializing json: {err}")))?
             );
         } else {
-            println!("Block index: {}", block_index);
+            println!("Block index: {block_index}");
             for (token_id, balance) in balance_map.iter() {
-                println!("Token {}: {}", token_id, balance);
+                println!("Token {token_id}: {balance}");
             }
         }
 

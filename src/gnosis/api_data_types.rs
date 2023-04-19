@@ -216,7 +216,7 @@ impl RawGnosisTransaction {
                 Error::Other("GnosisSafeTransaction: missing transactionHash".to_string())
             })?;
         EthTxHash::from_str(hash_str)
-            .map_err(|err| Error::Other(format!("Failed parsing tx hash '{}': {}", hash_str, err)))
+            .map_err(|err| Error::Other(format!("Failed parsing tx hash '{hash_str}': {err}")))
     }
 }
 

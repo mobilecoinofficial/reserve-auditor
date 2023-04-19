@@ -161,7 +161,7 @@ mod tests {
     fn get_by_mint_config_tx_id_works(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id1 = TokenId::from(1);
         let token_id2 = TokenId::from(2);
 
@@ -213,7 +213,7 @@ mod tests {
     fn get_total_minted_before_block_works(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id1 = TokenId::from(1);
         let token_id2 = TokenId::from(2);
 

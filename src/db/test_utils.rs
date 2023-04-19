@@ -179,7 +179,7 @@ pub fn insert_mint_tx_from_deposit(
 
     let (_mint_config_tx, signers) = create_mint_config_tx_and_signers(token_id, rng);
     let mut mint_tx = create_mint_tx(token_id, &signers, deposit.amount(), rng);
-    mint_tx.prefix.nonce = hex::decode(&deposit.expected_mc_mint_tx_nonce_hex()).unwrap();
+    mint_tx.prefix.nonce = hex::decode(deposit.expected_mc_mint_tx_nonce_hex()).unwrap();
     MintTx::insert_from_core_mint_tx(0, Some(Utc::now()), None, &mint_tx, conn).unwrap()
 }
 
@@ -241,7 +241,7 @@ pub fn create_gnosis_safe_withdrawal(
         EthAddr::from_str(ETH_TOKEN_CONTRACT_ADDR).unwrap(),
         EthAddr::from_str(GNOSIS_SAFE_WITHDRAWAL_TO_ADDR).unwrap(),
         amount,
-        hex::encode(&public_key),
+        hex::encode(public_key),
     )
 }
 

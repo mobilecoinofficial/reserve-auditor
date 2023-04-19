@@ -71,7 +71,7 @@ mod tests {
     #[test_with_logger]
     fn last_synced_block_index_works(logger: Logger) {
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
 
         assert_eq!(
             BlockAuditData::last_synced_block_index(&reserve_auditor_db.get_conn().unwrap())

@@ -165,7 +165,7 @@ mod tests {
             .add_listening_port("127.0.0.1:0", grpcio::ServerCredentials::insecure())
             .unwrap();
         server.start();
-        let ch = ChannelBuilder::new(env).connect(&format!("127.0.0.1:{}", port));
+        let ch = ChannelBuilder::new(env).connect(&format!("127.0.0.1:{port}"));
         let client = ReserveAuditorApiClient::new(ch);
         (client, server)
     }

@@ -201,7 +201,7 @@ mod tests {
     #[test_with_logger]
     fn counters_sanity_test(logger: Logger) {
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         assert_eq!(Counters::get(&conn).unwrap(), Counters::default());

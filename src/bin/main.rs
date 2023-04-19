@@ -17,7 +17,7 @@ use mc_reserve_auditor::{
     Error, ReserveAuditorService,
 };
 use mc_reserve_auditor_api::ReserveAuditorUri;
-use mc_util_grpc::{AdminServer, BuildInfoService, ConnectionUriGrpcioServer, HealthService};
+use mc_util_grpc::{AdminServer, BuildInfoService, HealthService, ConnectionUriGrpcioServer};
 use mc_util_parse::parse_duration_in_seconds;
 use mc_util_uri::AdminUri;
 use mc_watcher::watcher_db::WatcherDB;
@@ -203,13 +203,13 @@ fn cmd_scan_ledger(
         log::info!(logger, "Starting API service on {}", listen_uri);
         let env = Arc::new(EnvBuilder::new().name_prefix("RPC".to_string()).build());
 
-        let server_builder = ServerBuilder::new(env)
+        let server_builder = ServerBuilder::new(env.clone())
             .register_service(build_info_service)
             .register_service(health_service)
             .register_service(reserve_auditor_service)
-            .bind_using_uri(&listen_uri, logger.clone());
+            .set_default_channel_args(env);
 
-        let mut server = server_builder.build().unwrap();
+        let mut server = server_builder.build_using_uri(&listen_uri, logger.clone()).unwrap();
         server.start();
 
         server
@@ -228,6 +228,7 @@ fn cmd_scan_ledger(
             "Reserve Auditor".to_owned(),
             local_hostname,
             None,
+            vec![],
             logger.clone(),
         )
         .expect("Failed starting admin grpc server")
@@ -367,10 +368,10 @@ fn sync_loop(
 
                 // Get block timestamp if we are running with a watcher. Note that poll_block_timestamp blocks until a timestamp can be obtained,
                 // the timeout only controls when a warning log message is printed.
-                let block_timestamp = watcher_db.as_ref().map(|db| {
+                let block_timestamp = watcher_db.as_ref().and_then(|db| {
                     let timestamp =
                         db.poll_block_timestamp(block_data.block().index, Duration::from_secs(30));
-                    Utc.timestamp(timestamp as i64, 0)
+                    Utc.timestamp_opt(timestamp as i64, 0).single()
                 });
 
                 // SQLite3 does not like concurrent writes. Since we are going to be writing to

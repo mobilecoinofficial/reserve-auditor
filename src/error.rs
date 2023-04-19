@@ -16,7 +16,7 @@ use mc_crypto_keys::KeyError;
 use mc_crypto_keys::SignatureError;
 use mc_ledger_db::Error as LedgerDbError;
 use mc_transaction_core::ViewKeyMatchError;
-use mc_transaction_std::MemoDecodingError;
+use mc_transaction_extra::MemoDecodingError;
 use mc_util_serial::DecodeError;
 use std::io::Error as IoError;
 

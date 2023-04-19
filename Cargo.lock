@@ -1402,31 +1402,16 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 
 [[package]]
 name = "grpcio"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1132252c65fd51bd7d1dc7920e2931201fc3a2c9e3fbce6c27f8762e7a2ff3ed"
-dependencies = [
- "futures-executor",
- "futures-util",
- "grpcio-sys 0.10.3+1.44.0-patched",
- "libc",
- "log",
- "parking_lot 0.11.2",
- "protobuf",
-]
-
-[[package]]
-name = "grpcio"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "609832ca501baeb662dc81932fda9ed83f5d058f4b899a807ba222ce696f430a"
 dependencies = [
  "futures-executor",
  "futures-util",
- "grpcio-sys 0.12.1+1.46.5-patched",
+ "grpcio-sys",
  "libc",
  "log",
- "parking_lot 0.12.1",
+ "parking_lot",
  "protobuf",
 ]
 
@@ -1437,22 +1422,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f1f1abac9f330ac9ee0950220c10eea84d66479cede4836f0b924407fecf093c"
 dependencies = [
  "protobuf",
-]
-
-[[package]]
-name = "grpcio-sys"
-version = "0.10.3+1.44.0-patched"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f23adc509a3c4dea990e0ab8d2add4a65389ee69c288b7851d75dd1df7a6d6c6"
-dependencies = [
- "bindgen 0.59.2",
- "boringssl-src",
- "cc",
- "cmake",
- "libc",
- "libz-sys",
- "pkg-config",
- "walkdir",
 ]
 
 [[package]]
@@ -2114,7 +2083,7 @@ dependencies = [
  "cargo-emit",
  "digest",
  "futures",
- "grpcio 0.12.1",
+ "grpcio",
  "mc-attest-ake",
  "mc-attest-enclave-api",
  "mc-crypto-keys",
@@ -2284,7 +2253,7 @@ dependencies = [
  "aes-gcm",
  "cookie",
  "displaydoc",
- "grpcio 0.12.1",
+ "grpcio",
  "mc-attest-ake",
  "mc-attest-api",
  "mc-attest-core",
@@ -2311,7 +2280,7 @@ version = "4.1.0-pre0"
 dependencies = [
  "cargo-emit",
  "futures",
- "grpcio 0.12.1",
+ "grpcio",
  "mc-api",
  "mc-attest-api",
  "mc-ledger-db",
@@ -2658,7 +2627,7 @@ version = "4.1.0-pre0"
 dependencies = [
  "crossbeam-channel",
  "displaydoc",
- "grpcio 0.12.1",
+ "grpcio",
  "mc-account-keys",
  "mc-api",
  "mc-attest-verifier",
@@ -2718,7 +2687,7 @@ dependencies = [
  "diesel",
  "diesel_migrations",
  "displaydoc",
- "grpcio 0.11.0",
+ "grpcio",
  "hex",
  "hostname",
  "lazy_static",
@@ -2733,6 +2702,7 @@ dependencies = [
  "mc-reserve-auditor-api",
  "mc-transaction-core",
  "mc-transaction-core-test-utils",
+ "mc-transaction-extra",
  "mc-util-from-random",
  "mc-util-grpc",
  "mc-util-metrics",
@@ -2760,7 +2730,7 @@ version = "2.0.0"
 dependencies = [
  "cargo-emit",
  "futures",
- "grpcio 0.11.0",
+ "grpcio",
  "mc-api",
  "mc-util-build-grpc",
  "mc-util-build-script",
@@ -3021,7 +2991,7 @@ dependencies = [
  "cookie",
  "displaydoc",
  "futures",
- "grpcio 0.12.1",
+ "grpcio",
  "hex",
  "hex_fmt",
  "hmac",
@@ -3071,7 +3041,7 @@ name = "mc-util-metrics"
 version = "4.1.0-pre0"
 dependencies = [
  "chrono",
- "grpcio 0.12.1",
+ "grpcio",
  "lazy_static",
  "mc-common",
  "prometheus",
@@ -3171,7 +3141,7 @@ dependencies = [
  "clap 4.2.4",
  "displaydoc",
  "futures",
- "grpcio 0.12.1",
+ "grpcio",
  "hex",
  "lazy_static",
  "lmdb-rkv",
@@ -3537,37 +3507,12 @@ dependencies = [
 
 [[package]]
 name = "parking_lot"
-version = "0.11.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d17b78036a60663b797adeaee46f5c9dfebb86948d1255007a1d6be0271ff99"
-dependencies = [
- "instant",
- "lock_api",
- "parking_lot_core 0.8.6",
-]
-
-[[package]]
-name = "parking_lot"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3742b2c103b9f06bc9fff0a37ff4912935851bee6d36f3c02bcc755bcfec228f"
 dependencies = [
  "lock_api",
- "parking_lot_core 0.9.7",
-]
-
-[[package]]
-name = "parking_lot_core"
-version = "0.8.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60a2cfe6f0ad2bfc16aefa463b497d5c7a5ecd44a23efa72aa342d90177356dc"
-dependencies = [
- "cfg-if",
- "instant",
- "libc",
- "redox_syscall 0.2.16",
- "smallvec",
- "winapi",
+ "parking_lot_core",
 ]
 
 [[package]]
@@ -3796,7 +3741,7 @@ dependencies = [
  "fnv",
  "lazy_static",
  "memchr",
- "parking_lot 0.12.1",
+ "parking_lot",
  "protobuf",
  "thiserror",
 ]
@@ -3902,7 +3847,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51de85fb3fb6524929c8a2eb85e6b6d363de4e8c48f9e2c2eac4944abc181c93"
 dependencies = [
  "log",
- "parking_lot 0.12.1",
+ "parking_lot",
  "scheduled-thread-pool",
 ]
 
@@ -4139,7 +4084,7 @@ dependencies = [
  "memchr",
  "multer",
  "num_cpus",
- "parking_lot 0.12.1",
+ "parking_lot",
  "pin-project-lite",
  "rand",
  "ref-cast",
@@ -4299,7 +4244,7 @@ version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3cbc66816425a074528352f5789333ecff06ca41b36b0b0efdfbb29edc391a19"
 dependencies = [
- "parking_lot 0.12.1",
+ "parking_lot",
 ]
 
 [[package]]

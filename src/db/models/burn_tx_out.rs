@@ -20,7 +20,7 @@ use mc_account_keys::burn_address_view_private;
 use mc_blockchain_types::BlockIndex;
 use mc_crypto_keys::RistrettoPublic;
 use mc_transaction_core::{get_tx_out_shared_secret, tx::TxOut, TokenId};
-use mc_transaction_std::{BurnRedemptionMemo, MemoType};
+use mc_transaction_extra::{BurnRedemptionMemo, MemoType};
 use mc_util_serial::{decode, encode};
 use serde::{Deserialize, Serialize};
 

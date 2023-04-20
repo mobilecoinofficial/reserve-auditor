@@ -147,8 +147,7 @@ impl GnosisSafeWithdrawal {
     pub fn insert(&mut self, conn: &Conn) -> Result<(), Error> {
         if let Some(id) = self.id {
             return Err(Error::AlreadyExists(format!(
-                "GnosisSafeWithdrawal already has an id ({})",
-                id
+                "GnosisSafeWithdrawal already has an id ({id})"
             )));
         }
 
@@ -216,7 +215,7 @@ mod tests {
     fn test_find_unaudited_withdrawal_by_public_key(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id = TokenId::from(1);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
@@ -353,7 +352,7 @@ mod tests {
     fn test_find_unaudited_withdrawals(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id = TokenId::from(1);
         let conn = reserve_auditor_db.get_conn().unwrap();
 

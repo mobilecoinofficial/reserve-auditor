@@ -159,12 +159,13 @@ mod tests {
         let env = Arc::new(Environment::new(1));
         let mut server = ServerBuilder::new(env.clone())
             .register_service(service)
-            .bind("127.0.0.1", 0)
             .build()
             .unwrap();
+        let port = server
+            .add_listening_port("127.0.0.1:0", grpcio::ServerCredentials::insecure())
+            .unwrap();
         server.start();
-        let (_, port) = server.bind_addrs().next().unwrap();
-        let ch = ChannelBuilder::new(env).connect(&format!("127.0.0.1:{}", port));
+        let ch = ChannelBuilder::new(env).connect(&format!("127.0.0.1:{port}"));
         let client = ReserveAuditorApiClient::new(ch);
         (client, server)
     }

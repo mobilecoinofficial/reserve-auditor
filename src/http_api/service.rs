@@ -444,7 +444,7 @@ mod tests {
     fn test_get_mint_total(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let config = test_gnosis_config();
         let service = ReserveAuditorHttpService::new(reserve_auditor_db, config);
@@ -471,7 +471,7 @@ mod tests {
     fn test_get_burn_total(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let config = test_gnosis_config();
         let service = ReserveAuditorHttpService::new(reserve_auditor_db, config);
@@ -508,7 +508,7 @@ mod tests {
         let config = &test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let service = ReserveAuditorHttpService::new(reserve_auditor_db, config.clone());
 
@@ -544,7 +544,7 @@ mod tests {
         let config = &test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let service = ReserveAuditorHttpService::new(reserve_auditor_db, config.clone());
 
@@ -575,7 +575,7 @@ mod tests {
         let config = &test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let burn_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let burn_auditor_db = test_db_context.get_db_instance(logger);
         let conn = burn_auditor_db.get_conn().unwrap();
         let token_id = config.safes[0].tokens[0].token_id;
         let service = ReserveAuditorHttpService::new(burn_auditor_db, config.clone());
@@ -614,7 +614,7 @@ mod tests {
         let config = &test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let burn_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let burn_auditor_db = test_db_context.get_db_instance(logger);
         let conn = burn_auditor_db.get_conn().unwrap();
         let token_id = config.safes[0].tokens[0].token_id;
         let service = ReserveAuditorHttpService::new(burn_auditor_db, config.clone());
@@ -648,7 +648,7 @@ mod tests {
         let config = &test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let service = ReserveAuditorHttpService::new(reserve_auditor_db, config.clone());
 

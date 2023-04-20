@@ -68,8 +68,7 @@ impl AuditedBurn {
                     .optional()?;
                 if let Some((public_key_hex, eth_tx_hash)) = existing_match {
                     return Err(Error::AlreadyExists(format!(
-                    "GnosisSafeWithdrawal eth_tx_hash={} already matched with BurnTxOut pub_key={}",
-                    eth_tx_hash, public_key_hex,
+                    "GnosisSafeWithdrawal eth_tx_hash={eth_tx_hash} already matched with BurnTxOut pub_key={public_key_hex}",
                 )));
                 }
 
@@ -149,8 +148,7 @@ impl AuditedBurn {
                     .optional()?;
                 if let Some((public_key_hex, eth_tx_hash)) = existing_match {
                     return Err(Error::AlreadyExists(format!(
-                        "BurnTxOut pub_key={} already matched with GnosisSafeDeposit eth_tx_hash={}",
-                        public_key_hex, eth_tx_hash,
+                        "BurnTxOut pub_key={public_key_hex} already matched with GnosisSafeDeposit eth_tx_hash={eth_tx_hash}",
                     )));
                 }
 
@@ -349,7 +347,7 @@ mod tests {
         let config = &test_gnosis_config().safes[0];
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let token_id = config.tokens[0].token_id;
 
@@ -418,7 +416,7 @@ mod tests {
         let config = &test_gnosis_config().safes[0];
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id = config.tokens[0].token_id;
         let conn = reserve_auditor_db.get_conn().unwrap();
 
@@ -464,7 +462,7 @@ mod tests {
         let config = &test_gnosis_config().safes[0];
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let withdrawal = create_gnosis_safe_withdrawal(100, &mut rng);
@@ -490,7 +488,7 @@ mod tests {
         let mut config = test_gnosis_config().safes[0].clone();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let token_id = config.tokens[0].token_id;
 
@@ -520,7 +518,7 @@ mod tests {
         let mut config = test_gnosis_config().safes[0].clone();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let token_id = config.tokens[0].token_id;
 
@@ -552,7 +550,7 @@ mod tests {
         let mut config = test_gnosis_config().safes[0].clone();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let token_id = config.tokens[0].token_id;
 
@@ -584,7 +582,7 @@ mod tests {
         let config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let token_id = config.safes[0].tokens[0].token_id;
 
@@ -653,7 +651,7 @@ mod tests {
         let config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id = config.safes[0].tokens[0].token_id;
         let conn = reserve_auditor_db.get_conn().unwrap();
 
@@ -698,7 +696,7 @@ mod tests {
         let config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id = config.safes[0].tokens[0].token_id;
         let conn = reserve_auditor_db.get_conn().unwrap();
 
@@ -725,7 +723,7 @@ mod tests {
         let mut config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let token_id = config.safes[0].tokens[0].token_id;
 
@@ -754,7 +752,7 @@ mod tests {
         let mut config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let token_id = config.safes[0].tokens[0].token_id;
 
@@ -786,7 +784,7 @@ mod tests {
         let mut config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let token_id = config.safes[0].tokens[0].token_id;
 
@@ -818,7 +816,7 @@ mod tests {
         let config = &test_gnosis_config().safes[0];
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
         let token_id = config.tokens[0].token_id;
 

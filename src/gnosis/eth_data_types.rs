@@ -59,7 +59,7 @@ impl FromStr for EthTxValue {
     fn from_str(src: &str) -> Result<Self, Self::Err> {
         match src.parse::<u128>() {
             Err(_) => {
-                let invalid_string_error = format!("unable to parse value to EthTxValue: {}", src);
+                let invalid_string_error = format!("unable to parse value to EthTxValue: {src}");
                 Err(Error::InvalidTxValue(invalid_string_error))
             }
             Ok(eth_tx_value) => Ok(Self(eth_tx_value)),
@@ -95,13 +95,13 @@ impl FromStr for EthAddr {
 
         if !src.starts_with("0x") {
             let invalid_prefix_error =
-                format!("expected address to begin with 0x, instead found {}", src);
+                format!("expected address to begin with 0x, instead found {src}");
             return Err(Error::InvalidAddress(invalid_prefix_error));
         }
 
         let bytes = hex::decode(&src[2..]).map_err(|_| {
             let byte_conversion_error =
-                format!("unable to convert address to bytes for address: {}", src);
+                format!("unable to convert address to bytes for address: {src}");
             Error::InvalidAddress(byte_conversion_error)
         })?;
 
@@ -190,13 +190,13 @@ impl FromStr for EthTxHash {
 
 impl fmt::Display for EthTxHash {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "0x{}", hex::encode(&self.0))
+        write!(f, "0x{}", hex::encode(self.0))
     }
 }
 
 impl fmt::Debug for EthTxHash {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "EthTxHash(\"{}\")", self)
+        write!(f, "EthTxHash(\"{self}\")")
     }
 }
 

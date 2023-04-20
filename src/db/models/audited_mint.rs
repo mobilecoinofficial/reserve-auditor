@@ -65,8 +65,7 @@ impl AuditedMint {
                 if let Some((nonce_hex, eth_tx_hash)) = existing_match {
                     Counters::inc_num_unexpected_errors_matching_deposits_to_mints(conn)?;
                     return Err(Error::AlreadyExists(format!(
-                        "GnosisSafeDeposit eth_tx_hash={} already matched with mint_tx nonce={}",
-                        eth_tx_hash, nonce_hex,
+                        "GnosisSafeDeposit eth_tx_hash={eth_tx_hash} already matched with mint_tx nonce={nonce_hex}",
                     )));
                 }
 
@@ -143,8 +142,7 @@ impl AuditedMint {
                     .optional()?;
                 if let Some((nonce_hex, eth_tx_hash)) = existing_match {
                     return Err(Error::AlreadyExists(format!(
-                        "MintTx nonce={} already matched with GnosisSafeDeposit eth_tx_hash={}",
-                        nonce_hex, eth_tx_hash,
+                        "MintTx nonce={nonce_hex} already matched with GnosisSafeDeposit eth_tx_hash={eth_tx_hash}",
                     )));
                 }
 
@@ -358,7 +356,7 @@ mod tests {
         let config = &test_gnosis_config().safes[0];
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         // Create gnosis deposits.
@@ -421,7 +419,7 @@ mod tests {
         let config = &test_gnosis_config().safes[0];
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id1 = config.tokens[0].token_id;
         let conn = reserve_auditor_db.get_conn().unwrap();
 
@@ -433,7 +431,7 @@ mod tests {
         let (_mint_config_tx, signers) = create_mint_config_tx_and_signers(token_id1, &mut rng);
         let mut mint_tx = create_mint_tx(token_id1, &signers, deposit.amount() + 1, &mut rng);
 
-        mint_tx.prefix.nonce = hex::decode(&deposit.expected_mc_mint_tx_nonce_hex()).unwrap();
+        mint_tx.prefix.nonce = hex::decode(deposit.expected_mc_mint_tx_nonce_hex()).unwrap();
 
         // Insert the MintTx to the database, and check that the mismatch is
         // detected.
@@ -460,7 +458,7 @@ mod tests {
         let config = &test_gnosis_config().safes[0];
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let deposit = create_gnosis_safe_deposit(100, &mut rng);
@@ -486,7 +484,7 @@ mod tests {
         let mut config = test_gnosis_config().safes[0].clone();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut deposit = create_gnosis_safe_deposit(100, &mut rng);
@@ -515,7 +513,7 @@ mod tests {
         let mut config = test_gnosis_config().safes[0].clone();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut deposit = create_gnosis_safe_deposit(100, &mut rng);
@@ -546,7 +544,7 @@ mod tests {
         let mut config = test_gnosis_config().safes[0].clone();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut deposit = create_gnosis_safe_deposit(100, &mut rng);
@@ -577,7 +575,7 @@ mod tests {
         let config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         // Create gnosis deposits (that are not yet in the database).
@@ -643,7 +641,7 @@ mod tests {
         let config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id1 = config.safes[0].tokens[0].token_id;
         let conn = reserve_auditor_db.get_conn().unwrap();
 
@@ -655,7 +653,7 @@ mod tests {
         let (_mint_config_tx, signers) = create_mint_config_tx_and_signers(token_id1, &mut rng);
         let mut mint_tx = create_mint_tx(token_id1, &signers, deposit.amount() + 1, &mut rng);
 
-        mint_tx.prefix.nonce = hex::decode(&deposit.expected_mc_mint_tx_nonce_hex()).unwrap();
+        mint_tx.prefix.nonce = hex::decode(deposit.expected_mc_mint_tx_nonce_hex()).unwrap();
 
         let sql_mint_tx = MintTx::insert_from_core_mint_tx(0, None, None, &mint_tx, &conn).unwrap();
 
@@ -682,7 +680,7 @@ mod tests {
         let config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id1 = config.safes[0].tokens[0].token_id;
         let conn = reserve_auditor_db.get_conn().unwrap();
 
@@ -711,7 +709,7 @@ mod tests {
         let mut config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut deposit = create_gnosis_safe_deposit(100, &mut rng);
@@ -737,7 +735,7 @@ mod tests {
         let mut config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut deposit = create_gnosis_safe_deposit(100, &mut rng);
@@ -768,7 +766,7 @@ mod tests {
         let mut config = test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut deposit = create_gnosis_safe_deposit(100, &mut rng);
@@ -799,7 +797,7 @@ mod tests {
         let config = &test_gnosis_config();
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut deposits: Vec<GnosisSafeDeposit> = vec![];

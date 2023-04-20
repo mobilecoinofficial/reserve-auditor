@@ -20,7 +20,7 @@ use mc_account_keys::burn_address_view_private;
 use mc_blockchain_types::BlockIndex;
 use mc_crypto_keys::RistrettoPublic;
 use mc_transaction_core::{get_tx_out_shared_secret, tx::TxOut, TokenId};
-use mc_transaction_std::{BurnRedemptionMemo, MemoType};
+use mc_transaction_extra::{BurnRedemptionMemo, MemoType};
 use mc_util_serial::{decode, encode};
 use serde::{Deserialize, Serialize};
 
@@ -112,8 +112,7 @@ impl BurnTxOut {
     pub fn insert(&mut self, conn: &Conn) -> Result<(), Error> {
         if let Some(id) = self.id {
             return Err(Error::AlreadyExists(format!(
-                "BurnTxOut already has an id ({})",
-                id
+                "BurnTxOut already has an id ({id})"
             )));
         }
         diesel::insert_into(burn_tx_outs::table)
@@ -243,7 +242,7 @@ mod tests {
     fn insert_enforces_uniqueness(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id1 = TokenId::from(1);
 
         let conn = reserve_auditor_db.get_conn().unwrap();
@@ -274,7 +273,7 @@ mod tests {
     fn test_find_unaudited_burn_tx_out_by_public_key(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let token_id1 = TokenId::from(1);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
@@ -401,7 +400,7 @@ mod tests {
     fn test_get_burn_amounts(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         for i in 0..10 {
@@ -416,7 +415,7 @@ mod tests {
     fn test_get_burn_txs_by_block(logger: Logger) {
         let mut rng = mc_util_test_helper::get_seeded_rng();
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         for i in 0..3 {

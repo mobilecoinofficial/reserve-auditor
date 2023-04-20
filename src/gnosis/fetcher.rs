@@ -34,7 +34,7 @@ impl GnosisSafeFetcher {
 
         let client = Client::builder()
             .build()
-            .map_err(|e| Error::Other(format!("Failed to create reqwest client: {}", e)))?;
+            .map_err(|e| Error::Other(format!("Failed to create reqwest client: {e}")))?;
 
         Ok(Self {
             base_url,
@@ -53,8 +53,7 @@ impl GnosisSafeFetcher {
         safe_addr: &EthAddr,
     ) -> Result<Vec<RawGnosisTransaction>, Error> {
         let mut url = self.base_url.join(&format!(
-            "api/v1/safes/{}/all-transactions/?executed=true&queued=false&trusted=true",
-            safe_addr
+            "api/v1/safes/{safe_addr}/all-transactions/?executed=true&queued=false&trusted=true"
         ))?;
 
         let mut raw_transactions = Vec::new();
@@ -85,7 +84,7 @@ impl GnosisSafeFetcher {
             .client
             .get(url.clone())
             .send()
-            .map_err(|err| Error::Other(format!("Failed to fetch '{}': {}", url, err)))?;
+            .map_err(|err| Error::Other(format!("Failed to fetch '{url}': {err}")))?;
         if response.status() != StatusCode::OK {
             return Err(Error::Other(format!(
                 "Failed to fetch '{}': Expected status 200, got {}",
@@ -95,7 +94,7 @@ impl GnosisSafeFetcher {
         }
 
         response.json().map_err(|err| {
-            Error::ApiResultParse(format!("Failed parsing JSON from '{}': {}", url, err))
+            Error::ApiResultParse(format!("Failed parsing JSON from '{url}': {err}"))
         })
     }
 }

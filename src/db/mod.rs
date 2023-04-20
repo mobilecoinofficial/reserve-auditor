@@ -363,7 +363,7 @@ mod tests {
         let token_id3 = TokenId::from(3);
 
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut ledger_db = create_ledger();
@@ -594,7 +594,7 @@ mod tests {
         let mut rng = mc_util_test_helper::get_seeded_rng();
 
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let mut ledger_db = create_ledger();
         let account_key = AccountKey::random(&mut rng);
         let initial_num_blocks = 3;
@@ -630,7 +630,7 @@ mod tests {
         let mut rng = mc_util_test_helper::get_seeded_rng();
 
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let mut ledger_db = create_ledger();
         let account_key = AccountKey::random(&mut rng);
         let initial_num_blocks = 3;
@@ -665,7 +665,7 @@ mod tests {
         let mut rng = mc_util_test_helper::get_seeded_rng();
 
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
 
         let mut ledger_db = create_ledger();
         let account_key = AccountKey::random(&mut rng);
@@ -706,7 +706,7 @@ mod tests {
         let token_id2 = TokenId::from(22);
 
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut ledger_db = create_ledger();
@@ -897,7 +897,7 @@ mod tests {
         let token_id2 = TokenId::from(22);
 
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut ledger_db = create_ledger();
@@ -1068,7 +1068,7 @@ mod tests {
         let token_id1 = TokenId::from(1);
 
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
         let conn = reserve_auditor_db.get_conn().unwrap();
 
         let mut ledger_db = create_ledger();

@@ -98,7 +98,7 @@ mod tests {
     #[test_with_logger]
     fn block_balance_test(logger: Logger) {
         let test_db_context = TestDbContext::default();
-        let reserve_auditor_db = test_db_context.get_db_instance(logger.clone());
+        let reserve_auditor_db = test_db_context.get_db_instance(logger);
 
         BlockAuditData::new(0)
             .set(&reserve_auditor_db.get_conn().unwrap())

@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect, useMemo } from 'react'
+import React from 'react'
 import {
   Box,
   Typography,
@@ -12,7 +12,6 @@ import {
 
 import { TTableData } from '../api/hooks/useTableData'
 import DataTableRow from './DataTableRow'
-import useThrottle from '../utils/useThrottle'
 
 export const getTableHeightToSubtract = (renderTopContents = false) => {
   // This is a little brittle a needs to be adjusted if we modify the top of this page.
@@ -30,78 +29,14 @@ export const getTableHeightToSubtract = (renderTopContents = false) => {
   return tableHeightToSubtract
 }
 
-export default function AuditDataTable({
-  data,
-  renderTopContent,
-  setRenderTopContent,
-}: {
-  data: TTableData[]
-  renderTopContent: boolean
-  setRenderTopContent: (render: boolean) => void
-}) {
-  const tableEl = useRef<HTMLTableElement>(null)
-  // state used for dynamically rendering top content on scroll
-  const scrollHeight = useRef(0)
-
-  const throttledContentListener = useThrottle(() => {
-    if (!tableEl.current) {
-      return
-    }
-    // ignore sideways scrolling
-    if (scrollHeight.current - tableEl?.current.scrollTop === 0) {
-      return
-    }
-    // anytime we're scrolling down, hide the top content.
-    // any time we're scrolling up, show the top content.
-    const scrollDirection =
-      scrollHeight.current - tableEl?.current.scrollTop > 0 ? 'up' : 'down'
-    const scrolledUpEnough =
-      scrollHeight.current - tableEl?.current.scrollTop > 800 ||
-      tableEl?.current.scrollTop === 0
-    const scrolledDownEnough =
-      scrollHeight.current - tableEl?.current.scrollTop < -200
-    if (scrollDirection === 'up' && !renderTopContent && scrolledUpEnough) {
-      setRenderTopContent(true)
-    } else if (
-      scrollDirection === 'down' &&
-      renderTopContent &&
-      scrolledDownEnough
-    ) {
-      setRenderTopContent(false)
-    }
-    scrollHeight.current = tableEl?.current.scrollTop
-  }, 500)
-
-  useLayoutEffect(() => {
-    const tableRef = tableEl?.current
-    if (!tableRef) {
-      return
-    }
-    tableRef.addEventListener('scroll', throttledContentListener)
-    return () => {
-      tableRef.addEventListener('scroll', throttledContentListener)
-    }
-  }, [throttledContentListener])
-
-  const tableHeightToSubtract = useMemo(
-    () => getTableHeightToSubtract(renderTopContent),
-    [renderTopContent]
-  )
-
+export default function AuditDataTable({ data }: { data: TTableData[] }) {
   return (
     <Box marginBottom={4} paddingTop={2}>
       <Typography variant="h5" gutterBottom>
         Wrapping and Unwrapping
       </Typography>
       <Box overflow="hidden">
-        <TableContainer
-          ref={tableEl}
-          // infinite scrolls depends on the relationship between this height value and the PAGE_LENGTH
-          sx={{
-            overflowY: 'scroll',
-            maxHeight: `calc(100vh - ${tableHeightToSubtract}px)`,
-          }}
-        >
+        <TableContainer>
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>

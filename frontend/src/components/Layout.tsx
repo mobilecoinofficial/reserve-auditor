@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Container, Toolbar, Collapse } from '@mui/material'
+import React from 'react'
+import { Container, Toolbar } from '@mui/material'
 
 import Header from './Header'
 import TopContent from './TopContent'
@@ -8,20 +8,13 @@ import useTableData from '../api/hooks/useTableData'
 
 export default function Layout() {
   const { sortedData, ...rest } = useTableData()
-  const [renderTopContent, setRenderTopContent] = useState(true)
 
   return (
     <Container maxWidth="lg">
       <Header />
       <Toolbar />
-      <Collapse in={renderTopContent} timeout={1000}>
-        <TopContent {...rest} />
-      </Collapse>
-      <AuditDataTable
-        data={sortedData}
-        renderTopContent={renderTopContent}
-        setRenderTopContent={setRenderTopContent}
-      />
+      <TopContent {...rest} />
+      <AuditDataTable data={sortedData} />
     </Container>
   )
 }

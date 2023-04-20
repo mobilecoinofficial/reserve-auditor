@@ -10,8 +10,3 @@
 body {
   overscroll-behavior-y: none;
 }
-
-#root {
-  height: 100vh;
-  overflow-y: hidden;
-}

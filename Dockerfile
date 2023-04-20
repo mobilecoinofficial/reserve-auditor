@@ -11,7 +11,7 @@ RUN CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mo
 ARG \
   RUST_BACKTRACE=1 \
   SGX_MODE=HW \
-  IAS_MODE=DEV \
+  IAS_MODE=PROD \
   CONSENSUS_ENCLAVE_CSS=/build/consensus-enclave.css
 
 

@@ -80,7 +80,7 @@ jobs:
           images: mobilecoin/reserve-auditor
           tags: |
             type=ref,event=branch
-            type=semver,pattern=v{{version}},suffix=${{ matrix.versions.prefix }}
+            type=semver,pattern=v{{version}},suffix=-${{ matrix.versions.prefix }}
             type=sha
 
 

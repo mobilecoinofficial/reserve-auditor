@@ -47,8 +47,8 @@ jobs:
     strategy:
       matrix:
         versions: 
-          - {mobilecoind: v4.1.0-test, prefix: testnet, network: test, ias: DEV}
-          - {mobilecoind: v4.1.0, prefix: mainnet, network: prod, ias: PROD}
+          - {mobilecoind: v4.1.0-test, prefix: testnet, network: test}
+          - {mobilecoind: v4.1.0, prefix: mainnet, network: prod}
 
     name: Build-backend
     runs-on: [self-hosted, Linux, large]
@@ -80,7 +80,7 @@ jobs:
           images: mobilecoin/reserve-auditor
           tags: |
             type=ref,event=branch
-            type=semver,pattern=v{{version}}
+            type=semver,pattern=v{{version}},suffix=-${{ matrix.versions.prefix }}
             type=sha
 
 
@@ -91,11 +91,10 @@ jobs:
           context: .
           build-args: |
             MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
-            IAS_MODE=${{ matrix.versions.ias }}
             NETWORK=${{ matrix.versions.network }}
           file: Dockerfile
           labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ steps.docker_meta.outputs.tags }}-${{ matrix.versions.prefix }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
           push: true
 
   harbor:
@@ -126,8 +125,8 @@ jobs:
     strategy:
       matrix:
         target: 
-          - {chain: mainnet, network: main-stage}
-          - {chain: testnet, network: test-stage}
+          - {chain: main, network: main-stage}
+          - {chain: test, network: test-stage}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -141,20 +140,21 @@ jobs:
           rancher_url: ${{ secrets.RANCHER_B_URL }}
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
 
-      - name: Deploys ${{ matrix.target.chain }} release
+      - name: Deploys ${{ matrix.target.chain }}net release
         uses: mobilecoinofficial/gha-k8s-toolbox@v1
         with:
           action: helm-deploy
           rancher_cluster: ${{ env.TARGET_CLUSTER }}
           namespace: reserve-auditor-staging
-          release_name: ${{ matrix.target.chain }}-${{ env.REPO_NAME }}
+          release_name: ${{ matrix.target.chain }}net-${{ env.REPO_NAME }}
           rancher_url: ${{ secrets.RANCHER_B_URL }}
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
           chart_repo: ${{ env.CHART_REPO }}
           chart_name: ${{ env.REPO_NAME}}
           chart_version: ${{ needs.backend.outputs.version }}
-          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target.chain }}-values.yaml
+          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target.chain }}net-values.yaml
           chart_set: |
-            --set=frontend.image.tag=${{ needs.backend.outputs.version }}
+            --set=mobilecoind.image.tag=${{ github.ref_name }}-${{ matrix.target.chain }}net
+            --set=frontend.image.tag=${{ github.ref_name }}
             --set=ingress.host=auditor.stage.${{ matrix.target.chain }}.mobilecoin.com
             --set=frontend.network=${{ matrix.target.network }}

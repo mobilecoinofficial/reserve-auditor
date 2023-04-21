@@ -11,6 +11,7 @@ export type TAuditedBurn = {
 export type TBurn = {
   id?: number
   blockIndex: number
+  blockTimestamp: string
   tokenId: number
   amount: number
   publicKeyHex: string
@@ -21,9 +22,15 @@ export type TWithdrawal = {
   id?: number
   ethTxHash: string
   ethBlockNumber: number
+  executionDate: string
   safeAddr: string
   tokenAddr: string
   toAddr: string
   amount: number
   mcTxOutPublicKeyHex: string
+}
+
+export type TUnauditedBurn = {
+  burn: TBurn
+  decodedBurnMemoBytes: number[]
 }

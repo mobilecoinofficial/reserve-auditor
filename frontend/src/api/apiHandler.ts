@@ -8,23 +8,20 @@ import {
   TAuditedMintResponse,
   TAuditedBurn,
   TAuditedMint,
+  TMint,
+  TWithdrawal,
   TGnosisSafeUsdBalanceResponse,
   TGnosisSafeAllTransactionsListResponse,
   TLedgerBalance,
   TLedgerBalanceResponse,
   TGnosisSafeConfigResponse,
   TGnosisSafeConfig,
+  TUnauditedBurn,
+  TUnauditedSafeDeposit,
 } from '../types'
 
 declare let AUDITOR_URL: string // env var set by webpack
 declare let GNOSIS_SAFE_API_URL: string // env var set by webpack
-
-const paginate = (pageNumber: number): Record<string, number> => {
-  const offset = pageNumber * 50
-  const limit = 50
-
-  return { offset, limit }
-}
 
 const get = async <T>(
   path: string,
@@ -55,20 +52,32 @@ const camelCaseKeys = (
   })
 }
 
-export const getAuditedMints = async (page: number): Promise<TAuditedMint> => {
-  const { offset, limit } = paginate(page)
-  const response = await get<TAuditedMintResponse>(
-    `/audited_mints?offset=${offset}&limit=${limit}`
-  )
-  return camelCaseKeys(response) as TAuditedMint
+export const getUnauditedBurns = async (): Promise<TUnauditedBurn[]> => {
+  const response = await get<TAuditedMintResponse>(`/unaudited_burn_tx_outs`)
+  return camelCaseKeys(response) as TUnauditedBurn[]
 }
 
-export const getAuditedBurns = async (page: number): Promise<TAuditedBurn> => {
-  const { offset, limit } = paginate(page)
-  const response = await get<TAuditedBurnResponse>(
-    `/audited_burns?offset=${offset}&limit=${limit}`
+export const getUnauditedSafeDeposits = async (): Promise<
+  TUnauditedSafeDeposit[]
+> => {
+  const response = await get<TUnauditedSafeDeposit>(
+    `/unaudited_gnosis_deposits`
   )
-  return camelCaseKeys(response) as TAuditedBurn
+  return camelCaseKeys(response) as TUnauditedSafeDeposit[]
+}
+
+export const getAuditedMints = async (): Promise<TAuditedMint[]> => {
+  const response = await get<TAuditedMintResponse>(
+    `/audited_mints?offset=${0}&limit=${300}`
+  )
+  return camelCaseKeys(response) as TAuditedMint[]
+}
+
+export const getAuditedBurns = async (): Promise<TAuditedBurn[]> => {
+  const response = await get<TAuditedBurnResponse>(
+    `/audited_burns?offset=${0}&limit=${300}`
+  )
+  return camelCaseKeys(response) as TAuditedBurn[]
 }
 
 export const getGnosisSafeBalance = async (
@@ -125,4 +134,16 @@ export const getLedgerBalance = async (
     `/ledger_balance?token_id=${tokenId}`
   )
   return camelCaseKeys(response) as TLedgerBalance
+}
+
+export const getUnauditedWithdrawals = async (): Promise<TWithdrawal[]> => {
+  const response = await get<TWithdrawal[]>('/unaudited_withdrawals')
+
+  return camelCaseKeys(response) as TWithdrawal[]
+}
+
+export const getUnauditedMints = async (): Promise<TMint[]> => {
+  const response = await get<TMint[]>('/unaudited_mints')
+
+  return camelCaseKeys(response) as TMint[]
 }

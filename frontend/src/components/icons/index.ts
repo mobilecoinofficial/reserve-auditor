@@ -1,2 +1,5 @@
 export { MCIcon } from './MCIcon'
-export { eUSDIcon } from './eUSDIcon'
+export { EUSDIcon } from './eUSDIcon'
+export { EUSDWrapIcon } from './eUSDWrapIcon'
+export { ReserveIcon } from './ReserveIcon'
+export { WrapMintIcon } from './WrapMintIcon'

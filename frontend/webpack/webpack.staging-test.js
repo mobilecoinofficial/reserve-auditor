@@ -9,6 +9,9 @@ module.exports = {
       AUDITOR_URL: JSON.stringify(
         'https://auditor.stage.test.mobilecoin.com/api/'
       ),
+      BLOCK_EXPLORER_URL: JSON.stringify(
+        'https://block-explorer.test.mobilecoin.com'
+      ),
       GNOSIS_SAFE_API_URL: JSON.stringify(
         'https://safe-transaction-goerli.safe.global'
       ),

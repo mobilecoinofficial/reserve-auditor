@@ -115,7 +115,7 @@ jobs:
           chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
           chart_repo: ${{ env.CHART_REPO }}
           chart_app_version: ${{ github.ref_name }}
-          chart_version: ${{ needs.backend.outputs.version }}
+          chart_version: ${{ github.ref_name }}
           chart_path: ${{ env.CHART_PATH }}
 
   deploy:
@@ -151,7 +151,7 @@ jobs:
           rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
           chart_repo: ${{ env.CHART_REPO }}
           chart_name: ${{ env.REPO_NAME}}
-          chart_version: ${{ needs.backend.outputs.version }}
+          chart_version: ${{ github.ref_name }}
           chart_values: ${{ env.CHART_PATH }}/${{ matrix.target.chain }}net-values.yaml
           chart_set: |
             --set=mobilecoind.image.tag=${{ github.ref_name }}-${{ matrix.target.chain }}net

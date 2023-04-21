@@ -114,7 +114,7 @@ jobs:
           chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
           chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
           chart_repo: ${{ env.CHART_REPO }}
-          chart_app_version: ${{ needs.backend.outputs.version }}
+          chart_app_version: ${{ github.ref_name }}
           chart_version: ${{ needs.backend.outputs.version }}
           chart_path: ${{ env.CHART_PATH }}
 

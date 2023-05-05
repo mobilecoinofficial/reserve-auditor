@@ -1,10 +1,19 @@
 import React from 'react'
 import { AppBar, Container, Toolbar, Typography, Box } from '@mui/material'
 import MobileCoinLogo from './MobileCoinLogo'
+import isTestnet from '../utils/isTestnet'
 
 export default function Header() {
+  const headerText = isTestnet()
+    ? 'Testnet Electronic Dollar Auditor'
+    : 'MobileCoin Electronic Dollar Auditor'
+
+  const background = isTestnet()
+    ? 'linear-gradient(to right, #7C5EE4, black 90%);'
+    : null
+
   return (
-    <AppBar>
+    <AppBar sx={{ background }}>
       <Container maxWidth="lg">
         <Toolbar
           disableGutters
@@ -28,7 +37,7 @@ export default function Header() {
                 marginLeft: 1,
               }}
             >
-              MobileCoin Electronic Dollar Auditor
+              {headerText}
             </Typography>
           </Box>
         </Toolbar>

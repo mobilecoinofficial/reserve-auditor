@@ -46,7 +46,7 @@ jobs:
   backend:
     strategy:
       matrix:
-        versions: 
+        versions:
           - {mobilecoind: v4.1.0-test, prefix: testnet, network: test}
           - {mobilecoind: v4.1.0, prefix: mainnet, network: prod}
 
@@ -124,7 +124,7 @@ jobs:
     needs: [backend,harbor]
     strategy:
       matrix:
-        target: 
+        target:
           - {chain: main, network: main-stage}
           - {chain: test, network: test-stage}
     steps:

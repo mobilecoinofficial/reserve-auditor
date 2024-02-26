@@ -7,18 +7,9 @@ on:
 
 jobs:
   tag:
-    runs-on: [self-hosted, Linux, small]
+    runs-on: mco-dev-small-x64
     steps:
-    # We need to use an external PAT here because GHA will not run downstream events if we use the built in token.
-    - name: Checkout
-      uses: actions/checkout@v3
+    - name: bump tag
+      uses: mobilecoinofficial/gh-actions/tag@v0
       with:
-        token: ${{ secrets.ACTIONS_TOKEN }}
-
-    - name: Bump GitHub tag
-      id: bump
-      uses: anothrNick/github-tag-action@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
-        WITH_V: 'true'
-        DEFAULT_BUMP: patch
+        github_token: ${{ secrets.ACTIONS_TOKEN }}

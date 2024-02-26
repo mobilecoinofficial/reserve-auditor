@@ -15,146 +15,109 @@ on:
 jobs:
   frontend:
     name: build-frontend
-    runs-on: [self-hosted, Linux, large]
+    runs-on: mco-dev-large-x64
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+    - name: Checkout
+      uses: mobilecoinofficial/gh-actions/checkout@v0
 
-      - name: Setup Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          install: true
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Publish frontend to DockerHub
-        uses: docker/build-push-action@v3
-        id: docker-push-frontend
-        with:
-          context: .
-          file: .internal-ci/docker/Dockerfile.frontend
-          tags: ${{ env.DOCKERHUB_ORG }}/${{env.REPO_NAME}}-frontend:${{ github.ref_name }}
-          push: true
+    - name: Docker
+      uses: mobilecoinofficial/gh-actions/docker@v0
+      with:
+        dockerfile: Dockerfile
+        images: mobilecoin/reserve-auditor-frontend
+        flavor: latest=true
+        tags: |
+          type=ref,event=branch
+          type=semver,pattern=v{{version}}
+          type=sha
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   backend:
     strategy:
       matrix:
         versions:
-          - {mobilecoind: v4.1.0-test, prefix: testnet, network: test}
-          - {mobilecoind: v4.1.0, prefix: mainnet, network: prod}
+        - {mobilecoind: v4.1.0-test, prefix: testnet, network: test}
+        - {mobilecoind: v4.1.0, prefix: mainnet, network: prod}
 
     name: Build-backend
-    runs-on: [self-hosted, Linux, large]
-    outputs:
-      version: ${{ steps.docker_meta.outputs.version }}
+    runs-on: mco-dev-large-x64
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+    - name: Checkout
+      uses: mobilecoinofficial/gh-actions/checkout@v0
 
-      - name: Setup Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          install: true
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Generate Docker Tags
-        id: docker_meta
-        uses: docker/metadata-action@v4
-        with:
-          flavor: latest=true
-          images: mobilecoin/reserve-auditor
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern=v{{version}},suffix=-${{ matrix.versions.prefix }}
-            type=sha
-
-
-      - name: Publish backend to DockerHub
-        uses: docker/build-push-action@v3
-        id: docker-push-backend
-        with:
-          context: .
-          build-args: |
-            MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
-            NETWORK=${{ matrix.versions.network }}
-          file: Dockerfile
-          labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ steps.docker_meta.outputs.tags }}
-          push: true
+    - name: Docker
+      uses: mobilecoinofficial/gh-actions/docker@v0
+      with:
+        dockerfile: Dockerfile
+        images: mobilecoin/reserve-auditor
+        build_args: |
+          MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}
+          NETWORK=${{ matrix.versions.network }}
+        flavor: latest=true
+        tags: |
+          type=ref,event=branch
+          type=semver,pattern=v{{version}},suffix=-${{ matrix.versions.prefix }}
+          type=sha
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   harbor:
     needs: backend
     name: Publish to Harbor
-    runs-on: [self-hosted, Linux, small]
+    runs-on: mco-dev-small-x64
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+    - name: Checkout
+      uses: mobilecoinofficial/gh-actions/checkout@v0
 
-      - name: Package and publish chart
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: helm-publish
-          chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
-          chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
-          chart_repo: ${{ env.CHART_REPO }}
-          chart_app_version: ${{ github.ref_name }}
-          chart_version: ${{ github.ref_name }}
-          chart_path: ${{ env.CHART_PATH }}
+    - name: Package and publish chart
+      uses: mobilecoinofficial/gha-k8s-toolbox@v1
+      with:
+        action: helm-publish
+        chart_repo_username: ${{ secrets.HARBOR_USERNAME }}
+        chart_repo_password: ${{ secrets.HARBOR_PASSWORD }}
+        chart_repo: ${{ env.CHART_REPO }}
+        chart_app_version: ${{ github.ref_name }}
+        chart_version: ${{ github.ref_name }}
+        chart_path: ${{ env.CHART_PATH }}
 
   deploy:
     name: Deploy
-    runs-on: [self-hosted, Linux]
+    runs-on: mco-dev-small-x64
     needs: [backend,harbor]
     strategy:
       matrix:
         target:
-          - {chain: main, network: main-stage}
-          - {chain: test, network: test-stage}
+        - {chain: main, network: main-stage}
+        - {chain: test, network: test-stage}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    - name: Checkout
+      uses: mobilecoinofficial/gh-actions/checkout@v0
 
-      - name: Create ${{ matrix.target }} namespace
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: namespace-create
-          namespace: reserve-auditor-staging
-          rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          rancher_url: ${{ secrets.RANCHER_B_URL }}
-          rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
+    - name: Create reserve-auditor-staging namespace
+      uses: mobilecoinofficial/gha-k8s-toolbox@v1
+      with:
+        action: namespace-create
+        namespace: reserve-auditor-staging
+        rancher_cluster: ${{ env.TARGET_CLUSTER }}
+        rancher_url: ${{ secrets.RANCHER_B_URL }}
+        rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
 
-      - name: Deploys ${{ matrix.target.chain }}net release
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: helm-deploy
-          rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          namespace: reserve-auditor-staging
-          release_name: ${{ matrix.target.chain }}net-${{ env.REPO_NAME }}
-          rancher_url: ${{ secrets.RANCHER_B_URL }}
-          rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
-          chart_repo: ${{ env.CHART_REPO }}
-          chart_name: ${{ env.REPO_NAME}}
-          chart_version: ${{ github.ref_name }}
-          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target.chain }}net-values.yaml
-          chart_set: |
-            --set=mobilecoind.image.tag=${{ github.ref_name }}-${{ matrix.target.chain }}net
-            --set=frontend.image.tag=${{ github.ref_name }}
-            --set=ingress.host=auditor.stage.${{ matrix.target.chain }}.mobilecoin.com
-            --set=frontend.network=${{ matrix.target.network }}
+    - name: Deploys ${{ matrix.target.chain }}net release
+      uses: mobilecoinofficial/gha-k8s-toolbox@v1
+      with:
+        action: helm-deploy
+        rancher_cluster: ${{ env.TARGET_CLUSTER }}
+        namespace: reserve-auditor-staging
+        release_name: ${{ matrix.target.chain }}net-${{ env.REPO_NAME }}
+        rancher_url: ${{ secrets.RANCHER_B_URL }}
+        rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
+        chart_repo: ${{ env.CHART_REPO }}
+        chart_name: ${{ env.REPO_NAME}}
+        chart_version: ${{ github.ref_name }}
+        chart_values: ${{ env.CHART_PATH }}/${{ matrix.target.chain }}net-values.yaml
+        # CBB: change mobilecoind.image to reserveAuditor.image...
+        chart_set: |
+          --set=mobilecoind.image.tag=${{ github.ref_name }}-${{ matrix.target.chain }}net
+          --set=ingress.host=auditor.stage.${{ matrix.target.chain }}.mobilecoin.com
+          --set=frontend.network=${{ matrix.target.network }}

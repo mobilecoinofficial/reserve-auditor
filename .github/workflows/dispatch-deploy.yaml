@@ -12,35 +12,33 @@ on:
 
 jobs:
   prod-deploy:
-    runs-on: [self-hosted, Linux]
+    runs-on: mco-dev-small-x64
     strategy:
       matrix:
         target: [mainnet, testnet]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    - name: Checkout
+      uses: mobilecoinofficial/gh-actions/checkout@v0
 
-      - name: Create ${{ matrix.target }} namespace
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: namespace-create
-          namespace: ${{ matrix.target }}-reserve-auditor
-          rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          rancher_url: ${{ secrets.RANCHER_B_URL }}
-          rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
+    - name: Create ${{ matrix.target }} namespace
+      uses: mobilecoinofficial/gha-k8s-toolbox@v1
+      with:
+        action: namespace-create
+        namespace: ${{ matrix.target }}-reserve-auditor
+        rancher_cluster: ${{ env.TARGET_CLUSTER }}
+        rancher_url: ${{ secrets.RANCHER_B_URL }}
+        rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
 
-      - name: Deploys ${{ matrix.target }} release
-        uses: mobilecoinofficial/gha-k8s-toolbox@v1
-        with:
-          action: helm-deploy
-          rancher_cluster: ${{ env.TARGET_CLUSTER }}
-          namespace: ${{ matrix.target }}-reserve-auditor
-          release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
-          rancher_url: ${{ secrets.RANCHER_B_URL }}
-          rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
-          chart_repo: ${{ env.CHART_REPO }}
-          chart_name: ${{ env.REPO_NAME}}
-          chart_version: ${{ github.ref_name }}
-          chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
-          chart_set: |
-            --set=frontend.image.tag=${{ needs.build.outputs.tag }}
+    - name: Deploys ${{ matrix.target }} release
+      uses: mobilecoinofficial/gha-k8s-toolbox@v1
+      with:
+        action: helm-deploy
+        rancher_cluster: ${{ env.TARGET_CLUSTER }}
+        namespace: ${{ matrix.target }}-reserve-auditor
+        release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
+        rancher_url: ${{ secrets.RANCHER_B_URL }}
+        rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
+        chart_repo: ${{ env.CHART_REPO }}
+        chart_name: ${{ env.REPO_NAME}}
+        chart_version: ${{ github.ref_name }}
+        chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml

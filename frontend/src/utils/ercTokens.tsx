@@ -10,6 +10,8 @@ export const ERC_SYMBOLS = {
   [eUSDTokenAddress]: 'eUSD',
   '0xeC76FbFD75481839e456C4cb2cd23cda813f19B1':
     'geUSD' /* goerli testnet token */,
+  '0xfdC112c39d0fafA45ec8B2cA9e46DFAB43b41575':
+    'seUSD' /* sepolia testnet token */,
 }
 
 export function getSymbolFromContactAddress(contactAddress: string) {

@@ -32,7 +32,7 @@ export default function useSafeBalance(): SafeBalance {
         mainBalance = geteUSDBalance(balances)
         hasOtherBalance = safeHasOtherBalance(balances)
       } else {
-        // this is necessary for testnet currently as the goerli Safe doesn't grok the goerli eUSD
+        // this is necessary for testnet currently as the sepolia Safe doesn't grok the sepolia eUSD
         const safeSumBalance = await sumGnosisSafeBalance(
           gnosisSafeConfig.safeAddr
         )

@@ -11,9 +11,9 @@ module.exports = {
       ),
       AUDITOR_URL: JSON.stringify('https://auditor.test.mobilecoin.com/api/'),
       GNOSIS_SAFE_API_URL: JSON.stringify(
-        'https://safe-transaction-goerli.safe.global'
+        'https://safe-transaction-sepolia.safe.global'
       ),
-      ETHERSCAN_URL: JSON.stringify('https://goerli.etherscan.io'),
+      ETHERSCAN_URL: JSON.stringify('https://sepolia.etherscan.io'),
       MC_NETWORK: JSON.stringify('testnet'),
     }),
   ],

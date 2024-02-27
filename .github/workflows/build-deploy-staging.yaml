@@ -23,7 +23,7 @@ jobs:
     - name: Docker
       uses: mobilecoinofficial/gh-actions/docker@v0
       with:
-        dockerfile: Dockerfile
+        dockerfile: .internal-ci/docker/Dockerfile.frontend
         images: mobilecoin/reserve-auditor-frontend
         flavor: latest=true
         tags: |

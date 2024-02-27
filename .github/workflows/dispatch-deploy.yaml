@@ -42,3 +42,5 @@ jobs:
         chart_name: ${{ env.REPO_NAME}}
         chart_version: ${{ github.ref_name }}
         chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
+        chart_set: |
+          --set=mobilecoind.image.tag=${{ github.ref_name }}-${{ matrix.target }}

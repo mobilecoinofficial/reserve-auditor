@@ -1,17 +1,17 @@
 {
     "safes": [{
-        "safe_addr": "0x36c4A3e3838974bb94Da7fC836987A68C7c0D34D",
-        "api_url": "https://safe-transaction.goerli.gnosis.io/",
+        "safe_addr": "0x3F0aF8e39bF63f6Ca65d62f684acDCD7b6079E7f",
+        "api_url": "https://safe-transaction-sepolia.safe.global/",
         "tokens": [
             {
                 "token_id": 1,
                 "token_type": "ERC20_TRANSFER",
-                "eth_token_contract_addrs": ["0xeC76FbFD75481839e456C4cb2cd23cda813f19B1"],
-                "name": "geUSD",
+                "eth_token_contract_addrs": ["0xfdC112c39d0fafA45ec8B2cA9e46DFAB43b41575"],
+                "name": "seUSD",
                 "symbol": "Token",
                 "decimals": 18,
                 "logo_uri": "",
-                "aux_burn_contract_addr": "0x89d2c2C7853AD6015d50f39A615196e17f13Cf59",
+                "aux_burn_contract_addr": "0xF6970481dd09494099b5A2559E05Fa1Db6D6660B",
                 "aux_burn_function_sig": [199, 111, 6, 53]
             }
         ],

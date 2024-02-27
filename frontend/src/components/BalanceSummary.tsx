@@ -19,7 +19,7 @@ export default function BalanceSummary({
   const { mainBalance, hasOtherBalance } = useSafeBalance()
   const gnosisSafeConfig = useContext(GnosisSafeContext)
 
-  const safeAddressNet = isTestnet() ? 'gor' : 'eth'
+  const safeAddressNet = isTestnet() ? 'sep' : 'eth'
 
   return (
     <Box

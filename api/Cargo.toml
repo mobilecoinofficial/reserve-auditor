@@ -7,16 +7,16 @@ edition = "2021"
 links = "mc-reserve-auditor-api"
 
 [dependencies]
-mc-api = { path = "../mobilecoin/api" }
-mc-util-serial = { path = "../mobilecoin/util/serial" }
-mc-util-uri = { path = "../mobilecoin/util/uri" }
 
 futures = "0.3"
 grpcio = "0.13.0"
+mc-api = { path = "../mobilecoin/api" }
+mc-util-serial = { path = "../mobilecoin/util/serial" }
+mc-util-uri = { path = "../mobilecoin/util/uri" }
 protobuf = "2.27.1"
 
 [build-dependencies]
-mc-util-build-grpc = { path = "../mobilecoin/util/build/grpc" }
-mc-util-build-script = { path = "../mobilecoin/util/build/script" }
 
 cargo-emit = "0.2.1"
+mc-util-build-grpc = { path = "../mobilecoin/util/build/grpc" }
+mc-util-build-script = { path = "../mobilecoin/util/build/script" }

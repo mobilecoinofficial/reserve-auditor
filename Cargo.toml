@@ -13,6 +13,17 @@ members = ["api"]
 exclude = ["./mobilecoin"]
 
 [dependencies]
+
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "3.2", features = ["derive", "env"] }
+# Override diesel dependency with our fork, to statically link SQLite.
+diesel = { version = "1.4", features = ["sqlite-bundled", "r2d2", "chrono"] }
+diesel_migrations = { version = "1.4", features = ["sqlite"] }
+displaydoc = "0.2"
+grpcio = "0.13.0"
+hex = "0.4"
+hostname = "0.3.1"
+lazy_static = "1.4"
 mc-account-keys = { path = "mobilecoin/account-keys" }
 mc-api = { path = "mobilecoin/api" }
 mc-blockchain-types = { path = "mobilecoin/blockchain/types" }
@@ -30,17 +41,6 @@ mc-util-parse = { path = "mobilecoin/util/parse" }
 mc-util-serial = { path = "mobilecoin/util/serial" }
 mc-util-uri = { path = "mobilecoin/util/uri" }
 mc-watcher = { path = "mobilecoin/watcher" }
-
-chrono = { version = "0.4", features = ["serde"] }
-clap = { version = "3.2", features = ["derive", "env"] }
-# Override diesel dependency with our fork, to statically link SQLite.
-diesel = { version = "1.4", features = ["sqlite-bundled", "r2d2", "chrono"] }
-diesel_migrations = { version = "1.4", features = ["sqlite"] }
-displaydoc = "0.2"
-grpcio = "0.13.0"
-hex = "0.4"
-hostname = "0.3.1"
-lazy_static = "1.4"
 prost = { version = "0.10", default-features = false, features = [
   "prost-derive",
 ] }
@@ -99,9 +99,7 @@ lto = "thin"
 [patch.crates-io]
 # Fork and rename to use "OG" dalek-cryptography with latest dependencies.
 bulletproofs-og = { git = "https://github.com/mobilecoinfoundation/bulletproofs.git", rev = "9abfdc054d9ba65f1e185ea1e6eff3947ce879dc" }
-
 # curve25519-dalek = { git = "https://github.com/dalek-cryptography/curve25519-dalek", rev = "99c0520aa79401b69fb51d38172cd58c6a256cfb" }
-
 # Fix issues with recent nightlies, bump curve25519-dalek version
 # ed25519-dalek = { git = "https://github.com/dalek-cryptography/ed25519-dalek.git", rev = "2931c688eb11341a1145e257bc41d8ecbe36277c" }
 
@@ -119,7 +117,6 @@ schnorrkel-og = { git = "https://github.com/mobilecoinfoundation/schnorrkel.git"
 # * Allow enabling `serde/std` without also requiring `serde_cbor/std` to be enabled.
 #   See: https://github.com/pyfisch/cbor/pull/198
 serde_cbor = { git = "https://github.com/mobilecoinofficial/cbor", rev = "4c886a7c1d523aae1ec4aa7386f402cb2f4341b5" }
-
 # Fix issues with recent nightlies, bump curve25519-dalek version
 # x25519-dalek = { git = "https://github.com/mobilecoinfoundation/x25519-dalek.git", rev = "4fbaa3343301c62cfdbc3023c9f485257e6b718a" }
 

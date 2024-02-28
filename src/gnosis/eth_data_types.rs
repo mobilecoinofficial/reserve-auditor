@@ -7,6 +7,7 @@ use mc_util_from_random::{CryptoRng, FromRandom, RngCore};
 use serde::{Deserialize, Serialize};
 use serde_with::{DeserializeFromStr, SerializeDisplay};
 use std::{
+    cmp::Ordering,
     fmt,
     hash::{Hash, Hasher},
     str::FromStr,
@@ -134,15 +135,15 @@ impl PartialEq for EthAddr {
 
 impl Eq for EthAddr {}
 
-impl PartialOrd for EthAddr {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.0.to_lowercase().partial_cmp(&other.0.to_lowercase())
+impl Ord for EthAddr {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.0.to_lowercase().cmp(&other.0.to_lowercase())
     }
 }
 
-impl Ord for EthAddr {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.0.to_lowercase().cmp(&other.0.to_lowercase())
+impl PartialOrd for EthAddr {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 

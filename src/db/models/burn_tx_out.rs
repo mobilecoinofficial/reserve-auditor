@@ -65,7 +65,7 @@ impl BurnTxOut {
 
     /// Get block timestamp.
     pub fn block_timestamp(&self) -> Option<DateTime<Utc>> {
-        self.block_timestamp.map(|ts| DateTime::from_utc(ts, Utc))
+        self.block_timestamp.map(|ts| DateTime::from_naive_utc_and_offset(ts, Utc))
     }
 
     /// Get token id.

@@ -24,7 +24,7 @@ impl From<&DbGnosisSafeDeposit> for ProtoGnosisSafeDeposit {
         dst.set_token_addr(src.token_addr().to_string());
         dst.set_amount(src.amount());
         dst.set_expected_mc_mint_tx_nonce_hex(src.expected_mc_mint_tx_nonce_hex().to_string());
-        dst.set_execution_date(src.execution_date().timestamp_nanos() as u64);
+        dst.set_execution_date(src.execution_date().timestamp_nanos_opt().unwrap() as u64);
         dst
     }
 }

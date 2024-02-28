@@ -98,7 +98,7 @@ impl GnosisSafeDeposit {
 
     /// Get execution date.
     pub fn execution_date(&self) -> DateTime<Utc> {
-        DateTime::from_utc(self.execution_date, Utc)
+        DateTime::from_naive_utc_and_offset(self.execution_date, Utc)
     }
 
     /// Get ethereum transaction value.

@@ -27,7 +27,7 @@ impl TryFrom<&DbGnosisSafeWithdrawal> for ProtoGnosisSafeWithdrawal {
         dst.set_to_addr(src.to_addr().to_string());
         dst.set_amount(src.amount());
         dst.set_mc_tx_out_pub_key((&src.mc_tx_out_public_key()?).into());
-        dst.set_execution_date(src.execution_date().timestamp_nanos() as u64);
+        dst.set_execution_date(src.execution_date().timestamp_nanos_opt().unwrap() as u64);
         Ok(dst)
     }
 }

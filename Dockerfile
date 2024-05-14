@@ -1,4 +1,4 @@
-ARG MOBILECOIND_BASE_TAG=v4.1.0-test
+ARG MOBILECOIND_BASE_TAG=v6.0.1-test
 FROM mobilecoin/mobilecoind:${MOBILECOIND_BASE_TAG} AS mobilecoind
 
 FROM mobilecoin/builder-install:v0.0.17 AS builder
@@ -6,7 +6,7 @@ FROM mobilecoin/builder-install:v0.0.17 AS builder
 WORKDIR /build
 ARG NETWORK=test
 
-RUN CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mobilecoin.com/production-v4.0.0.json | jq .consensus.sigstruct | tr -d \") && curl -O "https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_SIGSTRUCT_URI}"
+RUN CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mobilecoin.com/production-v5.0.0.json | jq .consensus.sigstruct | tr -d \") && curl -O "https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_SIGSTRUCT_URI}"
 
 ARG \
   RUST_BACKTRACE=1 \

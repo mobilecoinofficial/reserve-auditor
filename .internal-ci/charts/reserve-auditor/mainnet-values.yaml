@@ -29,8 +29,8 @@ mobilecoind:
   - url: 'mc://ideasbeyondborders.mobilecoin.bdnodes.net:443/'
     txSource: 'https://bd-mobilecoin-ledger.s3.amazonaws.com/ideasbeyondborders.mobilecoin.bdnodes.net/'
 
-  - url: 'mc://thelongnowfoundation.mobilecoin.bdnodes.net:443/'
-    txSource: 'https://bd-mobilecoin-ledger.s3.amazonaws.com/ideasbeyondborders.mobilecoin.bdnodes.net/'
+  - url: 'mc://ignite.mobilecoin.bdnodes.net:443/'
+    txSource: 'https://bd-mobilecoin-ledger.s3.amazonaws.com/ignite.mobilecoin.bdnodes.net/'
 
   - url: 'mc://ams1-mc-node1.dreamhost.com:3223/'
     txSource: 'https://s3-eu-west-1.amazonaws.com/dh-mobilecoin-eu/ams1-mc-node1.dreamhost.com/'

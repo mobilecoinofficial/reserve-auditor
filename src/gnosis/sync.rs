@@ -112,8 +112,7 @@ impl GnosisSync {
                                 // log but otherwise ignore unknown token transfers
                                 if let Error::Gnosis(GnosisError::UnknownToken(_)) = err {
                                     log::warn!(self.logger, "Unknown token deposited to Safe");
-                                }
-                                else {
+                                } else {
                                     return Err(err);
                                 }
                             }

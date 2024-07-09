@@ -41,6 +41,9 @@ pub enum Error {
     /// Api result parse error: {0}
     ApiResultParse(String),
 
+    /// Unknown Token: {0}
+    UnknownToken(String),
+
     /// Other: {0}
     Other(String),
 }

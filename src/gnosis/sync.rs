@@ -106,7 +106,17 @@ impl GnosisSync {
 
                 match tx.decode()? {
                     Transaction::Ethereum(eth_tx) => {
-                        self.process_eth_transaction(&conn, &eth_tx)?;
+                        match self.process_eth_transaction(&conn, &eth_tx) {
+                            Ok(_) => {}
+                            Err(err) => {
+                                // log but otherwise ignore unknown token transfers
+                                if let Error::Gnosis(GnosisError::UnknownToken(_)) = err {
+                                    log::warn!(self.logger, "Unknown token deposited to Safe");
+                                } else {
+                                    return Err(err);
+                                }
+                            }
+                        }
                     }
                     Transaction::MultiSig(multi_sig_tx) => {
                         self.process_multi_sig_transaction(&conn, &multi_sig_tx)?;
@@ -150,11 +160,11 @@ impl GnosisSync {
                         .iter()
                         .find(|token| token.eth_token_contract_addrs.contains(token_addr))
                         .ok_or_else(|| {
-                            GnosisError::ApiResultParse("Unknown transfer token address".into())
+                            GnosisError::UnknownToken("Unknown token transfer".into())
                         })?;
 
                     let truncated_transaction_value = truncate_value(
-                        transfer.value,
+                        transfer.value.unwrap(),
                         token_config.decimals,
                         self.audited_safe.token_decimals_max,
                     );
@@ -163,7 +173,7 @@ impl GnosisSync {
                         None,
                         transfer.tx_hash,
                         tx.execution_date,
-                        transfer.value,
+                        transfer.value.unwrap(),
                         tx.eth_block_number,
                         transfer.to.clone(),
                         token_addr.clone(),
@@ -384,7 +394,7 @@ impl GnosisSync {
         let token_transfer = &token_transfers[0];
 
         // The number hould be EthTxValue-parseable
-        let eth_tx_value = token_transfer.value;
+        let eth_tx_value = token_transfer.value.unwrap();
 
         // the recipient address of the transaction
         let to_addr = token_transfer.to.clone();

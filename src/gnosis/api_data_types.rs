@@ -110,7 +110,7 @@ pub struct MultiSigTransaction {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct TokenInfo {
     /// Number of decimals in non-integer representation
-    pub decimals: u32,
+    pub decimals: Option<u32>,
 
     /// Address of the token contract
     pub address: String,
@@ -143,7 +143,7 @@ pub struct EthereumTransfer {
     pub token_info: Option<TokenInfo>,
 
     /// Value being transferred
-    pub value: EthTxValue,
+    pub value: Option<EthTxValue>,
 }
 
 /// Ethereum transaction

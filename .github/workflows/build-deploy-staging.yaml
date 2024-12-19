@@ -3,7 +3,7 @@ name: build and deploy staging
 env:
   DOCKERHUB_ORG: mobilecoin
   REPO_NAME: reserve-auditor
-  TARGET_CLUSTER: utility-r1-d-k8s
+  TARGET_CLUSTER: utility-r1-f-k8s
   CHART_REPO: https://harbor.mobilecoin.com/chartrepo/mobilecoinfoundation-public
   CHART_PATH: ./.internal-ci/charts/reserve-auditor
 

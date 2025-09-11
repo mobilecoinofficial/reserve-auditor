@@ -3,7 +3,7 @@ name: build and deploy staging
 env:
   DOCKERHUB_ORG: mobilecoin
   REPO_NAME: reserve-auditor
-  TARGET_CLUSTER: utility-r1-f-k8s
+  TARGET_CLUSTER: utility-r1-g-k8s
   CHART_REPO: https://harbor.mobilecoin.com/chartrepo/mobilecoinfoundation-public
   CHART_PATH: ./.internal-ci/charts/reserve-auditor
 
@@ -100,8 +100,8 @@ jobs:
         action: namespace-create
         namespace: reserve-auditor-staging
         rancher_cluster: ${{ env.TARGET_CLUSTER }}
-        rancher_url: ${{ secrets.RANCHER_B_URL }}
-        rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
+        rancher_url: ${{ secrets.RANCHER_C_URL }}
+        rancher_token: ${{ secrets.RANCHER_C_TOKEN }}
 
     - name: Deploys ${{ matrix.target.chain }}net release
       uses: mobilecoinofficial/gha-k8s-toolbox@v1
@@ -110,8 +110,8 @@ jobs:
         rancher_cluster: ${{ env.TARGET_CLUSTER }}
         namespace: reserve-auditor-staging
         release_name: ${{ matrix.target.chain }}net-${{ env.REPO_NAME }}
-        rancher_url: ${{ secrets.RANCHER_B_URL }}
-        rancher_token: ${{ secrets.RANCHER_B_TOKEN }}
+        rancher_url: ${{ secrets.RANCHER_C_URL }}
+        rancher_token: ${{ secrets.RANCHER_C_TOKEN }}
         chart_repo: ${{ env.CHART_REPO }}
         chart_name: ${{ env.REPO_NAME}}
         chart_version: ${{ github.ref_name }}

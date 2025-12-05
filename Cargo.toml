@@ -4,13 +4,13 @@ version = "2.0.0"
 authors = ["MobileCoin"]
 edition = "2021"
 
-[[bin]]
-name = "mc-reserve-auditor"
-path = "src/bin/main.rs"
-
 [workspace]
 members = ["api"]
 exclude = ["./mobilecoin"]
+
+[[bin]]
+name = "mc-reserve-auditor"
+path = "src/bin/main.rs"
 
 [dependencies]
 

@@ -45,8 +45,12 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /tmp
+        - name: cache
+          mountPath: /var/cache/nginx
       volumes:
       - name: tmp
+        emptyDir: {}
+      - name: cache
         emptyDir: {}
       nodeSelector:
         {{- toYaml .Values.frontend.nodeSelector | nindent 8 }}

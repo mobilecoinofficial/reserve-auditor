@@ -1,6 +1,6 @@
-import { createTheme } from '@mui/material/styles'
+import { createTheme, adaptV4Theme } from '@mui/material/styles';
 
-const theme = createTheme({
+const theme = createTheme(adaptV4Theme({
   palette: {
     primary: {
       main: '#000000',
@@ -21,6 +21,6 @@ const theme = createTheme({
   typography: {
     fontFamily: 'Sohne-Buch',
   },
-})
+}))
 
 export default theme

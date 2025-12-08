@@ -107,7 +107,7 @@ export const sumGnosisSafeBalance = async (
       return e.transfers[0].value
     })
     .reduce((partialSum, v) => {
-      return partialSum + BigInt(v)
+      return partialSum + BigInt(v ?? 0)
     }, BigInt('0'))
   const withdrawals = transfers
     .filter((e) => {
@@ -117,7 +117,7 @@ export const sumGnosisSafeBalance = async (
       return e.transfers[0].value
     })
     .reduce((partialSum, v) => {
-      return partialSum + BigInt(v)
+      return partialSum + BigInt(v ?? 0)
     }, BigInt('0'))
   return (deposits - withdrawals).toString()
 }

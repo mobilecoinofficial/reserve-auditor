@@ -32,7 +32,7 @@ export default function AuditorInfo() {
               href="https://reserve.org/en/"
               target="_blank"
               rel="noreferrer"
-            >
+              underline="hover">
               Reserve
             </Link>{' '}
             and{' '}
@@ -40,7 +40,7 @@ export default function AuditorInfo() {
               href="https://mobilecoin.com/"
               target="_blank"
               rel="noreferrer"
-            >
+              underline="hover">
               MobileCoin
             </Link>{' '}
             ✌️
@@ -48,5 +48,5 @@ export default function AuditorInfo() {
         </Box>
       </Box>
     </Box>
-  )
+  );
 }

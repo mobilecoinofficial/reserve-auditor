@@ -36,7 +36,6 @@ export default function CopyableField({
       ) : (
         <Typography sx={{ marginRight: 1 }}>{renderedText}</Typography>
       )}
-
       {copy && (
         <Tooltip title="Copy to clipboard">
           <IconButton onClick={copyToClipboard} edge="start" size="small">
@@ -51,10 +50,9 @@ export default function CopyableField({
           </IconButton>
         </Tooltip>
       )}
-
       {link && (
         <Tooltip title="View in new tab">
-          <Link href={link} target="_blank" rel="noreferrer">
+          <Link href={link} target="_blank" rel="noreferrer" underline="hover">
             <IconButton
               onClick={(e) => e.stopPropagation()}
               edge="start"
@@ -73,5 +71,5 @@ export default function CopyableField({
         </Tooltip>
       )}
     </Box>
-  )
+  );
 }

@@ -77,7 +77,7 @@ jobs:
       with:
         action: helm-publish-oci
         chart_app_version: ${{ github.ref_name }}
-        chart_path: .internal-ci/helm/${{ env.REPO_NAME }}
+        chart_path: .internal-ci/charts/${{ env.REPO_NAME }}
         chart_repo: ${{ env.CHART_REPO }}
         chart_repo_password: ${{ github.token }}
         chart_repo_username: ${{ github.actor }}
@@ -115,7 +115,7 @@ jobs:
         namespace: reserve-auditor-staging
         release_name: ${{ matrix.target.chain }}net-${{ env.REPO_NAME }}
         chart_name: ${{ env.REPO_NAME }}
-        chart_values: .internal-ci/helm/${{ env.REPO_NAME }}/${{ matrix.target.chain }}net-values.yaml
+        chart_values: .internal-ci/charts/${{ env.REPO_NAME }}/${{ matrix.target.chain }}net-values.yaml
         chart_set: |
           --set=mobilecoind.image.tag=${{ github.ref_name }}-${{ matrix.target.chain }}net
           --set=ingress.host=auditor.stage.${{ matrix.target.chain }}.mobilecoin.com

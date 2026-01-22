@@ -4,8 +4,7 @@ env:
   DOCKERHUB_ORG: mobilecoin
   REPO_NAME: reserve-auditor
   TARGET_CLUSTER: utility-r1-g-k8s
-  CHART_REPO: https://harbor.mobilecoin.com/chartrepo/mobilecoinfoundation-public
-  CHART_PATH: ./.internal-ci/charts/reserve-auditor
+  CHART_REPO: ghcr.io/mobilecoinofficial/charts
 
 on:
   workflow_dispatch: {}
@@ -32,15 +31,17 @@ jobs:
     - name: Deploys ${{ matrix.target }} release
       uses: mobilecoinofficial/gha-k8s-toolbox@v1
       with:
-        action: helm-deploy
-        rancher_cluster: ${{ env.TARGET_CLUSTER }}
+        action: helm-deploy-oci
         namespace: ${{ matrix.target }}-reserve-auditor
-        release_name: ${{ matrix.target }}-${{ env.REPO_NAME }}
-        rancher_url: ${{ secrets.RANCHER_C_URL }}
-        rancher_token: ${{ secrets.RANCHER_C_TOKEN }}
-        chart_repo: ${{ env.CHART_REPO }}
-        chart_name: ${{ env.REPO_NAME}}
-        chart_version: ${{ github.ref_name }}
-        chart_values: ${{ env.CHART_PATH }}/${{ matrix.target }}-values.yaml
+        release_name: ${{ matrix.target }}net-${{ env.REPO_NAME }}
+        chart_name: ${{ env.REPO_NAME }}
+        chart_values: .internal-ci/helm//${{ matrix.target }}-values.yaml
         chart_set: |
           --set=mobilecoind.image.tag=${{ github.ref_name }}-${{ matrix.target }}
+        chart_version: ${{ github.ref_name }}
+        chart_repo: ${{ env.CHART_REPO }}
+        chart_repo_username: ${{ github.actor }}
+        chart_repo_password: ${{ github.token }}
+        rancher_cluster: ${{ env.TARGET_CLUSTER }}
+        rancher_url: ${{ secrets.RANCHER_C_URL }}
+        rancher_token: ${{ secrets.RANCHER_C_TOKEN }}

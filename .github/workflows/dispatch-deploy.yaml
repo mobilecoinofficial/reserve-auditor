@@ -35,7 +35,7 @@ jobs:
         namespace: ${{ matrix.target }}-reserve-auditor
         release_name: ${{ matrix.target }}net-${{ env.REPO_NAME }}
         chart_name: ${{ env.REPO_NAME }}
-        chart_values: .internal-ci/charts/${{ matrix.target }}-values.yaml
+        chart_values: .internal-ci/charts/${{ env.REPO_NAME }}/${{ matrix.target }}-values.yaml
         chart_set: |
           --set=mobilecoind.image.tag=${{ github.ref_name }}-${{ matrix.target }}
         chart_version: ${{ github.ref_name }}

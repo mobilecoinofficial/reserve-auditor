@@ -28,12 +28,12 @@ jobs:
         rancher_url: ${{ secrets.RANCHER_C_URL }}
         rancher_token: ${{ secrets.RANCHER_C_TOKEN }}
 
-    - name: Deploys ${{ matrix.target.chain }}net release
+    - name: Deploys ${{ matrix.target }} release
       uses: mobilecoinofficial/gha-k8s-toolbox@v1
       with:
         action: helm-deploy-oci
-        namespace: reserve-auditor-staging
-        release_name: ${{ matrix.target.chain }}net-${{ env.REPO_NAME }}
+        namespace: ${{ matrix.target }}-reserve-auditor
+        release_name: ${{ matrix.target }}net-${{ env.REPO_NAME }}
         chart_name: ${{ env.REPO_NAME }}
         chart_values: .internal-ci/helm//${{ matrix.target }}-values.yaml
         chart_set: |

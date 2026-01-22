@@ -36,8 +36,8 @@ jobs:
     strategy:
       matrix:
         versions:
-        - {mobilecoind: v7.1.0-test, prefix: testnet, network: test}
-        - {mobilecoind: v7.1.0-main, prefix: mainnet, network: prod}
+        - {mobilecoind: v6.0.1-test, prefix: testnet, network: test}
+        - {mobilecoind: v6.0.1, prefix: mainnet, network: prod}
 
     name: Build-backend
     runs-on: mco-dev-large-x64

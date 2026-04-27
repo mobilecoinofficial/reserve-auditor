@@ -3,7 +3,7 @@ name: build and deploy staging
 env:
   DOCKERHUB_ORG: mobilecoin
   REPO_NAME: reserve-auditor
-  TARGET_CLUSTER: utility-r1-g-k8s
+  TARGET_CLUSTER: ${{ vars.RANCHER_CLUSTER }}
   CHART_REPO: ghcr.io/mobilecoinofficial/charts
 
 on:

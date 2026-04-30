@@ -64,7 +64,7 @@ persistence:
     - ReadWriteOnce
     resources:
       requests:
-        storage: 128Gi
+        storage: 512Gi
     storageClassName: fast
     volumeMode: Filesystem
 

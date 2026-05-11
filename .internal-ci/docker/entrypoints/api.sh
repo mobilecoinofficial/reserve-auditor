@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 data="/data"
 
 # Check for Existing datafiles in the old locations, and move them to the more standard locations

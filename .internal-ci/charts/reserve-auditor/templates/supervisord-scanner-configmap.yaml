@@ -10,8 +10,8 @@ data:
     priority=100
 
     command=/usr/local/bin/mc-reserve-auditor scan-ledger 
-    	--ledger-db /data/ledger/ledger.db 
-    	--watcher-db /data/watcher/watcher-db
+    	--ledger-db /data/ledger
+    	--watcher-db /data/watcher
     	--reserve-auditor-db /data/auditor/auditor.db
     	--gnosis-safe-config /config/gnosis/config.json
 

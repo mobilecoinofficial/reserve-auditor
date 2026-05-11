@@ -48,7 +48,7 @@ jobs:
     - name: Docker
       uses: mobilecoinofficial/gh-actions/docker@v0
       with:
-        dockerfile: Dockerfile
+        dockerfile: .internal-ci/docker/Dockerfile.api
         images: mobilecoin/reserve-auditor
         build_args: |
           MOBILECOIND_BASE_TAG=${{ matrix.versions.mobilecoind }}

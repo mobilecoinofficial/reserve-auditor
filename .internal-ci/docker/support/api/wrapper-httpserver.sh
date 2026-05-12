@@ -5,14 +5,14 @@
 
 # First wait for the file to be created (should be created before anything starts)
 while test ! -f /data/auditor/auditor.db
-do 
+do
     echo "Wating for scanner to create /data/auditor/auditor.db"
     sleep 2
 done
 
 # Now wait for it to be a non-empty file. SQLite DB will be non-empty once created.
 while test ! -s /data/auditor/auditor.db
-do 
+do
     echo "Waiting for scanner to create SQLite database in /data/auditor/auditor.db"
     sleep 2
 done

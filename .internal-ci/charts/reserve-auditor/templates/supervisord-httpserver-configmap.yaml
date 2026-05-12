@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "reserve-auditor.labels" . | nindent 4 }}
 data:
-  ledger_scanner.conf: |
+  httpserver.conf: |
     [program:httpserver]
     priority=50
 

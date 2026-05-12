@@ -28,24 +28,31 @@ spec:
         securityContext: {}
         image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
         imagePullPolicy: Always
+        env:
+        - name: MC_LEDGER_DB_URL
+          value: "{{ .ledgerDownloadUrl }}"
+        - name: MC_WATCHER_DB_URL
+          value: "{{ .watcherDownloadUrl }}"
         ports:
         - name: mobilecoind-rpc
           containerPort: 3229
         - name: http
           containerPort: 8080
           protocol: TCP
+        # Need long startup probe to account for a full ledger download from empty
+        startupProbe:
+          grpc:
+            port: 3229
+          failureThreshold: 1800
+          periodSeconds: 10
         livenessProbe:
-          exec:
-            command:
-            - "/usr/local/bin/grpc_health_probe"
-            - "-addr=:3229"
+          grpc:
+            port: 3229
           failureThreshold: 3
           periodSeconds: 30
         readinessProbe:
-          exec:
-            command:
-            - "/usr/local/bin/grpc_health_probe"
-            - "-addr=:3229"
+          grpc:
+            port: 3229
           failureThreshold: 4
           periodSeconds: 30
         volumeMounts:

@@ -26,4 +26,7 @@ COPY --from=builder /build/target/release/mc-reserve-auditor /usr/local/bin/mc-r
 COPY --from=builder /build/consensus-enclave.css /measurement/consensus-enclave.css
 COPY --from=mobilecoind /usr/bin/mobilecoind /usr/bin/mobilecoind
 
+COPY .internal-ci/docker/support/api/wrapper-httpserver.sh /usr/local/bin/wrapper-httpserver.sh
+COPY .internal-ci/docker/entrypoints/api.sh /usr/bin/entrypoint.sh
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-n"]

@@ -28,6 +28,11 @@ spec:
         securityContext: {}
         image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
         imagePullPolicy: Always
+        env:
+        - name: MC_LEDGER_DB_URL
+          value: "{{ .ledgerDownloadUrl }}"
+        - name: MC_WATCHER_DB_URL
+          value: "{{ .watcherDownloadUrl }}"
         ports:
         - name: mobilecoind-rpc
           containerPort: 3229

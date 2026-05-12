@@ -12,6 +12,8 @@ mobilecoind:
       cpu: 100m
       memory: 65Mi
   peers: []
+  ledgerDownloadUrl: ""
+  watcherDownloadUrl: ""
 
 ledgerScanner:
   image:

@@ -39,18 +39,20 @@ spec:
         - name: http
           containerPort: 8080
           protocol: TCP
+        # Need long startup probe to account for a full ledger download from empty
+        startupProbe:
+          grpc:
+            port: 3229
+          failureThreshold: 1800
+          periodSeconds: 10
         livenessProbe:
-          exec:
-            command:
-            - "/usr/local/bin/grpc_health_probe"
-            - "-addr=:3229"
+          grpc:
+            port: 3229
           failureThreshold: 3
           periodSeconds: 30
         readinessProbe:
-          exec:
-            command:
-            - "/usr/local/bin/grpc_health_probe"
-            - "-addr=:3229"
+          grpc:
+            port: 3229
           failureThreshold: 4
           periodSeconds: 30
         volumeMounts:

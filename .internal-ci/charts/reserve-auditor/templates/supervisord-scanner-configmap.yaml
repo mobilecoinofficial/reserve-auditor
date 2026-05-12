@@ -10,10 +10,10 @@ data:
     priority=100
 
     command=/usr/local/bin/mc-reserve-auditor scan-ledger 
-    	--ledger-db /data/ledger
-    	--watcher-db /data/watcher
-    	--reserve-auditor-db /data/auditor/auditor.db
-    	--gnosis-safe-config /config/gnosis/config.json
+      --ledger-db /data/ledger
+      --watcher-db /data/watcher
+      --reserve-auditor-db /data/auditor/auditor.db
+      --gnosis-safe-config /config/gnosis/config.json
 
     stdout_logfile=/dev/stdout
     stdout_logfile_maxbytes=0

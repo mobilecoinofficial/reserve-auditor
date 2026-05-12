@@ -22,48 +22,18 @@ spec:
     spec:
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
-      securityContext: {}
-      volumes:
-      - name: gnosis-config
-        configMap:
-          name: {{ include "reserve-auditor.fullname" . }}-gnosis
-      - name: supervisor-conf
-        projected:
-          sources:
-          - configMap:
-              name: {{ include "reserve-auditor.fullname" . }}-mobilecoind
-          - configMap:
-              name: {{ include "reserve-auditor.fullname" . }}-scanner
-      {{- if not .Values.persistence.enabled }}
-      - name: data
-        emptyDir: {}
-      {{- end }}
-      initContainers:
-      - name: setup-files
-        {{- with .Values.mobilecoind }}
-        image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
-        {{-  end }}
-        command:
-        - /bin/bash
-        - -ec
-        - |
-          mkdir -p /data/auditor/
-          touch /data/auditor/auditor.db
-        volumeMounts:
-        - name: data
-          mountPath: /data/
       containers:
       {{- with .Values.mobilecoind }}
       - name: mobilecoind-ledger-scanner
         securityContext: {}
         image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
         imagePullPolicy: Always
-        command:
-        - /usr/bin/supervisord
-        - -n
         ports:
         - name: mobilecoind-rpc
           containerPort: 3229
+        - name: http
+          containerPort: 8080
+          protocol: TCP
         livenessProbe:
           exec:
             command:
@@ -93,50 +63,24 @@ spec:
         resources:
           {{- toYaml .resources | nindent 12 }}
       {{- end }}
-      - name: http-server
-        command:
-        - /bin/bash
-        - -ec
-        - |
-          until test -f /data/auditor/auditor.db; do
-            sleep 3
-            echo 'waiting for auditor db'
-          done
-          /usr/local/bin/mc-reserve-auditor \
-            start-http-server \
-            --host 0.0.0.0 \
-            --reserve-auditor-db /data/auditor/auditor.db \
-            --gnosis-safe-config /config/gnosis/config.json
-        volumeMounts:
-        - name: gnosis-config
-          mountPath: /config/gnosis
-        - name: data
-          mountPath: /data/
-        securityContext: {}
-        {{- with .Values.mobilecoind }}
-        image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
-        {{- end }}
-        imagePullPolicy: Always
-        ports:
-        - name: http
-          containerPort: 8080
-          protocol: TCP
-        livenessProbe:
-          httpGet:
-            path: /
-            port: http
-          failureThreshold: 2
-          periodSeconds: 15
-          initialDelaySeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /
-            port: http
-          failureThreshold: 2
-          periodSeconds: 15
-          initialDelaySeconds: 30
-        resources:
-          {{- toYaml .Values.httpServer.resources | nindent 12 }}
+      securityContext: {}
+      volumes:
+      - name: gnosis-config
+        configMap:
+          name: {{ include "reserve-auditor.fullname" . }}-gnosis
+      - name: supervisor-conf
+        projected:
+          sources:
+          - configMap:
+              name: {{ include "reserve-auditor.fullname" . }}-mobilecoind
+          - configMap:
+              name: {{ include "reserve-auditor.fullname" . }}-scanner
+          - configMap:
+              name: {{ include "reserve-auditor.fullname" . }}-httpserver
+      {{- if not .Values.persistence.enabled }}
+      - name: data
+        emptyDir: {}
+      {{- end }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       affinity:

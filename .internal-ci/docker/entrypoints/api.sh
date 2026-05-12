@@ -59,5 +59,9 @@ then
     fi
 fi
 
+# Touch the auditor.db just to make sure it exists
+mkdir -p /data/auditor
+touch /data/auditor/auditor.db
+
 # Run with docker command - probably /usr/bin/supervisord
 exec "$@"

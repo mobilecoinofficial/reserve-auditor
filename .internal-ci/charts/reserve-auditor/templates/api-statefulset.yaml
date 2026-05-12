@@ -33,6 +33,10 @@ spec:
           value: "{{ .ledgerDownloadUrl }}"
         - name: MC_WATCHER_DB_URL
           value: "{{ .watcherDownloadUrl }}"
+        - name: "RUST_BACKTRACE"
+          value: "full"
+        - name: "RUST_LOG"
+          value: "info,rustls=warn,hyper=warn,tokio_reactor=warn,mio=warn,want=warn,reqwest=warn,rusoto_core=error,rusoto_signature=error,h2=error"
         ports:
         - name: mobilecoind-rpc
           containerPort: 3229
@@ -62,11 +66,6 @@ spec:
           mountPath: /etc/supervisor/conf.d
         - name: gnosis-config
           mountPath: /config/gnosis
-        env:
-        - name: "RUST_BACKTRACE"
-          value: "full"
-        - name: "RUST_LOG"
-          value: "info,rustls=warn,hyper=warn,tokio_reactor=warn,mio=warn,want=warn,reqwest=warn,rusoto_core=error,rusoto_signature=error,h2=error"
         resources:
           {{- toYaml .resources | nindent 12 }}
       {{- end }}

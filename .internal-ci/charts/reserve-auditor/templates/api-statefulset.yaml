@@ -29,7 +29,7 @@ spec:
         - /bin/bash
         - -ec
         - |
-          if [[ -n ${AZURE_STORAGE_CONNECTION_STRING}]]
+          if [[ -n "${AZURE_STORAGE_CONNECTION_STRING}" ]]
           then
             if [[ ! -f /data/ledger/data.mdb ]]
             then
@@ -39,8 +39,8 @@ spec:
               then
                 ls -l /data/tmp-ledger/data.mdb
                 md5sum /data/tmp-ledger/data.mdb
-                mkdir -p "/data/ledger"
-                mv /data/tmp-ledger/data.mdb "/data/ledger/data.mdb"
+                mkdir -p /data/ledger
+                mv /data/tmp-ledger/data.mdb /data/ledger/data.mdb
               fi
             else
               echo "/data/ledger/data.mdb exists"
@@ -48,14 +48,14 @@ spec:
 
             if [[ ! -f /data/watcher/data.mdb ]]
             then
-              echo "Downloading watcher database..."
+              echo "$(date) Downloading watcher database..."
               mkdir -p /data/tmp-watcher
               if az storage blob download -f /data/tmp-watcher/data.mdb -c {{ .Values.mobilecoind.chainId }} -n mcd/watcher/data.mdb --overwrite
               then
                 ls -l /data/tmp-watcher/data.mdb
                 md5sum /data/tmp-watcher/data.mdb
-                mkdir -p "/data/watcher"
-                mv /data/tmp-watcher/data.mdb "/data/watcher/data.mdb"
+                mkdir -p /data/watcher
+                mv /data/tmp-watcher/data.mdb /data/watcher/data.mdb
               fi
             else
               echo "/data/watcher/data.mdb exists"

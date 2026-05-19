@@ -22,6 +22,52 @@ spec:
     spec:
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      initContainers:
+      - name: setup-files
+        image: mobilecoin/gha-azure-helper:latest
+        command:
+        - /bin/bash
+        - -ec
+        - |
+          if [[ -n ${AZURE_STORAGE_CONNECTION_STRING}]]
+          then
+            if [[ ! -f /data/ledger/data.mdb ]]
+            then
+              echo "$(date) Downloading ledger database..."
+              mkdir -p /data/tmp-ledger
+              if az storage blob download -f /data/tmp-ledger/data.mdb -c {{ .Values.mobilecoind.chainId }} -n mcd/ledger/data.mdb --overwrite
+              then
+                ls -l /data/tmp-ledger/data.mdb
+                md5sum /data/tmp-ledger/data.mdb
+                mkdir -p "/data/ledger"
+                mv /data/tmp-ledger/data.mdb "/data/ledger/data.mdb"
+              fi
+            else
+              echo "/data/ledger/data.mdb exists"
+            fi
+
+            if [[ ! -f /data/watcher/data.mdb ]]
+            then
+              echo "Downloading watcher database..."
+              mkdir -p /data/tmp-watcher
+              if az storage blob download -f /data/tmp-watcher/data.mdb -c {{ .Values.mobilecoind.chainId }} -n mcd/watcher/data.mdb --overwrite
+              then
+                ls -l /data/tmp-watcher/data.mdb
+                md5sum /data/tmp-watcher/data.mdb
+                mkdir -p "/data/watcher"
+                mv /data/tmp-watcher/data.mdb "/data/watcher/data.mdb"
+              fi
+            else
+              echo "/data/watcher/data.mdb exists"
+            fi
+          fi
+        envFrom:
+        - secretRef:
+            name: {{ .Values.mobilecoind.azureConnectStringSecretName }}
+            optional: true
+        volumeMounts:
+        - name: data
+          mountPath: /data/
       containers:
       {{- with .Values.mobilecoind }}
       - name: mobilecoind-ledger-scanner

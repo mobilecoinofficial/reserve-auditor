@@ -1,14 +1,13 @@
 # Override values for mainnet
 
 mobilecoind:
-  image:
-    tag: ""
   chainID: main
   threshold: 7
   listenURI: insecure-mobilecoind://0.0.0.0:3229/
   pollInterval: 1
   ledgerDownloadUrl: "https://mcdeveu1ledger.blob.core.windows.net/main/mcd/ledger/data.mdb"
   watcherDownloadUrl: "https://mcdeveu1ledger.blob.core.windows.net/main/mcd/watcher/data.mdb"
+  azureConnectStringSecretName: "mainnet-azure-connection-string"
   peers:
   - url: 'mc://node1.prod.mobilecoinww.com:443/'
     txSource: 'https://ledger.mobilecoinww.com/node1.prod.mobilecoinww.com/'

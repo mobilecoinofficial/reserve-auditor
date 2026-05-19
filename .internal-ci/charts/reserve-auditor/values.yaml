@@ -14,24 +14,7 @@ mobilecoind:
   peers: []
   ledgerDownloadUrl: ""
   watcherDownloadUrl: ""
-
-ledgerScanner:
-  image:
-    repository: mobilecoin/reserve-auditor
-    tag: ""
-  resources:
-    requests:
-      cpu: 100m
-      memory: 65Mi
-
-httpServer:
-  image:
-    repository: mobilecoin/reserve-auditor
-    tag: ""
-  resources:
-    requests:
-      cpu: 100m
-      memory: 65Mi
+  azureConnectStringSecretName: ""
 
 frontend:
   image:

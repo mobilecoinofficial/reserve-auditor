@@ -1,14 +1,13 @@
 # Override values for testnet
 #
 mobilecoind:
-  image:
-    tag: ""
   chainID: test
   threshold: 3
   listenURI: insecure-mobilecoind://0.0.0.0:3229/
   pollInterval: 1
   ledgerDownloadUrl: "https://mcdeveu1ledger.blob.core.windows.net/test/mcd/ledger/data.mdb"
   watcherDownloadUrl: "https://mcdeveu1ledger.blob.core.windows.net/test/mcd/watcher/data.mdb"
+  azureConnectStringSecretName: "testnet-azure-connection-string"
   peers:
   - url: 'mc://node1.test.mobilecoin.com:443/'
     txSource: 'https://s3-us-west-1.amazonaws.com/mobilecoin.chain/node1.test.mobilecoin.com/'

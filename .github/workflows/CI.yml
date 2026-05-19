@@ -3,11 +3,7 @@ name: Reserve Auditor CI
 on:
   pull_request:
   push:
-    branches:
-      - master
-      - main
-      - develop
-  workflow_dispatch:
+    branches: [main]
 
 env:
   CARGO_TERM_COLOR: always

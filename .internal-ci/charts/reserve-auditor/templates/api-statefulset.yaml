@@ -23,7 +23,7 @@ spec:
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       initContainers:
-      - name: setup-files
+      - name: download-databases
         image: mobilecoin/gha-azure-helper:latest
         command:
         - /bin/bash
@@ -35,7 +35,7 @@ spec:
             then
               echo "$(date) Downloading ledger database..."
               mkdir -p /data/tmp-ledger
-              if az storage blob download -f /data/tmp-ledger/data.mdb -c {{ .Values.mobilecoind.chainId }} -n mcd/ledger/data.mdb --overwrite
+              if az storage blob download -f /data/tmp-ledger/data.mdb -c {{ .Values.mobilecoind.chainID }} -n mcd/ledger/data.mdb --overwrite
               then
                 ls -l /data/tmp-ledger/data.mdb
                 md5sum /data/tmp-ledger/data.mdb
@@ -50,7 +50,7 @@ spec:
             then
               echo "$(date) Downloading watcher database..."
               mkdir -p /data/tmp-watcher
-              if az storage blob download -f /data/tmp-watcher/data.mdb -c {{ .Values.mobilecoind.chainId }} -n mcd/watcher/data.mdb --overwrite
+              if az storage blob download -f /data/tmp-watcher/data.mdb -c {{ .Values.mobilecoind.chainID }} -n mcd/watcher/data.mdb --overwrite
               then
                 ls -l /data/tmp-watcher/data.mdb
                 md5sum /data/tmp-watcher/data.mdb

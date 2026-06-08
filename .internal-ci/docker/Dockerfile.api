@@ -1,7 +1,7 @@
-ARG MOBILECOIND_BASE_TAG=v6.0.1-test
+ARG MOBILECOIND_BASE_TAG=v7.1.0-test
 FROM mobilecoin/mobilecoind:${MOBILECOIND_BASE_TAG} AS mobilecoind
 
-FROM mobilecoin/builder-install:v0.0.17 AS builder
+FROM mobilecoin/rust-sgx:v24.4.2 AS builder
 
 WORKDIR /build
 ARG NETWORK=test
@@ -18,7 +18,7 @@ ARG \
 COPY . .
 RUN cargo build -p mc-reserve-auditor --release
 
-FROM mobilecoin/runtime-base:sha-09062b2
+FROM mobilecoin/dcap-runtime-base:latest
 
 ENV CONSENSUS_ENCLAVE_CSS=/measurement/consensus-enclave.css
 

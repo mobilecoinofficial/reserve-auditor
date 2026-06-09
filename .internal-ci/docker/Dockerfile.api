@@ -1,12 +1,12 @@
 ARG MOBILECOIND_BASE_TAG=v7.1.0-test
 FROM mobilecoin/mobilecoind:${MOBILECOIND_BASE_TAG} AS mobilecoind
 
-FROM mobilecoin/builder-install:v0.0.17 AS builder
+FROM mobilecoin/fat-sgx-builder:v24.4.2 AS builder
 
 WORKDIR /build
 ARG NETWORK=test
 
-RUN CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mobilecoin.com/production-v7.1.0.json | jq .consensus.sigstruct | tr -d \") && curl -O "https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_SIGSTRUCT_URI}"
+RUN CONSENSUS_SIGSTRUCT_URI=$(curl -s https://enclave-distribution.${NETWORK}.mobilecoin.com/production-v7.0.0.json | jq .consensus.sigstruct | tr -d \") && curl -O "https://enclave-distribution.${NETWORK}.mobilecoin.com/${CONSENSUS_SIGSTRUCT_URI}"
 
 ARG \
   RUST_BACKTRACE=1 \
@@ -18,7 +18,7 @@ ARG \
 COPY . .
 RUN cargo build -p mc-reserve-auditor --release
 
-FROM mobilecoin/runtime-base:sha-09062b2
+FROM mobilecoin/dcap-runtime-base:latest
 
 ENV CONSENSUS_ENCLAVE_CSS=/measurement/consensus-enclave.css
 

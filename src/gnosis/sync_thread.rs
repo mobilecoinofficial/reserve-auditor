@@ -12,7 +12,6 @@ use std::{
         Arc,
     },
     thread::{sleep, spawn, JoinHandle},
-    time::Duration,
 };
 
 /// Background thread for periodically fetching data from the Gnosis API and
@@ -28,7 +27,6 @@ impl GnosisSyncThread {
     pub fn start(
         audited_safe: &AuditedSafeConfig,
         reserve_auditor_db: ReserveAuditorDb,
-        poll_interval: Duration,
         logger: Logger,
     ) -> Result<Self, Error> {
         let stop_requested = Arc::new(AtomicBool::new(false));
@@ -42,7 +40,6 @@ impl GnosisSyncThread {
                 thread_stop_requested,
                 thread_audited_safe,
                 reserve_auditor_db,
-                poll_interval,
                 thread_logger,
             )
         }));
@@ -76,10 +73,10 @@ fn thread_entry_point(
     stop_requested: Arc<AtomicBool>,
     audited_safe: AuditedSafeConfig,
     reserve_auditor_db: ReserveAuditorDb,
-    poll_interval: Duration,
     logger: Logger,
 ) {
     log::info!(logger, "GnosisFetcher thread started");
+    let poll_interval = audited_safe.poll_interval;
     let sync = GnosisSync::new(audited_safe, reserve_auditor_db, logger.clone())
         .expect("Failed creating sync object");
 

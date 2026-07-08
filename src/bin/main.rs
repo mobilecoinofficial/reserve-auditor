@@ -241,13 +241,8 @@ fn cmd_scan_ledger(
             .safes
             .iter()
             .map(|safe_config| {
-                GnosisSyncThread::start(
-                    safe_config,
-                    reserve_auditor_db.clone(),
-                    poll_interval,
-                    logger.clone(),
-                )
-                .expect("Failed starting gnosis safe fetcher thread")
+                GnosisSyncThread::start(safe_config, reserve_auditor_db.clone(), logger.clone())
+                    .expect("Failed starting gnosis safe fetcher thread")
             })
             .collect::<Vec<_>>()
     });

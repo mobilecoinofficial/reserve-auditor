@@ -536,6 +536,7 @@ mod test {
         let audited_safe_config = AuditedSafeConfig {
             safe_addr: EthAddr::from_str(SAFE_ADDR).unwrap(),
             api_url: Url::parse("http://unused:8545").unwrap(),
+            poll_interval: std::time::Duration::from_secs(1),
             token_decimals_max: 6,
             tokens: vec![AuditedToken {
                 token_id: TokenId::from(1),
@@ -681,6 +682,7 @@ mod test {
         let unknown_safe_audited_safe_config = AuditedSafeConfig {
             safe_addr: EthAddr::from_str("0x0000000000000000000000000000000000000000").unwrap(),
             api_url: Url::parse("http://unused:8545").unwrap(),
+            poll_interval: std::time::Duration::from_secs(1),
             token_decimals_max: 9,
             tokens: vec![AuditedToken {
                 token_id: TokenId::from(1),
@@ -701,6 +703,7 @@ mod test {
         let unknown_token_audited_safe_config = AuditedSafeConfig {
             safe_addr: EthAddr::from_str(SAFE_ADDR).unwrap(),
             api_url: Url::parse("http://unused:8545").unwrap(),
+            poll_interval: std::time::Duration::from_secs(1),
             token_decimals_max: 9,
             tokens: vec![
                 // Unknown token contract address

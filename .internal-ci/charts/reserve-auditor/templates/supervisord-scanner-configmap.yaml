@@ -14,7 +14,7 @@ data:
       --watcher-db /data/watcher
       --reserve-auditor-db /data/auditor/auditor.db
       --gnosis-safe-config /config/gnosis/config.json
-      --poll-interval 3600
+      --poll-interval 1
 
     stdout_logfile=/dev/stdout
     stdout_logfile_maxbytes=0

@@ -23,7 +23,8 @@ mobilecoind:
 gnosisConfig:
   safes:
   - safe_addr: "0x3F0aF8e39bF63f6Ca65d62f684acDCD7b6079E7f"
-    api_url: https://safe-transaction-sepolia.safe.global/
+    api_url: "https://api.safe.global/tx-service/sep/"
+    poll_interval: 3600
     token_decimals_max: 6
     tokens:
       - token_id: 1

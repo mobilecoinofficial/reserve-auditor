@@ -48,8 +48,8 @@ pub enum Command {
         reserve_auditor_db: PathBuf,
 
         /// How many seconds to wait between polling.
-        #[clap(long, default_value = "1", parse(try_from_str = parse_duration_in_seconds), env = "MC_POLL_INTERVAL")]
-        poll_interval: Duration,
+        #[clap(long, default_value = "1", parse(try_from_str = parse_duration_in_seconds), env = "MC_LEDGER_POLL_INTERVAL")]
+        ledger_poll_interval: Duration,
 
         /// Oprtional GRPC listen URI, to be used when API access is desired.
         #[clap(long, env = "MC_LISTEN_URI")]
@@ -123,7 +123,7 @@ async fn main() {
             ledger_db,
             watcher_db,
             reserve_auditor_db,
-            poll_interval,
+            ledger_poll_interval,
             listen_uri,
             admin_listen_uri,
             gnosis_safe_config,
@@ -131,7 +131,7 @@ async fn main() {
             ledger_db,
             watcher_db,
             reserve_auditor_db,
-            poll_interval,
+            ledger_poll_interval,
             listen_uri,
             admin_listen_uri,
             gnosis_safe_config,
@@ -170,7 +170,7 @@ fn cmd_scan_ledger(
     ledger_db_path: PathBuf,
     watcher_db_path: Option<PathBuf>,
     reserve_auditor_db_path: PathBuf,
-    poll_interval: Duration,
+    ledger_poll_interval: Duration,
     listen_uri: Option<ReserveAuditorUri>,
     admin_listen_uri: Option<AdminUri>,
     gnosis_safe_config: Option<GnosisSafeConfig>,
@@ -256,7 +256,7 @@ fn cmd_scan_ledger(
             &logger,
         )
         .expect("sync_loop failed");
-        sleep(poll_interval);
+        sleep(ledger_poll_interval);
     }
 }
 

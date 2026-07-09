@@ -5,7 +5,7 @@
 use super::{Error, EthAddr};
 use mc_transaction_core::TokenId;
 use serde::{Deserialize, Serialize};
-use std::{fs, path::Path};
+use std::{fs, path::Path, time::Duration};
 use url::Url;
 
 /// Configuration for a token we want to audit.
@@ -52,11 +52,34 @@ pub struct AuditedSafeConfig {
     /// The Gnosis safe transaction service API endpoint to sync from.
     pub api_url: Url,
 
+    /// How many seconds to wait between polling the Gnosis safe transaction API.
+    #[serde(with = "duration_seconds")]
+    pub poll_interval: Duration,
+
     /// The tokens we want to audit.
     pub tokens: Vec<AuditedToken>,
 
     /// The maximum permitted decimal precision, to prevent overflow integer representations.
     pub token_decimals_max: u8,
+}
+
+mod duration_seconds {
+    use serde::{Deserialize, Deserializer, Serializer};
+    use std::time::Duration;
+
+    pub fn serialize<S>(duration: &Duration, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_u64(duration.as_secs())
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Duration, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        Ok(Duration::from_secs(u64::deserialize(deserializer)?))
+    }
 }
 
 impl AuditedSafeConfig {
@@ -119,6 +142,7 @@ mod tests {
         [[safes]]
         safe_addr = "0x90213de428E9Ce4C77dD4943755Aa69cb2F803b7"
         api_url = "https://safe-api.example.com"
+        poll_interval = 1
         token_decimals_max = 9
 
         [[safes.tokens]]
@@ -149,6 +173,7 @@ mod tests {
             {
                 "safe_addr": "0x90213de428E9Ce4C77dD4943755Aa69cb2F803b7",
                 "api_url": "https://safe-api.example.com",
+                "poll_interval": 1,
                 "token_decimals_max": 9,
                 "tokens": [
                     {
@@ -192,6 +217,7 @@ mod tests {
                     safe_addr: EthAddr::from_str("0x90213de428E9Ce4C77dD4943755Aa69cb2F803b7")
                         .unwrap(),
                     api_url: Url::parse("https://safe-api.example.com").unwrap(),
+                    poll_interval: Duration::from_secs(1),
                     tokens: vec![
                         AuditedToken {
                             token_id: TokenId::from(1),

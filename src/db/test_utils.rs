@@ -39,6 +39,7 @@ pub fn test_gnosis_config() -> GnosisSafeConfig {
         safes: vec![AuditedSafeConfig {
             safe_addr: EthAddr::from_str(SAFE_ADDR).unwrap(),
             api_url: Url::parse("https://safe-api.example.com").unwrap(),
+            poll_interval: std::time::Duration::from_secs(1),
             token_decimals_max: 9,
             tokens: vec![AuditedToken {
                 token_id: TokenId::from(1),

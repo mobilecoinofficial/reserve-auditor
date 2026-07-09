@@ -39,7 +39,8 @@ mobilecoind:
 gnosisConfig:
   safes:
   - safe_addr: "0x30DA4EB397215cF407C46854CA7188f4e60F3402"
-    api_url: "https://safe-transaction-mainnet.safe.global/"
+    api_url: "https://api.safe.global/tx-service/eth/"
+    poll_interval: 3600
     tokens:
     - token_id: 1
       token_type: "ERC20_TRANSFER"

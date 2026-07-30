@@ -34,7 +34,7 @@ export default function BalanceSummary({
           copy={false}
           abbreviate={false}
           text="Assets in custody"
-          link={`https://app.safe.global/${safeAddressNet}:${gnosisSafeConfig?.safeAddr}/balances`}
+          link={`https://app.safe.global/balances?safe=${safeAddressNet}:${gnosisSafeConfig?.safeAddr}`}
         />
         <Box display="flex" sx={{ marginBottom: 6 }} alignItems="center">
           <EUSDIcon pxSize={36} />

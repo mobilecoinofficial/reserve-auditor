@@ -33,8 +33,8 @@ mobilecoind:
   - url: 'mc://ignite.mobilecoin.bdnodes.net:443/'
     txSource: 'https://bd-mobilecoin-ledger.s3.amazonaws.com/ignite.mobilecoin.bdnodes.net/'
 
-  - url: 'mc://ams1-mc-node1.dreamhost.com:3223/'
-    txSource: 'https://s3-eu-west-1.amazonaws.com/dh-mobilecoin-eu/ams1-mc-node1.dreamhost.com/'
+  - url: 'mc://iad1-mc-node2.dreamhost.com:3223'
+    txSource: 'https://s3-us-east-1.amazonaws.com/dh-mobilecoin/iad1-mc-node2.dreamhost.com/'
 
 gnosisConfig:
   safes:
